@@ -66,13 +66,13 @@ export function HeroSection() {
           <div className="flex items-center gap-3 flex-wrap mb-12">
             <button
               onClick={() => scrollTo('#contact')}
-              className="w-[160px] bg-gold text-[#080808] text-[15px] font-sans font-medium tracking-[0.04em] px-6 py-3 rounded-[4px] hover:opacity-90 transition-opacity cursor-pointer border-none"
+              className="w-[200px] bg-gold text-[#080808] text-[15px] font-sans font-medium tracking-[0.04em] px-6 py-3 rounded-[4px] hover:opacity-90 transition-opacity cursor-pointer border-none"
             >
               Talk to us →
             </button>
             <button
               onClick={() => scrollTo('#how')}
-              className="w-[160px] border border-[rgba(245,166,35,0.35)] text-[#9A9080] text-[15px] font-sans tracking-[0.03em] px-6 py-3 rounded-[4px] hover:border-[rgba(245,166,35,0.7)] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent"
+              className="w-[200px] border border-[rgba(245,166,35,0.35)] text-[#9A9080] text-[15px] font-sans tracking-[0.03em] px-6 py-3 rounded-[4px] hover:border-[rgba(245,166,35,0.7)] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent"
             >
               How it works ↓
             </button>
@@ -109,14 +109,13 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — arrow only, no text, no animation */}
       <button
         onClick={() => scrollTo('#what')}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 cursor-pointer bg-transparent border-none"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center cursor-pointer bg-transparent border-none"
         aria-label="Scroll down"
       >
-        <p className="text-[#6B6152] text-[10px] font-sans uppercase tracking-[0.15em]">Scroll</p>
-        <div className="w-8 h-8 rounded-full border border-[rgba(245,166,35,0.3)] flex items-center justify-center animate-bounce-scroll">
+        <div className="w-8 h-8 rounded-full border border-[rgba(245,166,35,0.3)] flex items-center justify-center hover:border-[rgba(245,166,35,0.6)] transition-colors">
           <ChevronDown size={14} className="text-gold" />
         </div>
       </button>
