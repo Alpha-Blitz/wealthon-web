@@ -320,6 +320,22 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
         </section>
 
+        {/* Cover image */}
+        {article.coverImage && (
+          <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-10">
+            <div className="rounded-[8px] overflow-hidden" style={{ border: '1px solid rgba(245,166,35,0.12)' }}>
+              <Image
+                src={article.coverImage}
+                alt={article.title}
+                width={760}
+                height={400}
+                className="w-full h-auto object-cover"
+                priority
+              />
+            </div>
+          </section>
+        )}
+
         {/* Article body */}
         <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-8">
           <style>{`

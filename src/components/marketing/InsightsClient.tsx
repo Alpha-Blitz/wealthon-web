@@ -96,7 +96,7 @@ export function InsightsClient({ featured, rest }: Props) {
           {filteredRest.map((article) => (
             <Link key={article.slug} href={`/insights/${article.slug}`}>
               <div
-                className="rounded-[8px] p-6 h-full flex flex-col hover:border-[rgba(245,166,35,0.4)] hover:-translate-y-0.5 transition-all duration-200 group"
+                className="rounded-[8px] overflow-hidden h-full flex flex-col hover:border-[rgba(245,166,35,0.4)] hover:-translate-y-0.5 transition-all duration-200 group"
                 style={{
                   background: '#111111',
                   border: '1px solid rgba(245,166,35,0.15)',
@@ -104,6 +104,18 @@ export function InsightsClient({ featured, rest }: Props) {
                   borderTopWidth: '2px',
                 }}
               >
+                {article.coverImage && (
+                  <div className="w-full h-[180px] overflow-hidden flex-shrink-0">
+                    <Image
+                      src={article.coverImage}
+                      alt={article.title}
+                      width={600}
+                      height={180}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <div className="p-6 flex flex-col flex-1">
                 <p className="text-[#6B6152] text-[10px] font-sans uppercase tracking-[0.1em] mb-3">
                   {article.category}
                 </p>
@@ -125,6 +137,7 @@ export function InsightsClient({ featured, rest }: Props) {
                     </div>
                   </div>
                   <ArrowRight size={14} className="text-gold opacity-50 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                </div>
                 </div>
               </div>
             </Link>

@@ -5,6 +5,7 @@ export interface Article {
   author: string
   authorInitials: string
   authorPhoto?: string
+  coverImage?: string
   date: string
   readTime: string
   featured?: boolean
@@ -32,6 +33,7 @@ export const articles: Article[] = [
     author: 'Prathik R.N.',
     authorInitials: 'PR',
     authorPhoto: '/pratik.jpeg',
+    coverImage: '/p1.png',
     date: '24 Apr 2025',
     readTime: '5 min read',
     excerpt:
@@ -44,6 +46,7 @@ export const articles: Article[] = [
     author: 'Sumanth Hegde',
     authorInitials: 'SH',
     authorPhoto: '/sumanth.jpeg',
+    coverImage: '/p2.png',
     date: '18 Apr 2025',
     readTime: '7 min read',
     excerpt:
