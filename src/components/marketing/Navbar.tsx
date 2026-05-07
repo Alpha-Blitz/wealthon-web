@@ -1,0 +1,131 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Menu, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const NAV_LINKS = [
+  { label: 'What We Do', href: '#what' },
+  { label: 'How It Works', href: '#how' },
+  { label: 'Who We Work With', href: '#who' },
+  { label: 'Insights', href: '/insights' },
+  { label: 'Contact', href: '#contact' },
+]
+
+export function Navbar() {
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 80)
+    handler()
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+
+  const scrollTo = (href: string) => {
+    setMenuOpen(false)
+    if (href.startsWith('#')) {
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  return (
+    <nav
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        scrolled
+          ? 'bg-[rgba(8,8,8,0.95)] backdrop-blur-[20px] border-b border-[rgba(245,166,35,0.1)]'
+          : 'bg-transparent'
+      )}
+    >
+      <div className="max-w-[1200px] mx-auto px-10 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex-shrink-0">
+          <Image
+            src="/navlogo.png"
+            alt="Wealthon Capital Ventures"
+            width={160}
+            height={36}
+            className="h-9 w-auto"
+            priority
+          />
+        </Link>
+
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-8">
+          {NAV_LINKS.map((link) =>
+            link.href.startsWith('/') ? (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-[#8A8070] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <button
+                key={link.label}
+                onClick={() => scrollTo(link.href)}
+                className="text-[#8A8070] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent border-none p-0"
+              >
+                {link.label}
+              </button>
+            )
+          )}
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={() => scrollTo('#contact')}
+          className="hidden md:block border border-gold text-gold text-[13px] font-sans tracking-[0.05em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
+        >
+          Apply to Partner →
+        </button>
+
+        {/* Hamburger */}
+        <button
+          className="md:hidden text-[#F0EDE6] p-1 cursor-pointer bg-transparent border-none"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-[rgba(8,8,8,0.98)] border-t border-[rgba(245,166,35,0.08)] px-6 pt-5 pb-7 flex flex-col gap-5">
+          {NAV_LINKS.map((link) =>
+            link.href.startsWith('/') ? (
+              <Link
+                key={link.label}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="text-[#F0EDE6] text-[15px] font-sans font-normal"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <button
+                key={link.label}
+                onClick={() => scrollTo(link.href)}
+                className="text-[#F0EDE6] text-[15px] font-sans font-normal text-left cursor-pointer bg-transparent border-none p-0"
+              >
+                {link.label}
+              </button>
+            )
+          )}
+          <button
+            onClick={() => scrollTo('#contact')}
+            className="mt-2 border border-gold text-gold text-sm px-6 py-3 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors w-full cursor-pointer bg-transparent"
+          >
+            Apply to Partner →
+          </button>
+        </div>
+      )}
+    </nav>
+  )
+}
