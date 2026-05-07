@@ -365,7 +365,7 @@ export default async function ArticlePage({ params }: PageProps) {
         </section>
 
         {/* Disclaimer */}
-        <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-24">
+        <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-10">
           <div
             className="rounded-[8px] p-5 flex items-start gap-3"
             style={{ border: '1px solid rgba(245,166,35,0.12)', background: 'rgba(245,166,35,0.02)' }}
@@ -377,6 +377,42 @@ export default async function ArticlePage({ params }: PageProps) {
               products. All partnerships are governed by signed agreements. Past performance does
               not guarantee future results. For informational purposes only.
             </p>
+          </div>
+        </section>
+
+        {/* End-of-article CTA */}
+        <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-24">
+          <div
+            className="rounded-[12px] p-8 lg:p-10 relative overflow-hidden text-center"
+            style={{
+              background: 'linear-gradient(160deg, rgba(245,166,35,0.08) 0%, rgba(245,166,35,0.03) 60%, transparent 100%)',
+              border: '1px solid rgba(245,166,35,0.3)',
+              boxShadow: '0 0 60px rgba(245,166,35,0.06)',
+            }}
+          >
+            {/* Glow */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(245,166,35,0.1) 0%, transparent 65%)' }}
+            />
+            <div className="relative z-10">
+              <p className="text-gold text-[11px] font-sans uppercase tracking-[0.2em] mb-3">
+                Capital Partnership
+              </p>
+              <h3 className="font-serif text-[26px] lg:text-[30px] font-semibold text-[#F0EDE6] leading-[1.2] mb-3">
+                Interested in working with us?
+              </h3>
+              <p className="text-[#9A9080] text-[14px] font-sans font-light leading-[1.7] max-w-[420px] mx-auto mb-7">
+                Every partnership starts with a conversation. No commitment, no pressure — just an
+                honest discussion about whether this makes sense for you.
+              </p>
+              <Link
+                href="/#contact"
+                className="inline-block bg-gold text-[#080808] text-[13px] font-sans font-medium tracking-[0.05em] px-8 py-3 rounded-[4px] hover:opacity-90 transition-opacity"
+              >
+                Start a conversation →
+              </Link>
+            </div>
           </div>
         </section>
       </main>

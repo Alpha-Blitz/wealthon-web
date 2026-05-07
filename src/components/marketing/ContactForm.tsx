@@ -53,9 +53,9 @@ export function ContactForm() {
           <div
             className="rounded-[12px] p-8 sm:p-10 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(160deg, rgba(245,166,35,0.05) 0%, rgba(245,166,35,0.02) 50%, transparent 100%)',
+              background: '#080808',
               border: '1px solid rgba(245,166,35,0.35)',
-              boxShadow: '0 0 40px rgba(245,166,35,0.07), inset 0 1px 0 rgba(245,166,35,0.15)',
+              boxShadow: '0 0 48px rgba(245,166,35,0.08), inset 0 1px 0 rgba(245,166,35,0.12)',
             }}
           >
             {/* Corner accent */}
@@ -151,7 +151,7 @@ export function ContactForm() {
 
         {/* Contact details — below form, horizontal row */}
         <div className="max-w-[520px] mx-auto mt-12 pt-10 fade-up" data-delay="160" style={{ borderTop: '1px solid rgba(245,166,35,0.12)' }}>
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
+          <div className="flex flex-col gap-5">
             <a href="mailto:hello@wealthonventures.com" className="flex items-center gap-3 group">
               <div
                 className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"

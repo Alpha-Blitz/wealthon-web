@@ -20,6 +20,7 @@ export const articles: Article[] = [
     author: 'Suhan S.K.',
     authorInitials: 'SK',
     authorPhoto: '/suhan.jpeg',
+    coverImage: '/p3.png',
     date: '02 May 2025',
     readTime: '6 min read',
     featured: true,
