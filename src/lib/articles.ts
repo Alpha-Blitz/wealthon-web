@@ -18,6 +18,7 @@ export const articles: Article[] = [
     category: 'Wealth Education',
     author: 'Suhan S.K.',
     authorInitials: 'SK',
+    authorPhoto: '/suhan.jpeg',
     date: '02 May 2025',
     readTime: '6 min read',
     featured: true,
@@ -42,6 +43,7 @@ export const articles: Article[] = [
     category: 'Trading Notes',
     author: 'Sumanth Hegde',
     authorInitials: 'SH',
+    authorPhoto: '/sumanth.jpeg',
     date: '18 Apr 2025',
     readTime: '7 min read',
     excerpt:

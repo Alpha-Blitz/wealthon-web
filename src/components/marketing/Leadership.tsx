@@ -3,7 +3,7 @@ import Image from 'next/image'
 const FOUNDERS = [
   {
     initials: 'SK',
-    photo: null,
+    photo: '/suhan.jpeg',
     name: 'Suhan S.K.',
     title: 'Co-Founder & Analyst',
     sub: 'Trading · Research · Portfolio Analysis',
@@ -21,7 +21,7 @@ const FOUNDERS = [
   },
   {
     initials: 'SH',
-    photo: null,
+    photo: '/sumanth.jpeg',
     name: 'Sumanth Hegde',
     title: 'Technical Head',
     sub: 'Technology · Systems · Digital Infrastructure',
