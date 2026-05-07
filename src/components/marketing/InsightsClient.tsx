@@ -105,13 +105,13 @@ export function InsightsClient({ featured, rest }: Props) {
                 }}
               >
                 {article.coverImage && (
-                  <div className="w-full h-[180px] overflow-hidden flex-shrink-0">
+                  <div className="w-full flex-shrink-0">
                     <Image
                       src={article.coverImage}
                       alt={article.title}
                       width={600}
-                      height={180}
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                      height={400}
+                      className="w-full h-auto group-hover:opacity-95 transition-opacity duration-300"
                     />
                   </div>
                 )}
