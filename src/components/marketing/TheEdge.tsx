@@ -42,7 +42,7 @@ const CARDS: EdgeCard[] = [
 
 export function TheEdge() {
   return (
-    <section className="bg-[#080808] py-[120px] lg:py-[60px] relative overflow-hidden">
+    <section className="bg-[#080808] py-[60px] lg:py-[120px] relative overflow-hidden">
       {/* Radial gold glow top-right */}
       <div
         className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none"
@@ -52,20 +52,20 @@ export function TheEdge() {
         }}
       />
 
-      <div className="max-w-[1200px] mx-auto px-10 md:px-5 relative z-10">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10 relative z-10">
         <p className="text-gold text-[11px] font-sans uppercase tracking-[0.2em] mb-3 fade-up" data-delay="0">
           The Edge
         </p>
-        <h2 className="font-serif text-[40px] md:text-[32px] font-semibold text-[#F0EDE6] leading-[1.2] mb-4 fade-up" data-delay="60">
+        <h2 className="font-serif text-[28px] md:text-[36px] lg:text-[40px] font-semibold text-[#F0EDE6] leading-[1.2] mb-4 fade-up" data-delay="60">
           Built on algorithms. Backed by data.
         </h2>
-        <p className="text-[#8A8070] text-base font-sans font-light max-w-[600px] mb-12 fade-up" data-delay="120">
+        <p className="text-[#9A9080] text-base font-sans font-light max-w-[600px] mb-12 fade-up" data-delay="120">
           Our trading approach is systematic and research-driven. We apply quantitative models
           and algorithmic strategies across every market we operate in, removing emotion from
           execution.
         </p>
 
-        <div className="grid grid-cols-3 md:grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {CARDS.map((card, i) => (
             <div
               key={card.title}
@@ -75,7 +75,7 @@ export function TheEdge() {
             >
               <card.icon size={20} className="text-gold mb-4" />
               <h3 className="font-serif text-[18px] text-[#F0EDE6] mb-2">{card.title}</h3>
-              <p className="text-[#8A8070] text-[13px] font-sans font-light leading-[1.7]">{card.body}</p>
+              <p className="text-[#9A9080] text-[13px] font-sans font-light leading-[1.7]">{card.body}</p>
             </div>
           ))}
         </div>

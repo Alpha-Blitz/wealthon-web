@@ -22,14 +22,14 @@ export default function InsightsPage() {
       <Navbar />
       <main className="bg-[#080808] min-h-screen">
         {/* Hero */}
-        <section className="pt-32 pb-16 max-w-[1200px] mx-auto px-10 md:px-5">
+        <section className="pt-32 pb-16 max-w-[1200px] mx-auto px-5 lg:px-10">
           <p className="text-gold text-[11px] font-sans uppercase tracking-[0.2em] mb-3">
             Insights
           </p>
-          <h1 className="font-serif text-[56px] md:text-[40px] font-bold text-[#F0EDE6] leading-[1.1] mb-4">
+          <h1 className="font-serif text-[40px] lg:text-[56px] font-bold text-[#F0EDE6] leading-[1.1] mb-4">
             Insights<span className="text-gold">.</span>
           </h1>
-          <p className="text-[#8A8070] text-base font-sans font-light max-w-[480px] mb-10">
+          <p className="text-[#9A9080] text-base font-sans font-light max-w-[480px] mb-10">
             Perspectives on trading, capital partnerships and wealth building from the
             Wealthon team.
           </p>
@@ -43,7 +43,7 @@ export default function InsightsPage() {
                 style={
                   cat === 'All'
                     ? { border: '1px solid #F5A623', color: '#F5A623' }
-                    : { border: '1px solid rgba(245,166,35,0.2)', color: '#8A8070' }
+                    : { border: '1px solid rgba(245,166,35,0.2)', color: '#9A9080' }
                 }
               >
                 {cat}
@@ -54,7 +54,7 @@ export default function InsightsPage() {
 
         {/* Featured article */}
         {featured && (
-          <section className="max-w-[1200px] mx-auto px-10 md:px-5 mb-12">
+          <section className="max-w-[1200px] mx-auto px-5 lg:px-10 mb-12">
             <Link href={`/insights/${featured.slug}`}>
               <div
                 className="rounded-[8px] p-10 md:p-6 hover:border-[rgba(245,166,35,0.4)] transition-all duration-200 group"
@@ -71,7 +71,7 @@ export default function InsightsPage() {
                   >
                     Featured
                   </span>
-                  <span className="text-[#4A4438] text-[11px] font-sans uppercase tracking-[0.08em]">
+                  <span className="text-[#6B6152] text-[11px] font-sans uppercase tracking-[0.08em]">
                     {featured.category}
                   </span>
                 </div>
@@ -79,7 +79,7 @@ export default function InsightsPage() {
                 <h2 className="font-serif text-[32px] md:text-[24px] text-[#F0EDE6] leading-[1.3] mb-4 max-w-[700px] group-hover:text-gold transition-colors">
                   {featured.title}
                 </h2>
-                <p className="text-[#8A8070] text-[15px] font-sans font-light leading-[1.7] max-w-[600px] mb-6">
+                <p className="text-[#9A9080] text-[15px] font-sans font-light leading-[1.7] max-w-[600px] mb-6">
                   {featured.excerpt}
                 </p>
 
@@ -89,7 +89,7 @@ export default function InsightsPage() {
                   </div>
                   <div>
                     <p className="text-[#F0EDE6] text-[13px] font-sans">{featured.author}</p>
-                    <p className="text-[#4A4438] text-[11px] font-sans">
+                    <p className="text-[#6B6152] text-[11px] font-sans">
                       {featured.date} · {featured.readTime}
                     </p>
                   </div>
@@ -100,8 +100,8 @@ export default function InsightsPage() {
         )}
 
         {/* Article grid */}
-        <section className="max-w-[1200px] mx-auto px-10 md:px-5 pb-24">
-          <div className="grid grid-cols-3 lg:grid-cols-1 md:grid-cols-1 gap-6">
+        <section className="max-w-[1200px] mx-auto px-5 lg:px-10 pb-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {rest.map((article) => (
               <Link key={article.slug} href={`/insights/${article.slug}`}>
                 <div
@@ -113,13 +113,13 @@ export default function InsightsPage() {
                     borderTopWidth: '2px',
                   }}
                 >
-                  <p className="text-[#4A4438] text-[10px] font-sans uppercase tracking-[0.1em] mb-3">
+                  <p className="text-[#6B6152] text-[10px] font-sans uppercase tracking-[0.1em] mb-3">
                     {article.category}
                   </p>
                   <h3 className="font-serif text-[20px] text-[#F0EDE6] leading-[1.3] mb-3 group-hover:text-gold transition-colors">
                     {article.title}
                   </h3>
-                  <p className="text-[#8A8070] text-[13px] font-sans font-light leading-[1.7] mb-6">
+                  <p className="text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] mb-6">
                     {article.excerpt}
                   </p>
 
@@ -129,7 +129,7 @@ export default function InsightsPage() {
                     </div>
                     <div>
                       <p className="text-[#F0EDE6] text-[12px] font-sans">{article.author}</p>
-                      <p className="text-[#4A4438] text-[10px] font-sans">
+                      <p className="text-[#6B6152] text-[10px] font-sans">
                         {article.date} · {article.readTime}
                       </p>
                     </div>

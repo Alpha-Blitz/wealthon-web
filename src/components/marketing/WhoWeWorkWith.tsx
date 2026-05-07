@@ -21,20 +21,20 @@ const TIERS = [
 
 export function WhoWeWorkWith() {
   return (
-    <section id="who" className="bg-[#0F0F0F] py-[120px] lg:py-[60px]">
-      <div className="max-w-[1200px] mx-auto px-10 md:px-5">
+    <section id="who" className="bg-[#0F0F0F] py-[60px] lg:py-[120px]">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10">
         <p className="text-gold text-[11px] font-sans uppercase tracking-[0.2em] mb-3 fade-up" data-delay="0">
           Our Partners
         </p>
-        <h2 className="font-serif text-[40px] md:text-[32px] font-semibold text-[#F0EDE6] leading-[1.2] mb-4 fade-up" data-delay="60">
+        <h2 className="font-serif text-[28px] md:text-[36px] lg:text-[40px] font-semibold text-[#F0EDE6] leading-[1.2] mb-4 fade-up" data-delay="60">
           Who we work with.
         </h2>
-        <p className="text-[#8A8070] text-base font-sans font-light mb-12 fade-up" data-delay="120">
+        <p className="text-[#9A9080] text-base font-sans font-light mb-12 fade-up" data-delay="120">
           We work with people, not portfolios.
         </p>
 
         {/* Audience cards */}
-        <div className="grid grid-cols-3 lg:grid-cols-1 gap-4 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
           {AUDIENCE.map((a, i) => (
             <div
               key={a.title}
@@ -47,7 +47,7 @@ export function WhoWeWorkWith() {
               }}
             >
               <h3 className="font-serif text-[20px] text-[#F0EDE6] mb-3">{a.title}</h3>
-              <p className="text-[#8A8070] text-[14px] font-sans font-light leading-[1.7]">{a.body}</p>
+              <p className="text-[#9A9080] text-[14px] font-sans font-light leading-[1.7]">{a.body}</p>
             </div>
           ))}
         </div>
@@ -58,7 +58,7 @@ export function WhoWeWorkWith() {
             <h3 className="font-serif text-[28px] text-[#F0EDE6] mb-1">
               Capital partnership tiers
             </h3>
-            <p className="text-[#8A8070] text-[14px] font-sans font-light">
+            <p className="text-[#9A9080] text-[14px] font-sans font-light">
               Entry is always through conversation first.
             </p>
           </div>
@@ -94,12 +94,12 @@ export function WhoWeWorkWith() {
               >
                 <p className="text-[#F0EDE6] text-[14px] font-sans font-semibold">{row.tier}</p>
                 <p className="text-[#F0EDE6] text-[14px] font-sans">{row.range}</p>
-                <p className="text-[#8A8070] text-[14px] font-sans font-light">{row.entry}</p>
+                <p className="text-[#9A9080] text-[14px] font-sans font-light">{row.entry}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-[#4A4438] text-[12px] font-sans font-light mt-3">
+          <p className="text-[#6B6152] text-[12px] font-sans font-light mt-3">
             All tiers require a signed agreement. No tier guarantees fixed returns.
           </p>
         </div>

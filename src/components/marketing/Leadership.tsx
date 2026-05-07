@@ -32,16 +32,16 @@ const FOUNDERS = [
 
 export function Leadership() {
   return (
-    <section className="bg-[#080808] py-[120px] lg:py-[60px]">
-      <div className="max-w-[1200px] mx-auto px-10 md:px-5">
+    <section className="bg-[#080808] py-[60px] lg:py-[120px]">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10">
         <p className="text-gold text-[11px] font-sans uppercase tracking-[0.2em] mb-3 fade-up" data-delay="0">
           Leadership
         </p>
-        <h2 className="font-serif text-[40px] md:text-[32px] font-semibold text-[#F0EDE6] leading-[1.2] mb-12 fade-up" data-delay="60">
+        <h2 className="font-serif text-[28px] md:text-[36px] lg:text-[40px] font-semibold text-[#F0EDE6] leading-[1.2] mb-12 fade-up" data-delay="60">
           The people behind Wealthon.
         </h2>
 
-        <div className="grid grid-cols-3 lg:grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {FOUNDERS.map((f, i) => (
             <div
               key={f.name}
@@ -77,11 +77,11 @@ export function Leadership() {
               {/* Name + role */}
               <h3 className="font-serif text-[22px] text-[#F0EDE6] mb-1">{f.name}</h3>
               <p className="text-gold text-[13px] font-sans font-light mb-1">{f.title}</p>
-              <p className="text-[#8A8070] text-[12px] font-sans font-light mb-5">{f.sub}</p>
+              <p className="text-[#9A9080] text-[12px] font-sans font-light mb-5">{f.sub}</p>
 
               {/* Quote */}
               <blockquote
-                className="pl-4 text-[#8A8070] text-[13px] font-sans font-light leading-[1.7] italic"
+                className="pl-4 text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] italic"
                 style={{ borderLeft: '2px solid #F5A623' }}
               >
                 "{f.quote}"

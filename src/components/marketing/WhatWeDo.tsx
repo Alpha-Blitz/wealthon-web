@@ -1,17 +1,8 @@
 import { TrendingUp, Layers, Handshake, MessageSquare, BarChart3, Building2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-interface ServiceCard {
-  icon: LucideIcon
-  title: string
-  body: string
-}
-
-interface ComingSoonCard {
-  icon: LucideIcon
-  title: string
-  sub: string
-}
+interface ServiceCard { icon: LucideIcon; title: string; body: string }
+interface ComingSoonCard { icon: LucideIcon; title: string; sub: string }
 
 const SERVICES: ServiceCard[] = [
   {
@@ -39,25 +30,25 @@ const COMING_SOON: ComingSoonCard[] = [
 
 export function WhatWeDo() {
   return (
-    <section id="what" className="bg-[#0F0F0F] py-[120px] lg:py-[60px]">
-      <div className="max-w-[1200px] mx-auto px-10 md:px-5">
+    <section id="what" className="bg-[#0F0F0F] py-[60px] lg:py-[120px]">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10">
         <p className="text-gold text-[11px] font-sans uppercase tracking-[0.2em] mb-3 fade-up" data-delay="0">
           Our Work
         </p>
-        <h2 className="font-serif text-[40px] md:text-[32px] font-semibold text-[#F0EDE6] leading-[1.2] mb-4 fade-up" data-delay="60">
+        <h2 className="font-serif text-[28px] md:text-[36px] lg:text-[40px] font-semibold text-[#F0EDE6] leading-[1.2] mb-4 fade-up" data-delay="60">
           What we do.
         </h2>
-        <p className="text-[#8A8070] text-base font-sans font-light max-w-[520px] mb-12 fade-up" data-delay="120">
+        <p className="text-[#9A9080] text-base font-sans font-light max-w-[520px] mb-12 fade-up" data-delay="120">
           We operate as a proprietary trading desk. Capital partners share in our performance,
           not in promises.
         </p>
 
-        {/* Active service cards */}
-        <div className="grid grid-cols-3 lg:grid-cols-1 gap-4 mb-4">
+        {/* 3-column active service cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {SERVICES.map((s, i) => (
             <div
               key={s.title}
-              className="bg-[#111111] rounded-[8px] p-6 hover:-translate-y-0.5 hover:border-[rgba(245,166,35,0.4)] transition-all duration-200 fade-up"
+              className="bg-[#111111] rounded-[8px] p-6 hover:-translate-y-0.5 transition-all duration-200 fade-up"
               data-delay={i * 80}
               style={{
                 border: '1px solid rgba(245,166,35,0.15)',
@@ -67,13 +58,13 @@ export function WhatWeDo() {
             >
               <s.icon size={22} className="text-gold mb-4" />
               <h3 className="font-serif text-[20px] text-[#F0EDE6] mb-3">{s.title}</h3>
-              <p className="text-[#8A8070] text-[14px] font-sans font-light leading-[1.7]">{s.body}</p>
+              <p className="text-[#9A9080] text-[14px] font-sans font-light leading-[1.7]">{s.body}</p>
             </div>
           ))}
         </div>
 
-        {/* Coming soon cards */}
-        <div className="grid grid-cols-3 lg:grid-cols-1 gap-4">
+        {/* 3-column coming-soon cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {COMING_SOON.map((s, i) => (
             <div
               key={s.title}
@@ -87,13 +78,13 @@ export function WhatWeDo() {
               }}
             >
               <div className="flex items-center justify-between mb-4">
-                <s.icon size={18} className="text-[#8A8070]" />
-                <span className="text-[10px] font-sans uppercase tracking-[0.1em] text-[#4A4438] border border-[rgba(245,166,35,0.15)] px-2.5 py-0.5 rounded-full">
+                <s.icon size={18} className="text-[#9A9080]" />
+                <span className="text-[10px] font-sans uppercase tracking-[0.1em] text-[#6B6152] border border-[rgba(245,166,35,0.15)] px-2.5 py-0.5 rounded-full">
                   Coming Soon
                 </span>
               </div>
-              <h3 className="font-serif text-[18px] text-[#8A8070] mb-1">{s.title}</h3>
-              <p className="text-[#4A4438] text-[13px] font-sans font-light">{s.sub}</p>
+              <h3 className="font-serif text-[18px] text-[#9A9080] mb-1">{s.title}</h3>
+              <p className="text-[#6B6152] text-[13px] font-sans font-light">{s.sub}</p>
             </div>
           ))}
         </div>

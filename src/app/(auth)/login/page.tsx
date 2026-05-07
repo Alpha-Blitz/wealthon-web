@@ -7,7 +7,7 @@ import { Eye, EyeOff, Shield } from 'lucide-react'
 
 const INPUT_STYLE = { borderBottom: '1px solid rgba(255,255,255,0.15)' }
 const INPUT_CLASS =
-  'w-full bg-transparent text-[#F0EDE6] text-[14px] font-sans font-light py-3 outline-none placeholder:text-[#4A4438]'
+  'w-full bg-transparent text-[#F0EDE6] text-[14px] font-sans font-light py-3 outline-none placeholder:text-[#6B6152]'
 
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false)
@@ -44,7 +44,7 @@ export default function LoginPage() {
             height={36}
             className="h-9 w-auto mb-4"
           />
-          <p className="text-[#4A4438] text-[13px] font-sans font-light italic">
+          <p className="text-[#6B6152] text-[13px] font-sans font-light italic">
             Where capital finds direction.
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function LoginPage() {
           <h1 className="font-serif text-[36px] font-bold text-[#F0EDE6] text-center mb-2">
             Welcome back.
           </h1>
-          <p className="text-[#8A8070] text-[14px] font-sans font-light text-center mb-8">
+          <p className="text-[#9A9080] text-[14px] font-sans font-light text-center mb-8">
             Sign in to access your partner dashboard.
           </p>
 
@@ -112,7 +112,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 text-[#4A4438] hover:text-[#8A8070] transition-colors cursor-pointer bg-transparent border-none"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-[#6B6152] hover:text-[#9A9080] transition-colors cursor-pointer bg-transparent border-none"
               >
                 {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -122,7 +122,7 @@ export default function LoginPage() {
             <div className="flex justify-end -mt-2">
               <button
                 type="button"
-                className="text-[#4A4438] text-[12px] font-sans hover:text-[#8A8070] transition-colors cursor-pointer bg-transparent border-none"
+                className="text-[#6B6152] text-[12px] font-sans hover:text-[#9A9080] transition-colors cursor-pointer bg-transparent border-none"
               >
                 Forgot password? →
               </button>
@@ -140,7 +140,7 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-[rgba(255,255,255,0.06)]" />
-            <p className="text-[#4A4438] text-[11px] font-sans">OR</p>
+            <p className="text-[#6B6152] text-[11px] font-sans">OR</p>
             <div className="flex-1 h-px bg-[rgba(255,255,255,0.06)]" />
           </div>
 
@@ -154,8 +154,8 @@ export default function LoginPage() {
 
           {/* Security footer */}
           <div className="flex items-start gap-2 mt-6">
-            <Shield size={13} className="text-[#4A4438] flex-shrink-0 mt-0.5" />
-            <p className="text-[#4A4438] text-[11px] font-sans font-light leading-[1.6]">
+            <Shield size={13} className="text-[#6B6152] flex-shrink-0 mt-0.5" />
+            <p className="text-[#6B6152] text-[11px] font-sans font-light leading-[1.6]">
               Secure access. All data is encrypted and protected with bank-grade security.
             </p>
           </div>

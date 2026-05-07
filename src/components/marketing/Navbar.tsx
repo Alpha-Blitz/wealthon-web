@@ -61,7 +61,7 @@ export function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-[#8A8070] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors"
+                className="text-[#9A9080] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors"
               >
                 {link.label}
               </Link>
@@ -69,7 +69,7 @@ export function Navbar() {
               <button
                 key={link.label}
                 onClick={() => scrollTo(link.href)}
-                className="text-[#8A8070] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent border-none p-0"
+                className="text-[#9A9080] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent border-none p-0"
               >
                 {link.label}
               </button>

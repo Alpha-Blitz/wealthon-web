@@ -259,7 +259,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <section className="pt-32 pb-12 max-w-[760px] mx-auto px-10 md:px-5">
           <Link
             href="/insights"
-            className="inline-flex items-center gap-2 text-[#8A8070] text-[13px] font-sans hover:text-gold transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-[#9A9080] text-[13px] font-sans hover:text-gold transition-colors mb-8"
           >
             <ArrowLeft size={14} />
             Back to Insights
@@ -271,7 +271,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <h1 className="font-serif text-[40px] md:text-[32px] font-semibold text-[#F0EDE6] leading-[1.2] mb-6">
             {article.title}
           </h1>
-          <p className="text-[#8A8070] text-base font-sans font-light leading-[1.7] mb-8">
+          <p className="text-[#9A9080] text-base font-sans font-light leading-[1.7] mb-8">
             {article.excerpt}
           </p>
 
@@ -282,7 +282,7 @@ export default async function ArticlePage({ params }: PageProps) {
             </div>
             <div>
               <p className="text-[#F0EDE6] text-[14px] font-sans">{article.author}</p>
-              <p className="text-[#4A4438] text-[12px] font-sans">
+              <p className="text-[#6B6152] text-[12px] font-sans">
                 {article.date} · {article.readTime}
               </p>
             </div>
@@ -293,7 +293,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <section className="max-w-[760px] mx-auto px-10 md:px-5 pb-8">
           <style>{`
             .prose-wealthon p {
-              color: #8A8070;
+              color: #9A9080;
               font-family: var(--font-inter);
               font-weight: 300;
               font-size: 16px;
@@ -323,8 +323,8 @@ export default async function ArticlePage({ params }: PageProps) {
             className="rounded-[8px] p-5 flex items-start gap-3"
             style={{ border: '1px solid rgba(245,166,35,0.12)', background: 'rgba(245,166,35,0.02)' }}
           >
-            <Shield size={15} className="text-[#4A4438] flex-shrink-0 mt-0.5" />
-            <p className="text-[#4A4438] text-[11px] font-sans font-light leading-[1.7]">
+            <Shield size={15} className="text-[#6B6152] flex-shrink-0 mt-0.5" />
+            <p className="text-[#6B6152] text-[11px] font-sans font-light leading-[1.7]">
               Wealthon Capital Ventures is a proprietary trading firm. Capital partnerships are
               profit-sharing arrangements and not fixed deposit schemes or guaranteed return
               products. All partnerships are governed by signed agreements. Past performance does
