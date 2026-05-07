@@ -48,9 +48,24 @@ export function ContactForm() {
           </p>
         </div>
 
-        {/* Form — centered, narrow */}
+        {/* Form — centered, narrow, gold card */}
         <div className="max-w-[520px] mx-auto fade-up" data-delay="80">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-7">
+          <div
+            className="rounded-[12px] p-8 sm:p-10 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(160deg, rgba(245,166,35,0.05) 0%, rgba(245,166,35,0.02) 50%, transparent 100%)',
+              border: '1px solid rgba(245,166,35,0.35)',
+              boxShadow: '0 0 40px rgba(245,166,35,0.07), inset 0 1px 0 rgba(245,166,35,0.15)',
+            }}
+          >
+            {/* Corner accent */}
+            <div
+              className="absolute top-0 right-0 w-24 h-24 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at top right, rgba(245,166,35,0.12) 0%, transparent 70%)',
+              }}
+            />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-7 relative z-10">
             {/* Name */}
             <div>
               <label className={LABEL_CLASS}>Your name</label>
@@ -131,6 +146,7 @@ export function ContactForm() {
               </p>
             </div>
           </form>
+          </div>
         </div>
 
         {/* Contact details — below form, horizontal row */}
