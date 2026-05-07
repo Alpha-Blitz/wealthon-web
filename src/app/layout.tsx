@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Inter } from 'next/font/google'
+import { Playfair_Display, Inter, DM_Serif_Display } from 'next/font/google'
 import { ScrollAnimationProvider } from '@/components/shared/ScrollAnimationProvider'
 import './globals.css'
 
@@ -14,6 +14,13 @@ const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
   weight: ['300', '400', '500'],
+  display: 'swap',
+})
+
+const dmSerif = DM_Serif_Display({
+  variable: '--font-dm-serif',
+  subsets: ['latin'],
+  weight: ['400'],
   display: 'swap',
 })
 
@@ -52,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} h-full`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable} ${dmSerif.variable} h-full`}>
       <body className="min-h-full flex flex-col">
         <ScrollAnimationProvider />
         {children}

@@ -137,7 +137,7 @@ export function ContactForm() {
             <div>
               <button
                 type="submit"
-                className="w-full bg-gold text-[#080808] text-[14px] font-sans tracking-[0.05em] py-3.5 rounded-[4px] hover:bg-gold-secondary transition-colors cursor-pointer border-none"
+                className="w-full bg-gold text-[#080808] text-[15px] font-sans font-medium tracking-[0.04em] py-3.5 rounded-[4px] hover:opacity-90 transition-opacity cursor-pointer border-none"
               >
                 Send via WhatsApp →
               </button>

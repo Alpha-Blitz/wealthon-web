@@ -72,12 +72,12 @@ export function HowItWorks() {
                     boxShadow: '0 0 14px rgba(245,166,35,0.1)',
                   }}
                 >
-                  <span className="font-serif text-[12px] font-semibold text-gold">{step.num}</span>
+                  <span className="font-dm-serif text-[13px] text-gold">{step.num}</span>
                 </div>
 
                 {/* Desktop: faint large number behind content */}
                 <p
-                  className="font-serif font-bold absolute top-6 left-0 select-none pointer-events-none hidden lg:block"
+                  className="font-dm-serif absolute top-6 left-0 select-none pointer-events-none hidden lg:block"
                   style={{ fontSize: '80px', color: 'rgba(245,166,35,0.04)', lineHeight: 1 }}
                 >
                   {step.num}

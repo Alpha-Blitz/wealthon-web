@@ -86,7 +86,7 @@ export function Navbar() {
         {/* CTA */}
         <button
           onClick={() => handleNavClick('#contact')}
-          className="hidden md:block border border-gold text-gold text-[13px] font-sans tracking-[0.05em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
+          className="hidden md:block border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
         >
           Apply to Partner →
         </button>

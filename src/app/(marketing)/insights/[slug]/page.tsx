@@ -408,7 +408,7 @@ export default async function ArticlePage({ params }: PageProps) {
               </p>
               <Link
                 href="/#contact"
-                className="inline-block bg-gold text-[#080808] text-[13px] font-sans font-medium tracking-[0.05em] px-8 py-3 rounded-[4px] hover:opacity-90 transition-opacity"
+                className="inline-block bg-gold text-[#080808] text-[15px] font-sans font-medium tracking-[0.04em] px-8 py-3 rounded-[4px] hover:opacity-90 transition-opacity"
               >
                 Start a conversation →
               </Link>

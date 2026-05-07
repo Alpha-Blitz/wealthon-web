@@ -66,13 +66,13 @@ export function HeroSection() {
           <div className="flex items-center gap-3 flex-wrap mb-12">
             <button
               onClick={() => scrollTo('#contact')}
-              className="w-[160px] bg-gold text-[#080808] text-[13px] font-sans font-medium tracking-[0.05em] px-6 py-3 rounded-[4px] hover:opacity-90 transition-opacity cursor-pointer border-none"
+              className="w-[160px] bg-gold text-[#080808] text-[15px] font-sans font-medium tracking-[0.04em] px-6 py-3 rounded-[4px] hover:opacity-90 transition-opacity cursor-pointer border-none"
             >
               Talk to us →
             </button>
             <button
               onClick={() => scrollTo('#how')}
-              className="w-[160px] border border-[rgba(245,166,35,0.35)] text-[#9A9080] text-[13px] font-sans tracking-[0.04em] px-6 py-3 rounded-[4px] hover:border-[rgba(245,166,35,0.7)] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent"
+              className="w-[160px] border border-[rgba(245,166,35,0.35)] text-[#9A9080] text-[15px] font-sans tracking-[0.03em] px-6 py-3 rounded-[4px] hover:border-[rgba(245,166,35,0.7)] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent"
             >
               How it works ↓
             </button>
@@ -89,7 +89,7 @@ export function HeroSection() {
                   <div className="w-px self-stretch bg-[rgba(245,166,35,0.2)] mr-5 hidden lg:block" />
                 )}
                 <div>
-                  <p className="font-serif font-semibold text-[20px] lg:text-[21px] text-gold leading-tight">
+                  <p className="font-dm-serif text-[20px] lg:text-[22px] text-gold leading-tight">
                     {stat.value}
                   </p>
                   <p className="text-[#9A9080] text-[10px] font-sans uppercase tracking-[0.1em] mt-1">

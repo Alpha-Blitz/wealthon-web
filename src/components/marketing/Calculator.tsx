@@ -92,7 +92,7 @@ export function Calculator() {
             <p className="text-[#6B6152] text-[11px] font-sans uppercase tracking-[0.15em] mb-2">
               Capital Amount
             </p>
-            <p className="font-serif font-semibold text-[40px] lg:text-[48px] text-gold leading-tight mb-8">
+            <p className="font-dm-serif text-[40px] lg:text-[48px] text-gold leading-tight mb-8">
               {fmt(principal)}
             </p>
 
@@ -130,7 +130,7 @@ export function Calculator() {
                   <p className="text-[#9A9080] text-[10px] font-sans uppercase tracking-[0.1em] mb-2">
                     {m.label}
                   </p>
-                  <p className="font-serif font-semibold text-[15px] lg:text-[16px] text-gold leading-snug mb-1">
+                  <p className="font-dm-serif text-[15px] lg:text-[17px] text-gold leading-snug mb-1">
                     {m.range}
                   </p>
                   <p className="text-[#6B6152] text-[11px] font-sans font-light">{m.sub}</p>
