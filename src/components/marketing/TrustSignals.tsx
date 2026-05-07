@@ -33,8 +33,8 @@ export function TrustSignals() {
           Every capital partner is protected by formal agreements before a single rupee moves.
         </p>
 
-        {/* 4-column grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 2×2 grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {CARDS.map((card, i) => (
             <div
               key={card.title}

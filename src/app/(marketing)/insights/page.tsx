@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowRight } from 'lucide-react'
 import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp'
@@ -57,7 +59,7 @@ export default function InsightsPage() {
           <section className="max-w-[1200px] mx-auto px-5 lg:px-10 mb-12">
             <Link href={`/insights/${featured.slug}`}>
               <div
-                className="rounded-[8px] p-10 md:p-6 hover:border-[rgba(245,166,35,0.4)] transition-all duration-200 group"
+                className="rounded-[8px] p-8 lg:p-10 hover:border-[rgba(245,166,35,0.4)] transition-all duration-200 group"
                 style={{ background: '#111111', border: '1px solid rgba(245,166,35,0.15)' }}
               >
                 <div className="flex items-center gap-3 mb-4">
@@ -76,23 +78,32 @@ export default function InsightsPage() {
                   </span>
                 </div>
 
-                <h2 className="font-serif text-[32px] md:text-[24px] text-[#F0EDE6] leading-[1.3] mb-4 max-w-[700px] group-hover:text-gold transition-colors">
+                <h2 className="font-serif text-[24px] lg:text-[32px] text-[#F0EDE6] leading-[1.3] mb-4 max-w-[700px] group-hover:text-gold transition-colors">
                   {featured.title}
                 </h2>
                 <p className="text-[#9A9080] text-[15px] font-sans font-light leading-[1.7] max-w-[600px] mb-6">
                   {featured.excerpt}
                 </p>
 
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[rgba(245,166,35,0.1)] border border-[rgba(245,166,35,0.3)] flex items-center justify-center">
-                    <span className="font-serif text-[12px] text-gold">{featured.authorInitials}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {featured.authorPhoto ? (
+                      <div className="w-8 h-8 rounded-full overflow-hidden border border-[rgba(245,166,35,0.4)] flex-shrink-0">
+                        <Image src={featured.authorPhoto} alt={featured.author} width={32} height={32} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-[rgba(245,166,35,0.1)] border border-[rgba(245,166,35,0.3)] flex items-center justify-center flex-shrink-0">
+                        <span className="font-serif text-[12px] text-gold">{featured.authorInitials}</span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-[#F0EDE6] text-[13px] font-sans">{featured.author}</p>
+                      <p className="text-[#6B6152] text-[11px] font-sans">
+                        {featured.date} · {featured.readTime}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[#F0EDE6] text-[13px] font-sans">{featured.author}</p>
-                    <p className="text-[#6B6152] text-[11px] font-sans">
-                      {featured.date} · {featured.readTime}
-                    </p>
-                  </div>
+                  <ArrowRight size={16} className="text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             </Link>
@@ -105,7 +116,7 @@ export default function InsightsPage() {
             {rest.map((article) => (
               <Link key={article.slug} href={`/insights/${article.slug}`}>
                 <div
-                  className="rounded-[8px] p-6 h-full hover:border-[rgba(245,166,35,0.4)] hover:-translate-y-0.5 transition-all duration-200 group"
+                  className="rounded-[8px] p-6 h-full flex flex-col hover:border-[rgba(245,166,35,0.4)] hover:-translate-y-0.5 transition-all duration-200 group"
                   style={{
                     background: '#111111',
                     border: '1px solid rgba(245,166,35,0.15)',
@@ -119,20 +130,29 @@ export default function InsightsPage() {
                   <h3 className="font-serif text-[20px] text-[#F0EDE6] leading-[1.3] mb-3 group-hover:text-gold transition-colors">
                     {article.title}
                   </h3>
-                  <p className="text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] mb-6">
+                  <p className="text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] mb-6 flex-1">
                     {article.excerpt}
                   </p>
 
-                  <div className="flex items-center gap-3 mt-auto">
-                    <div className="w-7 h-7 rounded-full bg-[rgba(245,166,35,0.1)] border border-[rgba(245,166,35,0.3)] flex items-center justify-center">
-                      <span className="font-serif text-[11px] text-gold">{article.authorInitials}</span>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-3">
+                      {article.authorPhoto ? (
+                        <div className="w-7 h-7 rounded-full overflow-hidden border border-[rgba(245,166,35,0.4)] flex-shrink-0">
+                          <Image src={article.authorPhoto} alt={article.author} width={28} height={28} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-[rgba(245,166,35,0.1)] border border-[rgba(245,166,35,0.3)] flex items-center justify-center flex-shrink-0">
+                          <span className="font-serif text-[11px] text-gold">{article.authorInitials}</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-[#F0EDE6] text-[12px] font-sans">{article.author}</p>
+                        <p className="text-[#6B6152] text-[10px] font-sans">
+                          {article.date} · {article.readTime}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[#F0EDE6] text-[12px] font-sans">{article.author}</p>
-                      <p className="text-[#6B6152] text-[10px] font-sans">
-                        {article.date} · {article.readTime}
-                      </p>
-                    </div>
+                    <ArrowRight size={14} className="text-gold opacity-50 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                   </div>
                 </div>
               </Link>

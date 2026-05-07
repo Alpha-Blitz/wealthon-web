@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, Shield } from 'lucide-react'
 import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
@@ -94,152 +95,170 @@ const CONTENT: Record<string, React.ReactNode> = {
     </div>
   ),
 
-  'how-we-trade': (
+  'your-fd-is-not-beating-inflation': (
     <div className="prose-wealthon">
       <p>
-        Trading is often misrepresented as a high-stakes gamble — a place where intuition and
-        gut calls determine outcomes. That's one approach. It's not ours.
+        Most people open a Fixed Deposit and feel responsible.
       </p>
       <p>
-        At Wealthon, every decision is preceded by a model, and every model is preceded by data.
-        Here's an honest look at how we operate.
+        And honestly? It's not a bad instinct. Your money is safe. It's earning something. It's
+        not sitting idle.
       </p>
-      <h2>Market selection</h2>
+      <p>But let's look at the actual numbers.</p>
+      <h2>The math nobody talks about</h2>
       <p>
-        We trade across three asset classes: Forex, Commodities and Crypto. This isn't arbitrary.
-        Each market has a distinct volatility profile, liquidity structure and correlation
-        behaviour. By operating across all three, we can rotate allocation towards the market
-        offering the best risk-adjusted opportunity in a given period.
-      </p>
-      <p>
-        Forex gives us deep liquidity and tightly regulated markets. Commodities give us exposure
-        to macro themes like energy, metals and agricultural cycles. Crypto gives us access to
-        asymmetric moves during specific market regimes. Each has its place, and none is treated
-        as a permanent primary focus.
-      </p>
-      <h2>How strategies are built</h2>
-      <p>
-        Our strategies start with a hypothesis: a belief about a market relationship or structural
-        pattern that should persist over time. That hypothesis is tested against historical data
-        across multiple market conditions — not just the period where it looks good, but periods
-        of stress, low volatility and structural change.
+        Average FD rate today: <strong>6.5% – 7.5%</strong> per year.<br />
+        India's average inflation: <strong>5% – 6%</strong> per year.
       </p>
       <p>
-        A strategy that only works in a bull market or only in high-volatility conditions is not
-        a strategy. It's a coincidence. We filter for robustness, not recency.
+        Real return after inflation: <strong>1% – 2%.</strong>
       </p>
       <p>
-        Once a strategy passes backtesting, it undergoes forward testing with minimal capital
-        before any meaningful allocation is made. This process takes time. We don't rush it.
-      </p>
-      <h2>Execution</h2>
-      <p>
-        Once live, execution is automated where possible. Algorithmic systems remove
-        execution-level emotion — hesitation, greed, fear — from the equation. Entry points, stop
-        losses and take profits are predefined. A trade either meets the criteria or it doesn't
-        open.
+        On ₹5,00,000 — that's roughly ₹5,000 to ₹10,000 of actual purchasing power gained in a
+        year.
       </p>
       <p>
-        Manual oversight is maintained for regime changes: macro events, sudden volatility spikes,
-        or liquidity crises that the model wasn't designed for. In those cases, we reduce exposure
-        and wait for conditions to normalise before re-engaging.
-      </p>
-      <h2>Risk management</h2>
-      <p>
-        Every open position has a defined maximum loss. Drawdown limits are set at the strategy
-        level and at the portfolio level. If a strategy hits its drawdown threshold, it is paused
-        and reviewed — even if the underlying thesis is still valid.
+        Meanwhile, everything you buy — groceries, fuel, rent, education — got more expensive by
+        5–6%.
       </p>
       <p>
-        Position sizing is calculated as a function of volatility, not intuition. In
-        high-volatility environments, position sizes shrink. This is not timidity; it's
-        arithmetic. The goal is capital preservation in adverse conditions and consistent
-        compounding over time.
+        Your money grew on paper.<br />
+        Your lifestyle got more expensive in reality.
       </p>
-      <h2>What we don't do</h2>
+      <p>This is called the inflation trap. And most people don't realise they're in it.</p>
+      <h2>Why FDs feel safe</h2>
       <p>
-        We don't chase high-leverage moonshots. We don't trade news events without structural
-        edge. We don't hold positions through major risk events without explicit
-        volatility-adjusted sizing. And we never allocate capital to a strategy that hasn't been
-        tested and reviewed by the full team.
+        There's a reason FDs are the default. They're simple, guaranteed and backed by the bank.
+        After watching the news and seeing market crashes, "safe" feels like the right word. And
+        for short-term goals or emergency funds, it often is.
       </p>
       <p>
-        The outcome isn't always exciting. But it's repeatable. And repeatability is what
-        profit-sharing is built on.
+        But there's a difference between capital preservation and capital growth. FDs do the
+        former. For the long term, you need both.
       </p>
+      <h2>The question worth asking</h2>
+      <p>
+        This is not a pitch. The answer isn't to blindly chase high returns either. Higher returns
+        always come with higher risk — and anyone who tells you otherwise is not being honest with
+        you.
+      </p>
+      <p>But the conversation worth having is this:</p>
+      <p>
+        Are you aware of what your money is actually doing?<br />
+        Are you making an informed choice, or just a comfortable one?
+      </p>
+      <p>
+        Because there's a difference between safe and smart. And the first step is simply
+        understanding where you stand.
+      </p>
+      <h2>What informed looks like</h2>
+      <p>
+        Understanding your real return after inflation. Knowing what alternatives exist, what
+        their risks are, and what their structures look like. Asking questions before committing
+        to anything.
+      </p>
+      <p>
+        At Wealthon, we believe the most important thing we can do before anyone becomes a capital
+        partner is make sure they understand this landscape clearly.
+      </p>
+      <p>Not to sell them something. But because informed decisions are the only kind worth making.</p>
     </div>
   ),
 
-  'first-capital-partnership': (
+  'algorithms-and-ai-in-trading': (
     <div className="prose-wealthon">
       <p>
-        Entering a capital partnership for the first time can feel opaque. You're trusting a firm
-        with money you've spent years building. The terminology is new. The structure is different
-        from a mutual fund or FD. And you're probably wondering: what actually happens between
-        the first conversation and the first distribution?
-      </p>
-      <p>This is a plain-language guide to exactly that.</p>
-      <h2>Step 1 — The introduction</h2>
-      <p>
-        Every Wealthon capital partner arrives through a referral or a direct relationship. We
-        don't advertise, and we don't cold-reach. This isn't elitism; it's how we maintain a
-        small, high-trust network where we can give every partner the attention they deserve.
+        For most of financial history, trading was a human activity. Analysts read charts, fund
+        managers made calls, traders shouted across floors. Intuition, experience and nerve were
+        the edge.
       </p>
       <p>
-        If someone introduced you, that person knows both us and you. That mutual trust is the
-        starting point for everything that follows.
+        That era didn't end — but it's no longer the whole picture. Algorithms and AI have
+        become the dominant force in global markets. And understanding what that means is
+        essential for anyone with capital in the game.
       </p>
-      <h2>Step 2 — The first conversation</h2>
+      <h2>The algorithmic revolution</h2>
       <p>
-        Our first meeting is entirely informational. We walk you through how the firm operates:
-        what markets we trade, how strategies are built, how capital is structured and what the
-        profit-sharing terms look like. We don't ask for any commitment in this meeting.
-      </p>
-      <p>
-        You're also encouraged to ask hard questions. How have recent quarters performed? What
-        happens in a losing quarter? What are your exit rights? We will answer all of these
-        directly.
-      </p>
-      <h2>Step 3 — The documentation</h2>
-      <p>If you decide to proceed, documentation comes before capital. Every partner signs two documents:</p>
-      <p>
-        <strong>Capital Partnership MoU</strong> — This outlines the agreed profit-sharing ratio,
-        the capital amount, the term of the partnership, reporting schedule, distribution dates
-        and exit clauses. Every term is discussed before signing, not after.
+        Algorithmic trading — where computer programs execute orders based on predefined rules —
+        began in the 1980s with simple arbitrage strategies. By the 2000s, it accounted for a
+        significant portion of all equity trades. Today, estimates suggest that 60–75% of all
+        trades in developed markets are executed algorithmically.
       </p>
       <p>
-        <strong>Risk Disclosure Statement</strong> — This explicitly states that capital is at
-        market risk, that past performance does not guarantee future results, and that no fixed
-        returns are promised under any circumstances. This document protects you legally and sets
-        accurate expectations.
-      </p>
-      <h2>Step 4 — Capital transfer</h2>
-      <p>
-        Once documentation is complete, capital is transferred to the firm's dedicated current
-        account. This account is held separately from personal funds — there is no commingling.
-        You receive confirmation of receipt.
-      </p>
-      <h2>Step 5 — Quarterly reporting and distributions</h2>
-      <p>
-        At the end of each quarter, we prepare a documented P&L report for your allocation. This
-        shows opening balance, trading performance, closing balance and the distribution amount
-        based on the agreed ratio.
+        The reason is straightforward: speed and consistency. An algorithm can scan hundreds of
+        markets simultaneously, identify a signal, calculate position size, factor in risk
+        parameters and execute a trade in microseconds. A human cannot. And crucially, the
+        algorithm doesn't hesitate, panic or get greedy.
       </p>
       <p>
-        Distributions are made as per the schedule in your MoU. You receive the report before or
-        alongside the transfer — not a message saying "trust us, we did well."
+        Rule-based systems removed execution-level emotion from trading. That alone was a
+        structural advantage. But then came AI.
       </p>
-      <h2>What you should always have in writing</h2>
+      <h2>How AI entered the markets</h2>
       <p>
-        By the time you're a partner, you should have: a signed MoU, a signed risk disclosure, a
-        receipt of capital transfer and quarterly P&L reports. If any of these are absent, ask for
-        them. A firm that operates with integrity will have all of these ready without being asked.
+        Machine learning models changed what was possible. Instead of hard-coded rules — "buy
+        when the 50-day moving average crosses the 200-day" — ML models could learn patterns from
+        data that no human had explicitly programmed.
       </p>
       <p>
-        The goal of this process is simple: to make sure that the moment you transfer capital, you
-        understand exactly what you've entered, what protections you have, and what to expect next.
+        Natural language processing allowed systems to parse earnings calls, central bank
+        statements and social media sentiment in real time, converting unstructured language into
+        trading signals. Computer vision models began reading satellite imagery to estimate
+        inventory levels at oil storage facilities before official reports were released.
       </p>
-      <p>That clarity is what we consider the real product.</p>
+      <p>
+        Deep learning networks found non-linear relationships in market data that statistical
+        models had missed for decades. Reinforcement learning produced agents that could optimise
+        execution strategies dynamically — learning, from millions of simulations, how to move
+        large positions without revealing themselves to the market.
+      </p>
+      <h2>What this means for markets today</h2>
+      <p>
+        Markets have become faster, more efficient and more crowded at the edges. Classic
+        inefficiencies that once offered easy returns — simple momentum, index arbitrage,
+        post-earnings drift — have largely been arbitraged away. AI spotted them, scaled into
+        them and closed the gap.
+      </p>
+      <p>
+        This creates a compounding dynamic: the more AI is used, the harder it becomes to find
+        edge without AI. Firms that haven't adapted to systematic, data-driven approaches are
+        competing at a structural disadvantage.
+      </p>
+      <p>
+        It also creates new risks. Flash crashes — sudden violent price moves with no fundamental
+        cause — are often algorithmic feedback loops. When multiple systems share similar signals
+        and react simultaneously, liquidity can vanish in seconds. The 2010 Flash Crash, the 2015
+        Treasury market disruption, and several crypto liquidation cascades have all carried this
+        fingerprint.
+      </p>
+      <h2>Where human judgement still matters</h2>
+      <p>
+        AI is not infallible. Models trained on historical data can fail spectacularly in regime
+        changes — market conditions that look nothing like anything in the training set. The early
+        days of COVID-19 broke many quantitative strategies precisely because nothing in decades
+        of data resembled a global pandemic shutdown.
+      </p>
+      <p>
+        This is why human oversight remains critical. Not to override signals, but to understand
+        when the context has shifted fundamentally. The best systematic operations combine model
+        discipline with human judgement at the boundary conditions.
+      </p>
+      <h2>How we think about this at Wealthon</h2>
+      <p>
+        Our approach is systematic and model-driven, but not blindly automated. We run
+        algorithmic strategies across Forex, Commodities and Crypto — markets with the liquidity
+        and structure that quantitative approaches work well in.
+      </p>
+      <p>
+        Every strategy is back-tested, stress-tested, and forward-tested with limited capital
+        before meaningful allocation. Risk parameters are built into the system. We don't chase
+        AI as a buzzword — we use systematic, data-backed methods because they produce
+        consistent, reviewable, repeatable outcomes.
+      </p>
+      <p>
+        The world of trading has changed. Understanding how is the first step to navigating it
+        intelligently.
+      </p>
     </div>
   ),
 }
@@ -256,7 +275,7 @@ export default async function ArticlePage({ params }: PageProps) {
       <Navbar />
       <main className="bg-[#080808] min-h-screen">
         {/* Article header */}
-        <section className="pt-32 pb-12 max-w-[760px] mx-auto px-10 md:px-5">
+        <section className="pt-32 pb-12 max-w-[760px] mx-auto px-5 lg:px-10">
           <Link
             href="/insights"
             className="inline-flex items-center gap-2 text-[#9A9080] text-[13px] font-sans hover:text-gold transition-colors mb-8"
@@ -268,7 +287,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <p className="text-gold text-[11px] font-sans uppercase tracking-[0.15em] mb-4">
             {article.category}
           </p>
-          <h1 className="font-serif text-[40px] md:text-[32px] font-semibold text-[#F0EDE6] leading-[1.2] mb-6">
+          <h1 className="font-serif text-[32px] lg:text-[40px] font-semibold text-[#F0EDE6] leading-[1.2] mb-6">
             {article.title}
           </h1>
           <p className="text-[#9A9080] text-base font-sans font-light leading-[1.7] mb-8">
@@ -277,9 +296,21 @@ export default async function ArticlePage({ params }: PageProps) {
 
           {/* Author + meta */}
           <div className="flex items-center gap-4 pb-8" style={{ borderBottom: '1px solid rgba(245,166,35,0.12)' }}>
-            <div className="w-9 h-9 rounded-full bg-[rgba(245,166,35,0.1)] border border-[rgba(245,166,35,0.3)] flex items-center justify-center">
-              <span className="font-serif text-[13px] text-gold">{article.authorInitials}</span>
-            </div>
+            {article.authorPhoto ? (
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-[rgba(245,166,35,0.4)] flex-shrink-0">
+                <Image
+                  src={article.authorPhoto}
+                  alt={article.author}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[rgba(245,166,35,0.1)] border border-[rgba(245,166,35,0.3)] flex items-center justify-center flex-shrink-0">
+                <span className="font-serif text-[13px] text-gold">{article.authorInitials}</span>
+              </div>
+            )}
             <div>
               <p className="text-[#F0EDE6] text-[14px] font-sans">{article.author}</p>
               <p className="text-[#6B6152] text-[12px] font-sans">
@@ -290,7 +321,7 @@ export default async function ArticlePage({ params }: PageProps) {
         </section>
 
         {/* Article body */}
-        <section className="max-w-[760px] mx-auto px-10 md:px-5 pb-8">
+        <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-8">
           <style>{`
             .prose-wealthon p {
               color: #9A9080;
@@ -318,7 +349,7 @@ export default async function ArticlePage({ params }: PageProps) {
         </section>
 
         {/* Disclaimer */}
-        <section className="max-w-[760px] mx-auto px-10 md:px-5 pb-24">
+        <section className="max-w-[760px] mx-auto px-5 lg:px-10 pb-24">
           <div
             className="rounded-[8px] p-5 flex items-start gap-3"
             style={{ border: '1px solid rgba(245,166,35,0.12)', background: 'rgba(245,166,35,0.02)' }}

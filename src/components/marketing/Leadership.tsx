@@ -41,11 +41,11 @@ export function Leadership() {
           The people behind Wealthon.
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-5">
           {FOUNDERS.map((f, i) => (
             <div
               key={f.name}
-              className="bg-[#111111] rounded-[8px] p-7 fade-up"
+              className="bg-[#111111] rounded-[8px] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start fade-up"
               data-delay={i * 100}
               style={{
                 border: '1px solid rgba(245,166,35,0.15)',
@@ -54,38 +54,36 @@ export function Leadership() {
               }}
             >
               {/* Avatar */}
-              <div className="mb-5">
+              <div className="flex-shrink-0">
                 {f.photo ? (
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[rgba(245,166,35,0.4)]">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[rgba(245,166,35,0.4)]">
                     <Image
                       src={f.photo}
                       alt={f.name}
-                      width={64}
-                      height={64}
+                      width={80}
+                      height={80}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 rounded-full border-2 border-[rgba(245,166,35,0.4)] flex items-center justify-center bg-[rgba(245,166,35,0.05)]">
-                    <span className="font-serif font-semibold text-[20px] text-gold">
-                      {f.initials}
-                    </span>
+                  <div className="w-20 h-20 rounded-full border-2 border-[rgba(245,166,35,0.4)] flex items-center justify-center bg-[rgba(245,166,35,0.05)]">
+                    <span className="font-serif font-semibold text-[24px] text-gold">{f.initials}</span>
                   </div>
                 )}
               </div>
 
-              {/* Name + role */}
-              <h3 className="font-serif text-[22px] text-[#F0EDE6] mb-1">{f.name}</h3>
-              <p className="text-gold text-[13px] font-sans font-light mb-1">{f.title}</p>
-              <p className="text-[#9A9080] text-[12px] font-sans font-light mb-5">{f.sub}</p>
-
-              {/* Quote */}
-              <blockquote
-                className="pl-4 text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] italic"
-                style={{ borderLeft: '2px solid #F5A623' }}
-              >
-                "{f.quote}"
-              </blockquote>
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-serif text-[22px] text-[#F0EDE6] mb-1">{f.name}</h3>
+                <p className="text-gold text-[13px] font-sans font-light mb-1">{f.title}</p>
+                <p className="text-[#9A9080] text-[12px] font-sans font-light mb-5">{f.sub}</p>
+                <blockquote
+                  className="pl-4 text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] italic"
+                  style={{ borderLeft: '2px solid rgba(245,166,35,0.5)' }}
+                >
+                  &ldquo;{f.quote}&rdquo;
+                </blockquote>
+              </div>
             </div>
           ))}
         </div>

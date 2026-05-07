@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +18,8 @@ const NAV_LINKS = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 80)
@@ -25,10 +28,13 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
-  const scrollTo = (href: string) => {
+  const handleNavClick = (href: string) => {
     setMenuOpen(false)
-    if (href.startsWith('#')) {
+    if (!href.startsWith('#')) return
+    if (pathname === '/') {
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      router.push('/' + href)
     }
   }
 
@@ -41,7 +47,7 @@ export function Navbar() {
           : 'bg-transparent'
       )}
     >
-      <div className="max-w-[1200px] mx-auto px-10 h-16 flex items-center justify-between">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex-shrink-0">
           <Image
@@ -68,7 +74,7 @@ export function Navbar() {
             ) : (
               <button
                 key={link.label}
-                onClick={() => scrollTo(link.href)}
+                onClick={() => handleNavClick(link.href)}
                 className="text-[#9A9080] text-sm font-sans font-normal tracking-[0.02em] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent border-none p-0"
               >
                 {link.label}
@@ -79,7 +85,7 @@ export function Navbar() {
 
         {/* CTA */}
         <button
-          onClick={() => scrollTo('#contact')}
+          onClick={() => handleNavClick('#contact')}
           className="hidden md:block border border-gold text-gold text-[13px] font-sans tracking-[0.05em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
         >
           Apply to Partner →
@@ -111,7 +117,7 @@ export function Navbar() {
             ) : (
               <button
                 key={link.label}
-                onClick={() => scrollTo(link.href)}
+                onClick={() => handleNavClick(link.href)}
                 className="text-[#F0EDE6] text-[15px] font-sans font-normal text-left cursor-pointer bg-transparent border-none p-0"
               >
                 {link.label}
@@ -119,7 +125,7 @@ export function Navbar() {
             )
           )}
           <button
-            onClick={() => scrollTo('#contact')}
+            onClick={() => handleNavClick('#contact')}
             className="mt-2 border border-gold text-gold text-sm px-6 py-3 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors w-full cursor-pointer bg-transparent"
           >
             Apply to Partner →

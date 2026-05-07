@@ -4,6 +4,7 @@ export interface Article {
   category: string
   author: string
   authorInitials: string
+  authorPhoto?: string
   date: string
   readTime: string
   featured?: boolean
@@ -21,29 +22,30 @@ export const articles: Article[] = [
     readTime: '6 min read',
     featured: true,
     excerpt:
-      'Profit-sharing aligns interests. You grow with the firm, not just the promise. Here\'s how it works, what to watch for, and the questions every investor should ask before they commit.',
+      "Profit-sharing aligns interests. You grow with the firm, not just the promise. Here's how it works, what to watch for, and the questions every investor should ask before they commit.",
   },
   {
-    slug: 'how-we-trade',
-    title: 'How we trade: our approach to Forex, Commodities and Crypto',
-    category: 'Trading Notes',
+    slug: 'your-fd-is-not-beating-inflation',
+    title: 'Your FD is not beating inflation',
+    category: 'Wealth Education',
     author: 'Prathik R.N.',
     authorInitials: 'PR',
+    authorPhoto: '/pratik.jpeg',
     date: '24 Apr 2025',
-    readTime: '7 min read',
+    readTime: '5 min read',
     excerpt:
-      'Inside our systematic process, market selection, strategy design and risk controls.',
+      'Most people open a Fixed Deposit and feel responsible. But the real numbers tell a different story about what your money is actually doing.',
   },
   {
-    slug: 'first-capital-partnership',
-    title: 'Your first capital partnership — what to expect before you sign',
-    category: 'Wealth Education',
+    slug: 'algorithms-and-ai-in-trading',
+    title: 'Algorithms and AI: the new force reshaping financial markets',
+    category: 'Trading Notes',
     author: 'Sumanth Hegde',
     authorInitials: 'SH',
     date: '18 Apr 2025',
-    readTime: '5 min read',
+    readTime: '7 min read',
     excerpt:
-      'A step-by-step guide to our partnership process, agreements and protections.',
+      'From rule-based systems to machine learning models, AI has fundamentally changed how modern markets are traded — and what that means for everyone in the game.',
   },
 ]
 
