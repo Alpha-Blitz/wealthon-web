@@ -51,7 +51,7 @@ export function Sidebar() {
               href={href}
               className="flex items-center gap-3 px-3 h-[44px] rounded-[4px] text-[14px] font-sans transition-all"
               style={{
-                color:      active ? '#F5A623' : '#8A8070',
+                color:      active ? '#F5A623' : '#9E9484',
                 background: active ? 'rgba(245,166,35,0.08)' : 'transparent',
                 borderLeft: active ? '2px solid #F5A623' : '2px solid transparent',
               }}
@@ -71,26 +71,31 @@ export function Sidebar() {
           style={{ background: 'rgba(255,255,255,0.02)' }}
         >
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-sans font-medium flex-shrink-0"
-            style={{
-              background: 'rgba(245,166,35,0.1)',
-              border: '1px solid rgba(245,166,35,0.4)',
-              color: '#F5A623',
-            }}
+            className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden relative"
+            style={{ border: '1px solid rgba(245,166,35,0.4)' }}
           >
-            {partner.initials}
+            {partner.avatar_url ? (
+              <Image src={partner.avatar_url} alt={partner.initials} fill className="object-cover" />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center text-[12px] font-sans font-medium"
+                style={{ background: 'rgba(245,166,35,0.1)', color: '#F5A623' }}
+              >
+                {partner.initials}
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-sans text-[#F0EDE6] truncate">{partner.full_name}</p>
-            <p className="text-[11px] font-sans text-[#4A4438]">{CONTENT.nav.partner}</p>
+            <p className="text-[11px] font-sans text-[#68625A]">{CONTENT.nav.partner}</p>
           </div>
-          <ChevronDown size={14} className="text-[#4A4438] flex-shrink-0" />
+          <ChevronDown size={14} className="text-[#68625A] flex-shrink-0" />
         </div>
 
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 h-[40px] rounded-[4px] text-[14px] font-sans text-[#8A8070] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent border-none w-full text-left"
+          className="flex items-center gap-3 px-3 h-[40px] rounded-[4px] text-[14px] font-sans text-[#9E9484] hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent border-none w-full text-left"
         >
           <LogOut size={16} />
           {CONTENT.nav.logout}

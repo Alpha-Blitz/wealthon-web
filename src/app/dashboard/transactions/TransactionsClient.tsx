@@ -57,8 +57,8 @@ export function TransactionsClient({ transactions, partner }: Props) {
             className="rounded-[8px] p-5"
             style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
           >
-            <p className="text-[11px] font-sans uppercase tracking-[0.1em] text-[#8A8070] mb-2">{label}</p>
-            <p className="font-serif text-[28px] font-semibold" style={{ color }}>
+            <p className="text-[11px] font-sans uppercase tracking-[0.1em] text-[#9E9484] mb-2">{label}</p>
+            <p className="font-dm-serif text-[28px] font-semibold" style={{ color }}>
               {sign}{value}
             </p>
           </div>
@@ -75,7 +75,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
               className="px-3 py-1.5 rounded-[4px] text-[12px] font-sans transition-all cursor-pointer border"
               style={{
                 background: typeFilter === type ? 'rgba(245,166,35,0.12)' : 'transparent',
-                color:      typeFilter === type ? '#F5A623' : '#8A8070',
+                color:      typeFilter === type ? '#F5A623' : '#9E9484',
                 borderColor: typeFilter === type ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.08)',
               }}
             >
@@ -84,7 +84,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
           ))}
         </div>
         <button
-          className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] text-[12px] font-sans text-[#8A8070] border cursor-pointer bg-transparent"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] text-[12px] font-sans text-[#9E9484] border cursor-pointer bg-transparent"
           style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <Download size={13} />
@@ -99,11 +99,11 @@ export function TransactionsClient({ transactions, partner }: Props) {
       >
         {/* Header */}
         <div
-          className="grid text-[11px] font-sans uppercase tracking-[0.08em] px-4 py-3"
+          className="grid text-[11px] font-sans uppercase tracking-[0.08em] px-4 py-2.5"
           style={{
             background: '#0F0F0F',
             color: '#F5A623',
-            gridTemplateColumns: '120px 140px 130px 120px 1fr',
+            gridTemplateColumns: '100px 130px 130px 120px 1fr',
           }}
         >
           {[C.columns.date, C.columns.type, C.columns.amount, C.columns.status, C.columns.notes].map(col => (
@@ -115,25 +115,25 @@ export function TransactionsClient({ transactions, partner }: Props) {
         {pageRows.map((tx, i) => (
           <div
             key={tx.id}
-            className="grid px-4 py-3 text-[14px] font-sans items-center"
+            className="grid px-4 py-2 font-sans items-center"
             style={{
-              gridTemplateColumns: '120px 140px 130px 120px 1fr',
+              gridTemplateColumns: '100px 130px 130px 120px 1fr',
               background: i % 2 === 0 ? '#111111' : '#0D0D0D',
               borderTop: '1px solid rgba(255,255,255,0.04)',
             }}
           >
-            <span className="text-[#8A8070] text-[12px]">{fmtDate(tx.date)}</span>
+            <span className="text-[#9E9484] text-[11px]">{fmtDate(tx.date)}</span>
             <span><StatusPill status={tx.type} /></span>
-            <span style={{ color: tx.amount >= 0 ? '#22C55E' : '#EF4444', fontWeight: 500 }}>
+            <span className="text-[13px] tabular-nums" style={{ color: tx.amount >= 0 ? '#22C55E' : '#EF4444', fontWeight: 500 }}>
               {tx.amount >= 0 ? '+' : ''}{formatINR(tx.amount)}
             </span>
             <span><StatusPill status={tx.status} /></span>
-            <span className="text-[#8A8070] text-[12px] truncate">{tx.notes || '—'}</span>
+            <span className="text-[#9E9484] text-[11px] truncate pr-2">{tx.notes || '—'}</span>
           </div>
         ))}
 
         {pageRows.length === 0 && (
-          <div className="px-4 py-8 text-center text-[14px] font-sans text-[#4A4438]" style={{ background: '#111111' }}>
+          <div className="px-4 py-8 text-center text-[14px] font-sans text-[#68625A]" style={{ background: '#111111' }}>
             No transactions found.
           </div>
         )}
@@ -141,7 +141,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
 
       {/* Pagination */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <p className="text-[12px] font-sans text-[#8A8070]">
+        <p className="text-[12px] font-sans text-[#9E9484]">
           {C.showing} {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)} {C.to}{' '}
           {Math.min(page * PAGE_SIZE, filtered.length)} {C.of} {filtered.length} {C.transactionsLabel}
         </p>
@@ -149,7 +149,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="w-8 h-8 flex items-center justify-center rounded-[4px] text-[#8A8070] hover:text-[#F0EDE6] disabled:opacity-30 cursor-pointer bg-transparent border-none"
+            className="w-8 h-8 flex items-center justify-center rounded-[4px] text-[#9E9484] hover:text-[#F0EDE6] disabled:opacity-30 cursor-pointer bg-transparent border-none"
           >
             <ChevronLeft size={16} />
           </button>
@@ -160,7 +160,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
               className="w-8 h-8 flex items-center justify-center rounded-[4px] text-[12px] font-sans cursor-pointer border-none"
               style={{
                 background: page === n ? 'rgba(245,166,35,0.12)' : 'transparent',
-                color: page === n ? '#F5A623' : '#8A8070',
+                color: page === n ? '#F5A623' : '#9E9484',
               }}
             >
               {n}
@@ -169,7 +169,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="w-8 h-8 flex items-center justify-center rounded-[4px] text-[#8A8070] hover:text-[#F0EDE6] disabled:opacity-30 cursor-pointer bg-transparent border-none"
+            className="w-8 h-8 flex items-center justify-center rounded-[4px] text-[#9E9484] hover:text-[#F0EDE6] disabled:opacity-30 cursor-pointer bg-transparent border-none"
           >
             <ChevronRight size={16} />
           </button>

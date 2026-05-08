@@ -99,7 +99,7 @@ export function WhoWeWorkWith() {
             ))}
           </div>
 
-          <p className="text-[#6B6152] text-[12px] font-sans font-light mt-3">
+          <p className="text-[#7F7566] text-[12px] font-sans font-light mt-3">
             All tiers require a signed agreement. No tier guarantees fixed returns.
           </p>
         </div>

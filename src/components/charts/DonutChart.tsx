@@ -21,7 +21,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
       style={{ background: '#1a1a1a', border: '1px solid rgba(245,166,35,0.3)', color: '#F0EDE6' }}
     >
       <p className="font-medium mb-1">{p.name}</p>
-      <p className="text-[#8A8070]">{p.value.toFixed(1)}%</p>
+      <p className="text-[#9E9484]">{p.value.toFixed(1)}%</p>
       <p className="text-gold">{formatINR(p.payload.amount)}</p>
     </div>
   )
@@ -59,7 +59,7 @@ export function DonutChart({ allocations }: { allocations: Allocation[] }) {
 
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-[11px] font-sans text-[#8A8070] uppercase tracking-[0.1em]">{C.totalLabel}</p>
+          <p className="text-[11px] font-sans text-[#9E9484] uppercase tracking-[0.1em]">{C.totalLabel}</p>
           <p className="font-dm-serif text-[18px] text-gold leading-tight">{formatINRCompact(total)}</p>
         </div>
       </div>
@@ -70,11 +70,11 @@ export function DonutChart({ allocations }: { allocations: Allocation[] }) {
           <div key={a.asset_class} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-              <span className="text-[12px] font-sans text-[#8A8070]">{a.asset_class}</span>
+              <span className="text-[12px] font-sans text-[#9E9484]">{a.asset_class}</span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-[12px] font-sans text-[#F0EDE6]">{a.percentage}%</span>
-              <span className="text-[11px] font-sans text-[#4A4438]">{formatINRCompact(a.amount)}</span>
+              <span className="text-[11px] font-sans text-[#68625A]">{formatINRCompact(a.amount)}</span>
             </div>
           </div>
         ))}

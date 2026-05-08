@@ -27,13 +27,15 @@ export async function proxy(request: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
+  const devBypass = process.env.DEV_BYPASS_AUTH === 'true'
+
   // /dashboard/* — require session
-  if (pathname.startsWith('/dashboard') && !session) {
+  if (pathname.startsWith('/dashboard') && !session && !devBypass) {
     return NextResponse.redirect(new URL(ROUTES.LOGIN, request.url))
   }
 
   // /login — redirect to dashboard if already signed in
-  if (pathname === '/login' && session) {
+  if (pathname === '/login' && session && !devBypass) {
     return NextResponse.redirect(new URL(ROUTES.DASHBOARD, request.url))
   }
 

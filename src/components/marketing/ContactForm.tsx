@@ -6,7 +6,7 @@ import { Mail, MessageCircle, Shield } from 'lucide-react'
 const RANGES = ['₹1L – ₹10L', '₹10L – ₹50L', '₹50L+', 'Just exploring']
 
 const INPUT_CLASS =
-  'w-full bg-transparent text-[#F0EDE6] text-[14px] font-sans font-light py-3 outline-none placeholder:text-[#6B6152] transition-colors'
+  'w-full bg-transparent text-[#F0EDE6] text-[14px] font-sans font-light py-3 outline-none placeholder:text-[#7F7566] transition-colors'
 const LABEL_CLASS = 'block text-[#9A9080] text-[11px] font-sans uppercase tracking-[0.12em] mb-2'
 
 export function ContactForm() {
@@ -107,7 +107,7 @@ export function ContactForm() {
                   style={{ appearance: 'none', WebkitAppearance: 'none', background: 'transparent' }}
                   required
                 >
-                  <option value="" disabled style={{ background: '#111111', color: '#6B6152', fontFamily: 'Inter, sans-serif' }}>
+                  <option value="" disabled style={{ background: '#111111', color: '#7F7566', fontFamily: 'Inter, sans-serif' }}>
                     Select range
                   </option>
                   {RANGES.map((r) => (
@@ -141,7 +141,7 @@ export function ContactForm() {
               >
                 Send via WhatsApp →
               </button>
-              <p className="text-[#6B6152] text-[11px] font-sans font-light text-center mt-2">
+              <p className="text-[#7F7566] text-[11px] font-sans font-light text-center mt-2">
                 You will be redirected to WhatsApp
               </p>
             </div>
@@ -160,7 +160,7 @@ export function ContactForm() {
                 <Mail size={15} className="text-gold" />
               </div>
               <div>
-                <p className="text-[#6B6152] text-[10px] font-sans uppercase tracking-[0.1em] mb-0.5">Email</p>
+                <p className="text-[#7F7566] text-[10px] font-sans uppercase tracking-[0.1em] mb-0.5">Email</p>
                 <p className="text-[#F0EDE6] text-[13px] font-sans font-light group-hover:text-gold transition-colors">
                   hello@wealthonventures.com
                 </p>
@@ -180,7 +180,7 @@ export function ContactForm() {
                 <MessageCircle size={15} className="text-gold" />
               </div>
               <div>
-                <p className="text-[#6B6152] text-[10px] font-sans uppercase tracking-[0.1em] mb-0.5">WhatsApp</p>
+                <p className="text-[#7F7566] text-[10px] font-sans uppercase tracking-[0.1em] mb-0.5">WhatsApp</p>
                 <p className="text-[#F0EDE6] text-[13px] font-sans font-light group-hover:text-gold transition-colors">
                   +91 90353 73664
                 </p>
@@ -192,9 +192,9 @@ export function ContactForm() {
                 className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{ border: '1px solid rgba(245,166,35,0.15)' }}
               >
-                <Shield size={15} className="text-[#6B6152]" />
+                <Shield size={15} className="text-[#7F7566]" />
               </div>
-              <p className="text-[#6B6152] text-[12px] font-sans font-light leading-[1.6]">
+              <p className="text-[#7F7566] text-[12px] font-sans font-light leading-[1.6]">
                 Your information is safe with us.
               </p>
             </div>

@@ -8,8 +8,28 @@ import { Topbar } from '@/components/dashboard/Topbar'
 import { BottomNav } from '@/components/dashboard/BottomNav'
 import { CONTENT } from '@/config/content'
 import { ROUTES } from '@/config/routes'
+import { mockPartner } from '@/lib/mock/data'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const devBypass = process.env.DEV_BYPASS_AUTH === 'true'
+
+  if (devBypass) {
+    return (
+      <PartnerProvider partner={mockPartner}>
+        <div className="flex h-screen bg-[#080808] overflow-hidden">
+          <Sidebar />
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <Topbar />
+            <main className="flex-1 overflow-y-auto pb-[72px] md:pb-0">
+              {children}
+            </main>
+          </div>
+          <BottomNav />
+        </div>
+      </PartnerProvider>
+    )
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -26,13 +46,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
         >
           <Image src="/navlogo.png" alt="Wealthon" width={140} height={32} className="h-8 w-auto mx-auto mb-6" />
           <h2 className="font-serif text-[24px] text-[#F0EDE6] mb-3">{CONTENT.pending.heading}</h2>
-          <p className="text-[14px] font-sans font-light text-[#8A8070] leading-[1.7] mb-8">
+          <p className="text-[14px] font-sans font-light text-[#9E9484] leading-[1.7] mb-8">
             {CONTENT.pending.body}
           </p>
           <form action={`${ROUTES.LOGIN}?signout=1`}>
             <Link
               href={ROUTES.LOGIN}
-              className="inline-block text-[13px] font-sans text-[#8A8070] border border-[rgba(255,255,255,0.1)] rounded-[4px] px-4 py-2 hover:text-[#F0EDE6] transition-colors"
+              className="inline-block text-[13px] font-sans text-[#9E9484] border border-[rgba(255,255,255,0.1)] rounded-[4px] px-4 py-2 hover:text-[#F0EDE6] transition-colors"
             >
               {CONTENT.pending.logout}
             </Link>

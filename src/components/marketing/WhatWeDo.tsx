@@ -79,12 +79,12 @@ export function WhatWeDo() {
             >
               <div className="flex items-center justify-between mb-4">
                 <s.icon size={18} className="text-[#9A9080]" />
-                <span className="text-[10px] font-sans uppercase tracking-[0.1em] text-[#6B6152] border border-[rgba(245,166,35,0.15)] px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-sans uppercase tracking-[0.1em] text-[#7F7566] border border-[rgba(245,166,35,0.15)] px-2.5 py-0.5 rounded-full">
                   Coming Soon
                 </span>
               </div>
               <h3 className="font-serif text-[18px] text-[#9A9080] mb-1">{s.title}</h3>
-              <p className="text-[#6B6152] text-[13px] font-sans font-light">{s.sub}</p>
+              <p className="text-[#7F7566] text-[13px] font-sans font-light">{s.sub}</p>
             </div>
           ))}
         </div>

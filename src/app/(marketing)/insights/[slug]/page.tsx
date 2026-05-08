@@ -313,7 +313,7 @@ export default async function ArticlePage({ params }: PageProps) {
             )}
             <div>
               <p className="text-[#F0EDE6] text-[14px] font-sans">{article.author}</p>
-              <p className="text-[#6B6152] text-[12px] font-sans">
+              <p className="text-[#7F7566] text-[12px] font-sans">
                 {article.date} · {article.readTime}
               </p>
             </div>
@@ -370,8 +370,8 @@ export default async function ArticlePage({ params }: PageProps) {
             className="rounded-[8px] p-5 flex items-start gap-3"
             style={{ border: '1px solid rgba(245,166,35,0.12)', background: 'rgba(245,166,35,0.02)' }}
           >
-            <Shield size={15} className="text-[#6B6152] flex-shrink-0 mt-0.5" />
-            <p className="text-[#6B6152] text-[11px] font-sans font-light leading-[1.7]">
+            <Shield size={15} className="text-[#7F7566] flex-shrink-0 mt-0.5" />
+            <p className="text-[#7F7566] text-[11px] font-sans font-light leading-[1.7]">
               Wealthon Capital Ventures is a proprietary trading firm. Capital partnerships are
               profit-sharing arrangements and not fixed deposit schemes or guaranteed return
               products. All partnerships are governed by signed agreements. Past performance does

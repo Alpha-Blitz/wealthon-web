@@ -101,8 +101,8 @@ export function HeroSection() {
           </div>
 
           <div className="flex items-center gap-2 mt-6">
-            <Shield size={12} className="text-[#6B6152] flex-shrink-0" />
-            <p className="text-[#6B6152] text-[11px] font-sans font-light">
+            <Shield size={12} className="text-[#7F7566] flex-shrink-0" />
+            <p className="text-[#7F7566] text-[11px] font-sans font-light">
               Performance figures are historical and market-linked. No fixed or guaranteed returns.
             </p>
           </div>

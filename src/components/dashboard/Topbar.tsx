@@ -24,7 +24,7 @@ export function Topbar() {
         <p className="font-serif text-[22px] font-normal text-[#F0EDE6] leading-tight">
           {getGreeting()}, {firstName}.
         </p>
-        <p className="text-[13px] font-sans font-light text-[#8A8070]">
+        <p className="text-[13px] font-sans font-light text-[#9E9484]">
           {CONTENT.dashboard.subtitle}
         </p>
       </div>
@@ -32,7 +32,7 @@ export function Topbar() {
       <div className="flex items-center gap-3">
         <button
           className="w-8 h-8 flex items-center justify-center rounded-full transition-colors cursor-pointer bg-transparent border-none"
-          style={{ color: '#8A8070' }}
+          style={{ color: '#9E9484' }}
           aria-label="Notifications"
         >
           <Bell size={18} />

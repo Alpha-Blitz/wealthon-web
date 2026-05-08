@@ -108,11 +108,11 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {/* Chart + activity row */}
-      <div className="flex flex-col xl:flex-row gap-6">
-        {/* Bar chart card */}
+      {/* Chart + activity row — 55 / 45 split */}
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Quarterly Performance — 55% */}
         <div
-          className="flex-1 rounded-[8px] p-6"
+          className="w-full md:w-[55%] flex-shrink-0 rounded-[8px] p-6"
           style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
         >
           <div className="flex items-center justify-between mb-6">
@@ -140,8 +140,8 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Recent activity */}
-        <div className="xl:w-[340px] flex-shrink-0">
+        {/* Recent activity — 45% */}
+        <div className="w-full md:flex-1">
           <RecentActivity transactions={transactions} />
         </div>
       </div>
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
         <Shield size={20} className="text-gold flex-shrink-0" />
         <div className="flex-1">
           <p className="text-[13px] font-sans text-[#F0EDE6]">{C.trust.agreement}</p>
-          <p className="text-[12px] font-sans font-light text-[#8A8070] mt-1">{C.trust.disclaimer}</p>
+          <p className="text-[12px] font-sans font-light text-[#9E9484] mt-1">{C.trust.disclaimer}</p>
         </div>
         <Link
           href={ROUTES.SECURITIES}

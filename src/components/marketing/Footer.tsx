@@ -29,7 +29,7 @@ export function Footer() {
               height={32}
               className="h-8 w-auto mb-4"
             />
-            <p className="text-[#6B6152] text-[13px] font-sans font-light italic">
+            <p className="text-[#7F7566] text-[13px] font-sans font-light italic">
               Where capital finds direction.
             </p>
           </div>
@@ -62,7 +62,7 @@ export function Footer() {
 
           {/* Disclaimer */}
           <div>
-            <p className="text-[#6B6152] text-[11px] font-sans font-light leading-[1.7]">
+            <p className="text-[#7F7566] text-[11px] font-sans font-light leading-[1.7]">
               {DISCLAIMER}
             </p>
           </div>
@@ -73,7 +73,7 @@ export function Footer() {
           className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-6"
           style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
         >
-          <p className="text-[#6B6152] text-[12px] font-sans font-light">
+          <p className="text-[#7F7566] text-[12px] font-sans font-light">
             © 2025 Wealthon Capital Ventures · wealthonventures.com
           </p>
 
@@ -83,7 +83,7 @@ export function Footer() {
             <a
               href="#"
               aria-label="LinkedIn"
-              className="text-[#6B6152] hover:text-gold transition-colors"
+              className="text-[#7F7566] hover:text-gold transition-colors"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
@@ -95,7 +95,7 @@ export function Footer() {
             <a
               href="#"
               aria-label="Instagram"
-              className="text-[#6B6152] hover:text-gold transition-colors"
+              className="text-[#7F7566] hover:text-gold transition-colors"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
@@ -107,7 +107,7 @@ export function Footer() {
             <a
               href="#"
               aria-label="YouTube"
-              className="text-[#6B6152] hover:text-gold transition-colors"
+              className="text-[#7F7566] hover:text-gold transition-colors"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />

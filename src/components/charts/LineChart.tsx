@@ -31,7 +31,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       className="px-3 py-2 rounded-[4px] text-[12px] font-sans"
       style={{ background: '#1a1a1a', border: '1px solid rgba(245,166,35,0.3)', color: '#F0EDE6' }}
     >
-      <p className="text-[#8A8070] mb-2">{label}</p>
+      <p className="text-[#9E9484] mb-2">{label}</p>
       {payload.map(p => (
         <p key={p.name} style={{ color: p.color }}>
           {p.name}: {formatINRCompact(p.value)}
@@ -82,7 +82,7 @@ export function LineChart({ data }: { data: PnLMonthly[] }) {
               className="px-3 py-1 rounded-[3px] text-[12px] font-sans transition-all cursor-pointer border-none"
               style={{
                 background: mode === m ? 'rgba(245,166,35,0.12)' : 'transparent',
-                color:      mode === m ? '#F5A623' : '#8A8070',
+                color:      mode === m ? '#F5A623' : '#9E9484',
               }}
             >
               {m === 'cumulative' ? C.cumulative : C.monthly}
@@ -91,20 +91,18 @@ export function LineChart({ data }: { data: PnLMonthly[] }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div style={{ minWidth: 500 }}>
-          <ResponsiveContainer width="100%" height={240}>
-            <ReLineChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-              <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="month" tick={{ fill: '#8A8070', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={v => formatINRCompact(v as number)} tick={{ fill: '#8A8070', fontSize: 10 }} axisLine={false} tickLine={false} width={48} />
-              <Tooltip content={<CustomTooltip />} />
-              {SERIES.map(s => (
-                <Line key={s.key} type="monotone" dataKey={s.key} stroke={s.color} strokeWidth={2} dot={false} name={s.label} />
-              ))}
-            </ReLineChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="w-full">
+        <ResponsiveContainer width="100%" height={260}>
+          <ReLineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+            <XAxis dataKey="month" tick={{ fill: '#9E9484', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={v => formatINRCompact(v as number)} tick={{ fill: '#9E9484', fontSize: 10 }} axisLine={false} tickLine={false} width={56} />
+            <Tooltip content={<CustomTooltip />} />
+            {SERIES.map(s => (
+              <Line key={s.key} type="monotone" dataKey={s.key} stroke={s.color} strokeWidth={2} dot={false} name={s.label} />
+            ))}
+          </ReLineChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Legend */}
@@ -112,7 +110,7 @@ export function LineChart({ data }: { data: PnLMonthly[] }) {
         {SERIES.map(s => (
           <div key={s.key} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ background: s.color }} />
-            <span className="text-[11px] font-sans text-[#8A8070]">{s.label}</span>
+            <span className="text-[11px] font-sans text-[#9E9484]">{s.label}</span>
           </div>
         ))}
       </div>

@@ -61,7 +61,7 @@ export function InsightsClient({ featured, rest }: Props) {
                 >
                   Featured
                 </span>
-                <span className="text-[#6B6152] text-[11px] font-sans uppercase tracking-[0.08em]">
+                <span className="text-[#7F7566] text-[11px] font-sans uppercase tracking-[0.08em]">
                   {filteredFeatured.category}
                 </span>
               </div>
@@ -78,7 +78,7 @@ export function InsightsClient({ featured, rest }: Props) {
                   <AuthorAvatar article={filteredFeatured} size={32} textSize="12px" />
                   <div>
                     <p className="text-[#F0EDE6] text-[13px] font-sans">{filteredFeatured.author}</p>
-                    <p className="text-[#6B6152] text-[11px] font-sans">
+                    <p className="text-[#7F7566] text-[11px] font-sans">
                       {filteredFeatured.date} · {filteredFeatured.readTime}
                     </p>
                   </div>
@@ -116,7 +116,7 @@ export function InsightsClient({ featured, rest }: Props) {
                   </div>
                 )}
                 <div className="p-6 flex flex-col flex-1">
-                <p className="text-[#6B6152] text-[10px] font-sans uppercase tracking-[0.1em] mb-3">
+                <p className="text-[#7F7566] text-[10px] font-sans uppercase tracking-[0.1em] mb-3">
                   {article.category}
                 </p>
                 <h3 className="font-serif text-[20px] text-[#F0EDE6] leading-[1.3] mb-3 group-hover:text-gold transition-colors">
@@ -131,7 +131,7 @@ export function InsightsClient({ featured, rest }: Props) {
                     <AuthorAvatar article={article} size={28} textSize="11px" />
                     <div>
                       <p className="text-[#F0EDE6] text-[12px] font-sans">{article.author}</p>
-                      <p className="text-[#6B6152] text-[10px] font-sans">
+                      <p className="text-[#7F7566] text-[10px] font-sans">
                         {article.date} · {article.readTime}
                       </p>
                     </div>
@@ -147,7 +147,7 @@ export function InsightsClient({ featured, rest }: Props) {
 
       {/* Empty state */}
       {!filteredFeatured && filteredRest.length === 0 && (
-        <p className="text-[#6B6152] text-[14px] font-sans font-light">
+        <p className="text-[#7F7566] text-[14px] font-sans font-light">
           No articles in this category yet.
         </p>
       )}

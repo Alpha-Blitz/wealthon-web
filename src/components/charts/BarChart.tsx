@@ -26,8 +26,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       className="px-3 py-2 rounded-[4px] text-[13px] font-sans"
       style={{ background: '#1a1a1a', border: '1px solid rgba(245,166,35,0.3)', color: '#F0EDE6' }}
     >
-      <p className="text-[11px] text-[#8A8070] mb-1">{label}</p>
-      <p style={{ color: val >= 0 ? '#F5A623' : '#EF4444' }}>
+      <p className="text-[11px] text-[#9E9484] mb-1">{label}</p>
+      <p style={{ color: val >= 0 ? '#15803D' : '#B91C1C' }}>
         {val >= 0 ? '+' : ''}{formatINRCompact(val)}
       </p>
     </div>
@@ -41,38 +41,42 @@ interface BarChartProps {
 export function BarChart({ data }: BarChartProps) {
   return (
     <div className="w-full">
-      <div className="overflow-x-auto">
-        <div style={{ minWidth: 500 }}>
-          <ResponsiveContainer width="100%" height={220}>
-            <ReBarChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-              <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
-              <XAxis
-                dataKey="month"
-                tick={{ fill: '#8A8070', fontSize: 11, fontFamily: 'var(--font-inter)' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tickFormatter={v => formatINRCompact(v as number)}
-                tick={{ fill: '#8A8070', fontSize: 10, fontFamily: 'var(--font-inter)' }}
-                axisLine={false}
-                tickLine={false}
-                width={48}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(245,166,35,0.04)' }} />
-              <Bar dataKey="profit" radius={[3, 3, 0, 0]} maxBarSize={32}>
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.profit >= 0 ? '#F5A623' : '#EF4444'} />
-                ))}
-              </Bar>
-            </ReBarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="w-full">
+        <ResponsiveContainer width="100%" height={240}>
+          <ReBarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+            <XAxis
+              dataKey="month"
+              tick={{ fill: '#9E9484', fontSize: 11, fontFamily: 'var(--font-inter)' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tickFormatter={v => formatINRCompact(v as number)}
+              tick={{ fill: '#9E9484', fontSize: 10, fontFamily: 'var(--font-inter)' }}
+              axisLine={false}
+              tickLine={false}
+              width={56}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(245,166,35,0.04)' }} />
+            <Bar dataKey="profit" radius={[3, 3, 0, 0]} maxBarSize={28}>
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.profit >= 0 ? '#15803D' : '#B91C1C'}
+                  fillOpacity={0.95}
+                  stroke="#F5A623"
+                  strokeWidth={1.5}
+                />
+              ))}
+            </Bar>
+          </ReBarChart>
+        </ResponsiveContainer>
       </div>
 
       <div className="flex items-center gap-2 mt-2">
         <div className="w-3 h-3 rounded-[2px]" style={{ background: '#F5A623' }} />
-        <span className="text-[11px] font-sans text-[#8A8070]">{CONTENT.dashboard.chart.legend}</span>
+        <span className="text-[11px] font-sans text-[#9E9484]">{CONTENT.dashboard.chart.legend}</span>
       </div>
     </div>
   )

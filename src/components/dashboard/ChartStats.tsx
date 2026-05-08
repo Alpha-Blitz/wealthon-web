@@ -25,9 +25,9 @@ export function ChartStats({
         { label: C.positiveMonths,value: `${positiveMonths}/${totalMonths}`, sub: 'months positive',   color: '#F5A623' },
       ].map(({ label, value, sub, color }) => (
         <div key={label}>
-          <p className="text-[10px] font-sans uppercase tracking-[0.1em] text-[#4A4438] mb-1">{label}</p>
+          <p className="text-[10px] font-sans uppercase tracking-[0.1em] text-[#68625A] mb-1">{label}</p>
           <p className="text-[15px] font-sans font-medium" style={{ color }}>{value}</p>
-          <p className="text-[11px] font-sans text-[#4A4438]">{sub}</p>
+          <p className="text-[11px] font-sans text-[#68625A]">{sub}</p>
         </div>
       ))}
     </div>

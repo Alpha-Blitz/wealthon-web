@@ -71,12 +71,12 @@ export function SecuritiesClient({ security, partnerName, agreementUrl }: Props)
               { label: C.agreementPartner, value: partnerName },
             ].map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between">
-                <span className="text-[12px] font-sans text-[#8A8070]">{label}</span>
+                <span className="text-[12px] font-sans text-[#9E9484]">{label}</span>
                 <span className="text-[13px] font-sans text-[#F0EDE6]">{value}</span>
               </div>
             ))}
             <div className="flex items-center justify-between">
-              <span className="text-[12px] font-sans text-[#8A8070]">Status</span>
+              <span className="text-[12px] font-sans text-[#9E9484]">Status</span>
               <StatusPill status={security.status} />
             </div>
           </div>
@@ -105,19 +105,19 @@ export function SecuritiesClient({ security, partnerName, agreementUrl }: Props)
               { label: C.chequeRef,    value: security.cheque_reference ?? '—' },
             ].map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between">
-                <span className="text-[12px] font-sans text-[#8A8070]">{label}</span>
+                <span className="text-[12px] font-sans text-[#9E9484]">{label}</span>
                 <span className="text-[13px] font-sans text-[#F0EDE6]">{value}</span>
               </div>
             ))}
             <div className="flex items-center justify-between">
-              <span className="text-[12px] font-sans text-[#8A8070]">Status</span>
+              <span className="text-[12px] font-sans text-[#9E9484]">Status</span>
               <StatusPill status={security.cheque_status} labelOverride="Held as collateral" />
             </div>
           </div>
 
           <button
             onClick={() => showToast('Detailed view coming soon.')}
-            className="w-full py-2.5 rounded-[4px] text-[13px] font-sans text-[#8A8070] border border-[rgba(255,255,255,0.1)] hover:text-[#F0EDE6] hover:border-[rgba(255,255,255,0.2)] transition-colors cursor-pointer bg-transparent"
+            className="w-full py-2.5 rounded-[4px] text-[13px] font-sans text-[#9E9484] border border-[rgba(255,255,255,0.1)] hover:text-[#F0EDE6] hover:border-[rgba(255,255,255,0.2)] transition-colors cursor-pointer bg-transparent"
           >
             {C.viewDetails}
           </button>
@@ -157,11 +157,11 @@ export function SecuritiesClient({ security, partnerName, agreementUrl }: Props)
             }}
           >
             <span className="flex items-center gap-2 text-[#F0EDE6] text-[13px]">
-              <FileText size={14} className="text-[#4A4438]" />
+              <FileText size={14} className="text-[#68625A]" />
               {row.doc}
             </span>
-            <span className="text-[#8A8070] text-[12px]">{row.date}</span>
-            <span className="text-[#8A8070] text-[12px]">{row.type}</span>
+            <span className="text-[#9E9484] text-[12px]">{row.date}</span>
+            <span className="text-[#9E9484] text-[12px]">{row.type}</span>
             <button
               onClick={handleDownload}
               className="text-gold text-[12px] font-sans hover:text-gold-secondary transition-colors cursor-pointer bg-transparent border-none text-left"

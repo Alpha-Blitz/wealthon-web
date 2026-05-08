@@ -15,3 +15,17 @@ export async function getPartnerByUserId(
   if (error || !data) return err(error?.message ?? 'Partner not found')
   return ok(data as Partner)
 }
+
+export async function updatePartnerAvatarUrl(
+  supabase: SupabaseClient,
+  partnerId: string,
+  avatarUrl: string
+): Promise<Result<void>> {
+  const { error } = await supabase
+    .from('partners')
+    .update({ avatar_url: avatarUrl })
+    .eq('id', partnerId)
+
+  if (error) return err(error.message)
+  return ok(undefined)
+}

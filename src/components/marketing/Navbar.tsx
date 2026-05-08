@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
-  { label: 'What We Do', href: '#what' },
-  { label: 'How It Works', href: '#how' },
-  { label: 'Who We Work With', href: '#who' },
+  { label: 'Home',     href: '/'         },
+  { label: 'Services', href: '#what'     },
+  { label: 'Process',  href: '#how'      },
+  { label: 'Partners', href: '#who'      },
   { label: 'Insights', href: '/insights' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Contact',  href: '#contact'  },
 ]
 
 export function Navbar() {
@@ -83,13 +84,22 @@ export function Navbar() {
           )}
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={() => handleNavClick('#contact')}
-          className="hidden md:block border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
-        >
-          Apply to Partner →
-        </button>
+        {/* Desktop CTAs */}
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            href="/login"
+            title="Partner Login"
+            className="w-9 h-9 flex items-center justify-center rounded-[4px] text-[#9A9080] hover:text-[#F5A623] hover:bg-[rgba(245,166,35,0.08)] transition-colors border border-transparent hover:border-[rgba(245,166,35,0.2)]"
+          >
+            <LogIn size={18} />
+          </Link>
+          <button
+            onClick={() => handleNavClick('#contact')}
+            className="border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
+          >
+            Apply to Partner →
+          </button>
+        </div>
 
         {/* Hamburger */}
         <button
@@ -124,6 +134,13 @@ export function Navbar() {
               </button>
             )
           )}
+          <Link
+            href="/login"
+            onClick={() => setMenuOpen(false)}
+            className="text-[#F0EDE6] text-[15px] font-sans font-normal"
+          >
+            Partner Login
+          </Link>
           <button
             onClick={() => handleNavClick('#contact')}
             className="mt-2 border border-gold text-gold text-sm px-6 py-3 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors w-full cursor-pointer bg-transparent"

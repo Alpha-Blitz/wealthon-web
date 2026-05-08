@@ -28,7 +28,7 @@ export function BottomNav() {
             key={href}
             href={href}
             className="flex items-center justify-center w-12 h-12"
-            style={{ color: active ? '#F5A623' : '#4A4438' }}
+            style={{ color: active ? '#F5A623' : '#68625A' }}
           >
             <Icon size={20} />
           </Link>

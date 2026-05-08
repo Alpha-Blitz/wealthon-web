@@ -77,7 +77,7 @@ export function Calculator() {
             >
               <div className="flex items-start gap-3">
                 <Shield size={16} className="text-gold flex-shrink-0 mt-0.5" />
-                <p className="text-[#6B6152] text-[12px] font-sans font-light leading-[1.6]">
+                <p className="text-[#7F7566] text-[12px] font-sans font-light leading-[1.6]">
                   Wealthon Capital Ventures is a proprietary trading firm. Capital partnerships
                   are profit-sharing arrangements and not fixed deposit schemes or guaranteed
                   return products. All figures shown are illustrative and based on historical
@@ -89,7 +89,7 @@ export function Calculator() {
 
           {/* Right — slider + outputs */}
           <div className="fade-up" data-delay="120">
-            <p className="text-[#6B6152] text-[11px] font-sans uppercase tracking-[0.15em] mb-2">
+            <p className="text-[#7F7566] text-[11px] font-sans uppercase tracking-[0.15em] mb-2">
               Capital Amount
             </p>
             <p className="font-dm-serif text-[40px] lg:text-[48px] text-gold leading-tight mb-8">
@@ -111,8 +111,8 @@ export function Calculator() {
                 }}
               />
               <div className="flex justify-between mt-2">
-                <span className="text-[#6B6152] text-[11px] font-sans">₹1L</span>
-                <span className="text-[#6B6152] text-[11px] font-sans">₹50L</span>
+                <span className="text-[#7F7566] text-[11px] font-sans">₹1L</span>
+                <span className="text-[#7F7566] text-[11px] font-sans">₹50L</span>
               </div>
             </div>
 
@@ -133,12 +133,12 @@ export function Calculator() {
                   <p className="font-dm-serif text-[15px] lg:text-[17px] text-gold leading-snug mb-1">
                     {m.range}
                   </p>
-                  <p className="text-[#6B6152] text-[11px] font-sans font-light">{m.sub}</p>
+                  <p className="text-[#7F7566] text-[11px] font-sans font-light">{m.sub}</p>
                 </div>
               ))}
             </div>
 
-            <p className="text-[#6B6152] text-[11px] font-sans font-light mt-4">
+            <p className="text-[#7F7566] text-[11px] font-sans font-light mt-4">
               Market-linked. Not guaranteed. For illustration only.
             </p>
           </div>
