@@ -27,7 +27,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       style={{ background: '#1a1a1a', border: '1px solid rgba(245,166,35,0.3)', color: '#F0EDE6' }}
     >
       <p className="text-[11px] text-[#9E9484] mb-1">{label}</p>
-      <p style={{ color: val >= 0 ? '#15803D' : '#B91C1C' }}>
+      <p style={{ color: val >= 0 ? '#22C55E' : '#EF4444' }}>
         {val >= 0 ? '+' : ''}{formatINRCompact(val)}
       </p>
     </div>
@@ -48,7 +48,7 @@ export function BarChart({ data }: BarChartProps) {
             <XAxis
               dataKey="month"
               tick={{ fill: '#9E9484', fontSize: 11, fontFamily: 'var(--font-inter)' }}
-              axisLine={false}
+              axisLine={{ stroke: '#F5A623', strokeWidth: 1, strokeOpacity: 0.5 }}
               tickLine={false}
             />
             <YAxis
@@ -63,7 +63,7 @@ export function BarChart({ data }: BarChartProps) {
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.profit >= 0 ? '#15803D' : '#B91C1C'}
+                  fill={entry.profit >= 0 ? '#0F5B2E' : '#8B1010'}
                   fillOpacity={0.95}
                   stroke="#F5A623"
                   strokeWidth={1.5}
