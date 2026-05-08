@@ -31,11 +31,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
 
-  if (!user) return null // proxy.ts redirects before we get here
+  if (!session) return null // middleware redirects before we get here
 
-  const { data: partner, error } = await getPartnerByUserId(supabase, user.id)
+  const { data: partner, error } = await getPartnerByUserId(supabase, session.user.id)
 
   if (error || !partner) {
     return (

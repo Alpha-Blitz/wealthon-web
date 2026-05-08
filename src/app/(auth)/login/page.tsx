@@ -50,7 +50,7 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
-    router.push(ROUTES.DASHBOARD)
+    router.replace(ROUTES.DASHBOARD)
   }
 
   return (
