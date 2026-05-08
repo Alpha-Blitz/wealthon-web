@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Shield, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ROUTES } from '@/config/routes'
@@ -30,11 +29,11 @@ const DOT_PATTERN: React.CSSProperties = {
 }
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading]   = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
   const [error, setError]       = useState<string | null>(null)
   const [focusedEmail, setFocusedEmail]         = useState(false)
   const [focusedPassword, setFocusedPassword]   = useState(false)
@@ -50,7 +49,18 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
-    router.replace(ROUTES.DASHBOARD)
+    setRedirecting(true)
+    window.location.href = ROUTES.DASHBOARD
+  }
+
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#080808] gap-5">
+        <Image src="/navlogo.png" alt="Wealthon" width={140} height={32} className="h-8 w-auto opacity-70" />
+        <Loader2 size={22} className="animate-spin text-gold" />
+        <p className="text-[#7F7566] text-[13px] font-sans">Signing you in…</p>
+      </div>
+    )
   }
 
   return (
