@@ -1,13 +1,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPartnerByUserId } from '@/lib/db/partners'
+import { getAdminRole } from '@/lib/admin/users'
 import { PartnerProvider } from '@/context/PartnerContext'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { Topbar } from '@/components/dashboard/Topbar'
 import { BottomNav } from '@/components/dashboard/BottomNav'
 import { CONTENT } from '@/config/content'
 import { ROUTES } from '@/config/routes'
+import { MOCK_COMPANY_ID } from '@/config/constants'
 import { mockPartner } from '@/lib/mock/data'
 
 if (process.env.NODE_ENV === 'production' && process.env.DEV_BYPASS_AUTH === 'true') {
@@ -42,6 +45,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: partner, error } = await getPartnerByUserId(supabase, session.user.id)
 
   if (error || !partner) {
+    // Admins have no partner record — send them to the admin panel
+    const adminRole = await getAdminRole(supabase, session.user.id, MOCK_COMPANY_ID)
+    if (adminRole) redirect(ROUTES.ADMIN.ROOT)
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080808] px-6">
         <div
