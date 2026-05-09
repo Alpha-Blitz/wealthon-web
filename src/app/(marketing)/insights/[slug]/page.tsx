@@ -6,6 +6,8 @@ import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp'
 import { articles, getArticleBySlug } from '@/lib/articles'
+import { createClient } from '@/lib/supabase/server'
+import { getArticleBySlugFromDb, type Article as DbArticle } from '@/lib/admin/content'
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -19,10 +21,24 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const article = getArticleBySlug(slug)
-  if (!article) return {}
+  if (article) {
+    return {
+      title: `${article.title} | Wealthon Capital Ventures`,
+      description: article.excerpt,
+    }
+  }
+  const supabase = await createClient()
+  const dbArticle = await getArticleBySlugFromDb(supabase, slug)
+  if (!dbArticle) return {}
+  const excerpt = dbArticle.body
+    .replace(/^#{1,6}\s.+$/gm, '')
+    .replace(/[*_`\[\]()!]/g, '')
+    .replace(/\n+/g, ' ')
+    .trim()
+    .slice(0, 160)
   return {
-    title: `${article.title} | Wealthon Capital Ventures`,
-    description: article.excerpt,
+    title: `${dbArticle.title} | Wealthon Capital Ventures`,
+    description: excerpt,
   }
 }
 
@@ -263,12 +279,52 @@ const CONTENT: Record<string, React.ReactNode> = {
   ),
 }
 
+function DbArticleBody({ body }: { body: string }) {
+  const blocks = body.split(/\n\n+/).filter(Boolean)
+  return (
+    <div className="prose-wealthon">
+      {blocks.map((block, i) => {
+        const h2Match = block.match(/^##\s+(.+)/)
+        const h1Match = block.match(/^#\s+(.+)/)
+        if (h2Match ?? h1Match) {
+          return <h2 key={i}>{(h2Match ?? h1Match)![1]}</h2>
+        }
+        const text = block.replace(/\*\*(.+?)\*\*/g, '$1').replace(/[*_]/g, '')
+        return <p key={i}>{text}</p>
+      })}
+    </div>
+  )
+}
+
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params
-  const article = getArticleBySlug(slug)
-  if (!article) notFound()
+  const staticArticle = getArticleBySlug(slug)
 
-  const content = CONTENT[slug]
+  let dbArticle: DbArticle | null = null
+  if (!staticArticle) {
+    const supabase = await createClient()
+    dbArticle = await getArticleBySlugFromDb(supabase, slug)
+    if (!dbArticle) notFound()
+  }
+
+  const article = staticArticle ?? {
+    slug: dbArticle!.slug,
+    title: dbArticle!.title,
+    category: dbArticle!.category,
+    author: dbArticle!.author,
+    authorInitials: (() => {
+      const parts = dbArticle!.author.trim().split(/\s+/)
+      return parts.length >= 2
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : (parts[0]?.slice(0, 2) ?? '??').toUpperCase()
+    })(),
+    date: new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      .format(new Date(dbArticle!.published_at ?? dbArticle!.created_at)),
+    readTime: `${Math.max(1, Math.round(dbArticle!.body.split(/\s+/).filter(Boolean).length / 200))} min read`,
+    excerpt: dbArticle!.body.replace(/^#{1,6}\s.+$/gm, '').replace(/[*_`\[\]()!]/g, '').replace(/\n+/g, ' ').trim().slice(0, 200),
+  }
+
+  const content = staticArticle ? CONTENT[slug] : <DbArticleBody body={dbArticle!.body} />
 
   return (
     <>

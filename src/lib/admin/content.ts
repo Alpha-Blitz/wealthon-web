@@ -73,6 +73,30 @@ export async function publishArticle(
   } as Partial<ArticleInput>)
 }
 
+export async function getPublishedArticles(supabase: SupabaseClient): Promise<Article[]> {
+  const { data } = await supabase
+    .from(TABLE.ARTICLES)
+    .select('*')
+    .eq('company_id', MOCK_COMPANY_ID)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+  return (data ?? []) as Article[]
+}
+
+export async function getArticleBySlugFromDb(
+  supabase: SupabaseClient,
+  slug: string
+): Promise<Article | null> {
+  const { data } = await supabase
+    .from(TABLE.ARTICLES)
+    .select('*')
+    .eq('company_id', MOCK_COMPANY_ID)
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .maybeSingle()
+  return data ?? null
+}
+
 export async function deleteArticle(supabase: SupabaseClient, id: string): Promise<Result<void>> {
   const { data: before } = await supabase.from(TABLE.ARTICLES).select('*').eq('id', id).single()
   const { error } = await supabase

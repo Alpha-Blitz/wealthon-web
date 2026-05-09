@@ -86,7 +86,7 @@ export default function LoginPage() {
 
       {/* Left panel — image only, no logo */}
       <div className="hidden lg:block w-[45%] relative flex-shrink-0">
-        <Image src="/login image.png" alt="" fill className="object-cover object-center" priority />
+        <Image src="/login-image.png" alt="" fill className="object-cover object-center" priority />
         {/* Lighter overlay to let image show through */}
         <div className="absolute inset-0" style={{ background: 'rgba(8,8,8,0.42)' }} />
         {/* Gold outline on the right edge */}
