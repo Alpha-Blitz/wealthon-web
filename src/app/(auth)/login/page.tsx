@@ -50,19 +50,11 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      // Determine destination: admins go to /admin, partners go to /dashboard
-      const { data: { session } } = await supabase.auth.getSession()
-      let destination: string = ROUTES.DASHBOARD
-      if (session) {
-        const { data: adminRole } = await supabase
-          .from('admin_roles')
-          .select('user_id')
-          .eq('user_id', session.user.id)
-          .maybeSingle()
-        if (adminRole) destination = ROUTES.ADMIN.ROOT
-      }
+      // Ask the server (service role) whether this user is an admin — avoids RLS issues
+      const res = await fetch('/api/auth/is-admin')
+      const { isAdmin } = await res.json()
       setRedirecting(true)
-      window.location.href = destination
+      window.location.href = isAdmin ? ROUTES.ADMIN.ROOT : ROUTES.DASHBOARD
     } catch {
       setError(CONTENT.errors.generic)
       setLoading(false)

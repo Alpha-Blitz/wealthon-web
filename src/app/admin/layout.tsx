@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ROUTES } from '@/config/routes'
-import { getAdminRole } from '@/lib/admin/users'
+import { checkIsAdmin } from '@/lib/admin/users'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { AdminTopbar } from '@/components/admin/AdminTopbar'
 
@@ -15,9 +15,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!session) redirect(ROUTES.LOGIN)
 
-  const adminRole = await getAdminRole(supabase, session.user.id)
+  // checkIsAdmin uses service role — bypasses RLS on admin_roles
+  const isAdmin = await checkIsAdmin(session.user.id)
 
-  if (!adminRole) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080808] px-6">
         <div

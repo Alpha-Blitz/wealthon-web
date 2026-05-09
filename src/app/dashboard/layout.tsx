@@ -1,9 +1,8 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPartnerByUserId } from '@/lib/db/partners'
-import { getAdminRole } from '@/lib/admin/users'
+import { checkIsAdmin } from '@/lib/admin/users'
 import { PartnerProvider } from '@/context/PartnerContext'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { Topbar } from '@/components/dashboard/Topbar'
@@ -14,6 +13,13 @@ import { mockPartner } from '@/lib/mock/data'
 
 if (process.env.NODE_ENV === 'production' && process.env.DEV_BYPASS_AUTH === 'true') {
   throw new Error('DEV_BYPASS_AUTH must not be set in production')
+}
+
+async function signOutAction() {
+  'use server'
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect(ROUTES.LOGIN)
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -44,9 +50,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: partner, error } = await getPartnerByUserId(supabase, session.user.id)
 
   if (error || !partner) {
-    // Admins have no partner record — send them to the admin panel
-    const adminRole = await getAdminRole(supabase, session.user.id)
-    if (adminRole) redirect(ROUTES.ADMIN.ROOT)
+    // checkIsAdmin uses service role — bypasses RLS on admin_roles
+    const isAdmin = await checkIsAdmin(session.user.id)
+    if (isAdmin) redirect(ROUTES.ADMIN.ROOT)
 
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080808] px-6">
@@ -59,13 +65,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <p className="text-[14px] font-sans font-light text-[#9E9484] leading-[1.7] mb-8">
             {CONTENT.pending.body}
           </p>
-          <form action={`${ROUTES.LOGIN}?signout=1`}>
-            <Link
-              href={ROUTES.LOGIN}
-              className="inline-block text-[13px] font-sans text-[#9E9484] border border-[rgba(255,255,255,0.1)] rounded-[4px] px-4 py-2 hover:text-[#F0EDE6] transition-colors"
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="text-[13px] font-sans text-[#9E9484] border border-[rgba(255,255,255,0.1)] rounded-[4px] px-4 py-2 hover:text-[#F0EDE6] transition-colors cursor-pointer bg-transparent"
             >
               {CONTENT.pending.logout}
-            </Link>
+            </button>
           </form>
         </div>
       </div>

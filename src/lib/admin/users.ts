@@ -1,8 +1,20 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { MOCK_COMPANY_ID } from '@/config/constants'
 import { TABLE } from '@/config/api'
 import { ok, err, type Result } from './index'
 import { logAction } from './audit'
+
+// Server-only: uses service role to bypass RLS on admin_roles.
+export async function checkIsAdmin(userId: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from(TABLE.ADMIN_ROLES)
+    .select('user_id')
+    .eq('user_id', userId)
+    .maybeSingle()
+  return !!data
+}
 
 export interface AdminUser {
   id:           string
