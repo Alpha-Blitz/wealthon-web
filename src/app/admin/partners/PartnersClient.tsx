@@ -52,6 +52,14 @@ function PartnerFormFields({ form, setForm, saving, error, onSave, saveLabel, sa
           {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </FormField>
+      <FormField label={C.form.investedAmount}>
+        <input
+          type="number" min="0" step="1" style={inputStyle}
+          value={(form.invested_amount ?? 0) / 100 || ''}
+          placeholder="0"
+          onChange={e => setForm(f => ({ ...f, invested_amount: Math.round(parseFloat(e.target.value || '0') * 100) }))}
+        />
+      </FormField>
       <FormField label={C.form.entryDate}>
         <input type="date" style={inputStyle} value={form.entry_date}
           onChange={e => setForm(f => ({ ...f, entry_date: e.target.value }))} />
@@ -72,7 +80,7 @@ function PartnerFormFields({ form, setForm, saving, error, onSave, saveLabel, sa
 }
 
 const EMPTY_FORM: PartnerInput = {
-  full_name: '', email: '', phone: '', tier: 'L1', entry_date: new Date().toISOString().split('T')[0], notes: '',
+  full_name: '', email: '', phone: '', tier: 'L1', invested_amount: 0, entry_date: new Date().toISOString().split('T')[0], notes: '',
 }
 
 export function PartnersClient({ initialPartners }: Props) {
@@ -109,7 +117,7 @@ export function PartnersClient({ initialPartners }: Props) {
     setEdit(p)
     setForm({
       full_name: p.full_name, email: p.email, phone: p.phone ?? '',
-      tier: p.tier, entry_date: p.entry_date, status: p.status, notes: p.notes ?? '',
+      tier: p.tier, invested_amount: p.invested_amount, entry_date: p.entry_date, status: p.status, notes: p.notes ?? '',
     })
     setError(null)
     setSlideOpen(true)
