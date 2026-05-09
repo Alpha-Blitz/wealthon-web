@@ -3,18 +3,19 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
 
-const SIZES = { sm: '420px', md: '560px', lg: '720px' } as const
+const SIZES = { sm: '480px', md: '640px', lg: '860px' } as const
 
 interface ModalProps {
-  isOpen:   boolean
-  onClose:  () => void
-  title:    string
-  size?:    keyof typeof SIZES
-  children: React.ReactNode
-  footer?:  React.ReactNode
+  isOpen:    boolean
+  onClose:   () => void
+  title:     string
+  size?:     keyof typeof SIZES
+  compact?:  boolean
+  children:  React.ReactNode
+  footer?:   React.ReactNode
 }
 
-export function Modal({ isOpen, onClose, title, size = 'md', children, footer }: ModalProps) {
+export function Modal({ isOpen, onClose, title, size = 'md', compact = false, children, footer }: ModalProps) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (isOpen) {
@@ -29,6 +30,11 @@ export function Modal({ isOpen, onClose, title, size = 'md', children, footer }:
 
   if (!isOpen) return null
 
+  const px  = compact ? 'px-5' : 'px-6'
+  const hpy = compact ? 'py-3' : 'py-4'
+  const bpy = compact ? 'py-4' : 'py-5'
+  const fpy = compact ? 'py-3' : 'py-4'
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -40,7 +46,7 @@ export function Modal({ isOpen, onClose, title, size = 'md', children, footer }:
         className="relative w-full flex flex-col"
         style={{
           maxWidth: SIZES[size],
-          maxHeight: 'calc(100vh - 80px)',
+          maxHeight: 'calc(100vh - 120px)',
           background: '#111111',
           border: '0.5px solid rgba(245,166,35,0.3)',
           borderRadius: '8px',
@@ -48,7 +54,7 @@ export function Modal({ isOpen, onClose, title, size = 'md', children, footer }:
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between px-8 py-6 flex-shrink-0"
+          className={`flex items-center justify-between ${px} ${hpy} flex-shrink-0`}
           style={{ borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}
         >
           <h2 className="font-serif text-[22px] text-[#F0EDE6]">
@@ -63,14 +69,14 @@ export function Modal({ isOpen, onClose, title, size = 'md', children, footer }:
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
+        <div className={`flex-1 overflow-y-auto ${px} ${bpy}`}>
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
           <div
-            className="flex justify-end gap-3 px-8 py-5 flex-shrink-0"
+            className={`flex justify-end gap-3 ${px} ${fpy} flex-shrink-0`}
             style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)' }}
           >
             {footer}

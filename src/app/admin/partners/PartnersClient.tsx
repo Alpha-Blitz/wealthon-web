@@ -28,25 +28,33 @@ function PartnerFormFields({ form, setForm, error }: {
   error: string | null
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <FormField label={C.form.fullName} required>
         <input style={inputStyle} value={form.full_name}
           onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} />
       </FormField>
-      <FormField label={C.form.email}>
-        <input type="text" style={inputStyle} value={form.email ?? ''}
-          onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-      </FormField>
-      <FormField label={C.form.phone}>
-        <input style={inputStyle} value={form.phone ?? ''}
-          onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
-      </FormField>
-      <FormField label={C.form.tier}>
-        <select style={selectStyle} value={form.tier}
-          onChange={e => setForm(f => ({ ...f, tier: e.target.value as Partner['tier'] }))}>
-          {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </FormField>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={C.form.email}>
+          <input type="text" style={inputStyle} value={form.email ?? ''}
+            onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+        </FormField>
+        <FormField label={C.form.phone}>
+          <input style={inputStyle} value={form.phone ?? ''}
+            onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+        </FormField>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={C.form.tier}>
+          <select style={selectStyle} value={form.tier}
+            onChange={e => setForm(f => ({ ...f, tier: e.target.value as Partner['tier'] }))}>
+            {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </FormField>
+        <FormField label={C.form.entryDate}>
+          <input type="date" style={inputStyle} value={form.entry_date}
+            onChange={e => setForm(f => ({ ...f, entry_date: e.target.value }))} />
+        </FormField>
+      </div>
       <FormField label={C.form.investedAmount}>
         <input
           type="number" min="0" step="1" style={inputStyle}
@@ -55,12 +63,8 @@ function PartnerFormFields({ form, setForm, error }: {
           onChange={e => setForm(f => ({ ...f, invested_amount: Math.round(parseFloat(e.target.value || '0') * 100) }))}
         />
       </FormField>
-      <FormField label={C.form.entryDate}>
-        <input type="date" style={inputStyle} value={form.entry_date}
-          onChange={e => setForm(f => ({ ...f, entry_date: e.target.value }))} />
-      </FormField>
       <FormField label={C.form.notes}>
-        <textarea style={{ ...textareaStyle, minHeight: 80 }}
+        <textarea style={{ ...textareaStyle, minHeight: 72 }}
           value={form.notes ?? ''}
           onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
       </FormField>

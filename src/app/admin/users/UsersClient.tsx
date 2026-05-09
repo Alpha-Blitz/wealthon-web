@@ -132,9 +132,23 @@ export function UsersClient({ initialUsers, partners }: Props) {
       key: 'full_name', label: C.columns.name,
       render: u => (
         <div>
-          <p className="text-[13px] font-sans text-[#F0EDE6]">{u.full_name ?? u.email.split('@')[0]}</p>
-          <p className="text-[11px] font-sans text-[#9A9080]">{u.email}</p>
+          <p className="text-[13px] font-sans text-[#F0EDE6]">{u.full_name ?? (u.account_type === 'admin' ? 'Admin' : u.email.split('@')[0])}</p>
+          <p className="text-[11px] font-sans text-[#9A9080]">
+            {u.username ? `@${u.username}` : u.email}
+          </p>
         </div>
+      ),
+    },
+    {
+      key: 'account_type' as keyof AdminUser, label: 'Type',
+      render: u => (
+        <span className="inline-flex items-center px-[10px] py-[2px] rounded-full text-[11px] font-sans tracking-[0.04em]"
+          style={u.account_type === 'admin'
+            ? { background: 'rgba(59,130,246,0.1)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)' }
+            : { background: 'rgba(245,166,35,0.1)', color: '#F5A623', border: '1px solid rgba(245,166,35,0.3)' }
+          }>
+          {u.account_type === 'admin' ? 'Admin' : 'Partner'}
+        </span>
       ),
     },
     { key: 'status', label: C.columns.status, render: u => <StatusPill status={u.status} /> },
@@ -145,10 +159,6 @@ export function UsersClient({ initialUsers, partners }: Props) {
         : <span className="text-[#68625A] text-[12px]">Never</span>,
     },
     {
-      key: 'partner_name', label: C.columns.partner,
-      render: u => <span className="text-[12px] font-sans text-[#9A9080]">{u.partner_name ?? '—'}</span>,
-    },
-    {
       key: 'actions' as keyof AdminUser, label: C.columns.actions,
       render: u => (
         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
@@ -156,7 +166,7 @@ export function UsersClient({ initialUsers, partners }: Props) {
             className="p-1.5 text-[#9A9080] hover:text-[#F5A623] transition-colors cursor-pointer bg-transparent border-none">
             <KeyRound size={14} />
           </button>
-          {u.status !== 'suspended' && (
+          {u.account_type === 'partner' && u.status !== 'suspended' && (
             <button onClick={() => setSuspend(u)} title={C.suspend}
               className="p-1.5 text-[#9A9080] hover:text-[#EF4444] transition-colors cursor-pointer bg-transparent border-none">
               <Ban size={14} />

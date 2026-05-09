@@ -235,39 +235,47 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
       {tab === C.tabs.notes        && <NotesTab noteText={noteText} setNoteText={setNoteText} partnerNotes={partner.notes} />}
 
       {/* Edit Partner Modal */}
-      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title={C.edit} size="sm">
-        <div className="flex flex-col gap-4">
-          {[
-            { label: 'Full Name',  key: 'full_name',  type: 'text' },
-            { label: 'Email',      key: 'email',      type: 'email' },
-            { label: 'Phone',      key: 'phone',      type: 'text' },
-            { label: 'Entry Date', key: 'entry_date', type: 'date' },
-          ].map(f => (
-            <FormField key={f.key} label={f.label}>
-              <input type={f.type} style={inputStyle}
-                value={(editForm as unknown as Record<string, string>)[f.key] ?? ''}
-                onChange={e => setEditForm(ef => ({ ...ef, [f.key]: e.target.value }))} />
-            </FormField>
-          ))}
-          <FormField label="Tier">
-            <select style={selectStyle} value={editForm.tier}
-              onChange={e => setEditForm(ef => ({ ...ef, tier: e.target.value as Partner['tier'] }))}>
-              {(Object.keys(PARTNER_TIERS) as Array<keyof typeof PARTNER_TIERS>).map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title={C.edit} size="sm" compact>
+        <div className="flex flex-col gap-3">
+          <FormField label="Full Name">
+            <input type="text" style={inputStyle} value={editForm.full_name}
+              onChange={e => setEditForm(ef => ({ ...ef, full_name: e.target.value }))} />
           </FormField>
-          <FormField label="Status">
-            <select style={selectStyle} value={editForm.status ?? 'active'}
-              onChange={e => setEditForm(ef => ({ ...ef, status: e.target.value as Partner['status'] }))}>
-              {['active','paused','exited'].map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Email">
+              <input type="email" style={inputStyle} value={editForm.email ?? ''}
+                onChange={e => setEditForm(ef => ({ ...ef, email: e.target.value }))} />
+            </FormField>
+            <FormField label="Phone">
+              <input type="text" style={inputStyle} value={editForm.phone ?? ''}
+                onChange={e => setEditForm(ef => ({ ...ef, phone: e.target.value }))} />
+            </FormField>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Tier">
+              <select style={selectStyle} value={editForm.tier}
+                onChange={e => setEditForm(ef => ({ ...ef, tier: e.target.value as Partner['tier'] }))}>
+                {(Object.keys(PARTNER_TIERS) as Array<keyof typeof PARTNER_TIERS>).map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Status">
+              <select style={selectStyle} value={editForm.status ?? 'active'}
+                onChange={e => setEditForm(ef => ({ ...ef, status: e.target.value as Partner['status'] }))}>
+                {['active','paused','exited'].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </FormField>
+          </div>
+          <FormField label="Entry Date">
+            <input type="date" style={inputStyle} value={editForm.entry_date}
+              onChange={e => setEditForm(ef => ({ ...ef, entry_date: e.target.value }))} />
           </FormField>
           <FormField label="Notes">
-            <textarea style={{ ...textareaStyle, minHeight: 80 }}
+            <textarea style={{ ...textareaStyle, minHeight: 64 }}
               value={editForm.notes ?? ''}
               onChange={e => setEditForm(ef => ({ ...ef, notes: e.target.value }))} />
           </FormField>
           <button onClick={saveEditPartner} disabled={editSaving}
-            className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-2 disabled:opacity-60"
+            className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-1 disabled:opacity-60"
             style={{ background: '#F5A623', color: '#080808' }}>
             {editSaving ? 'Saving…' : 'Save Changes'}
           </button>
@@ -275,29 +283,33 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
       </Modal>
 
       {/* Transaction Modal */}
-      <Modal isOpen={txOpen} onClose={() => { setTxOpen(false); setTxEdit(null) }} title={txEdit ? 'Edit Transaction' : 'Add Transaction'} size="sm">
-        <div className="flex flex-col gap-4">
-          <FormField label="Date">
-            <input type="date" style={inputStyle} value={txForm.date} onChange={e => setTxForm(f => ({ ...f, date: e.target.value }))} />
-          </FormField>
-          <FormField label="Type">
-            <select style={selectStyle} value={txForm.type} onChange={e => setTxForm(f => ({ ...f, type: e.target.value as Transaction['type'] }))}>
-              {TRANSACTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </FormField>
-          <FormField label="Amount (₹)">
-            <input type="number" style={inputStyle} value={txForm.amount} onChange={e => setTxForm(f => ({ ...f, amount: e.target.value }))} placeholder="Amount in rupees" />
-          </FormField>
-          <FormField label="Status">
-            <select style={selectStyle} value={txForm.status} onChange={e => setTxForm(f => ({ ...f, status: e.target.value as Transaction['status'] }))}>
-              {TRANSACTION_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </FormField>
+      <Modal isOpen={txOpen} onClose={() => { setTxOpen(false); setTxEdit(null) }} title={txEdit ? 'Edit Transaction' : 'Add Transaction'} size="sm" compact>
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Date">
+              <input type="date" style={inputStyle} value={txForm.date} onChange={e => setTxForm(f => ({ ...f, date: e.target.value }))} />
+            </FormField>
+            <FormField label="Type">
+              <select style={selectStyle} value={txForm.type} onChange={e => setTxForm(f => ({ ...f, type: e.target.value as Transaction['type'] }))}>
+                {TRANSACTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </FormField>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Amount (₹)">
+              <input type="number" style={inputStyle} value={txForm.amount} onChange={e => setTxForm(f => ({ ...f, amount: e.target.value }))} placeholder="In rupees" />
+            </FormField>
+            <FormField label="Status">
+              <select style={selectStyle} value={txForm.status} onChange={e => setTxForm(f => ({ ...f, status: e.target.value as Transaction['status'] }))}>
+                {TRANSACTION_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </FormField>
+          </div>
           <FormField label="Notes">
-            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={txForm.notes} onChange={e => setTxForm(f => ({ ...f, notes: e.target.value }))} />
+            <textarea style={{ ...textareaStyle, minHeight: 56 }} value={txForm.notes} onChange={e => setTxForm(f => ({ ...f, notes: e.target.value }))} />
           </FormField>
           <button onClick={saveTx} disabled={txSaving}
-            className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-2 disabled:opacity-60"
+            className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-1 disabled:opacity-60"
             style={{ background: '#F5A623', color: '#080808' }}>
             {txSaving ? 'Saving…' : 'Save Transaction'}
           </button>
@@ -306,8 +318,8 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
 
       {/* PnL Report Modal */}
       <Modal isOpen={rptOpen} onClose={() => setRptOpen(false)} title="Add P&L Report" size="md">
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <FormField label="Quarter">
               <select style={selectStyle} value={rptForm.quarter} onChange={e => setRptForm(f => ({ ...f, quarter: e.target.value }))}>
                 {['1','2','3','4'].map(q => <option key={q} value={q}>Q{q}</option>)}
@@ -317,24 +329,30 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
               <input type="number" style={inputStyle} value={rptForm.year} onChange={e => setRptForm(f => ({ ...f, year: e.target.value }))} />
             </FormField>
           </div>
-          {[
-            { label: 'Gross Profit (₹)',         key: 'gross_profit' },
-            { label: 'Realized P&L (₹)',          key: 'realized_pnl' },
-            { label: 'Unrealized P&L (₹)',        key: 'unrealized_pnl' },
-            { label: 'Distribution Amount (₹)',   key: 'distribution_amount' },
-            { label: 'Win Rate (%)',               key: 'win_rate' },
-          ].map(f => (
-            <FormField key={f.key} label={f.label}>
-              <input type="number" style={inputStyle}
-                value={(rptForm as Record<string, string>)[f.key]}
-                onChange={e => setRptForm(r => ({ ...r, [f.key]: e.target.value }))} />
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Gross Profit (₹)">
+              <input type="number" style={inputStyle} value={rptForm.gross_profit} onChange={e => setRptForm(r => ({ ...r, gross_profit: e.target.value }))} />
             </FormField>
-          ))}
+            <FormField label="Realized P&L (₹)">
+              <input type="number" style={inputStyle} value={rptForm.realized_pnl} onChange={e => setRptForm(r => ({ ...r, realized_pnl: e.target.value }))} />
+            </FormField>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Unrealized P&L (₹)">
+              <input type="number" style={inputStyle} value={rptForm.unrealized_pnl} onChange={e => setRptForm(r => ({ ...r, unrealized_pnl: e.target.value }))} />
+            </FormField>
+            <FormField label="Win Rate (%)">
+              <input type="number" style={inputStyle} value={rptForm.win_rate} onChange={e => setRptForm(r => ({ ...r, win_rate: e.target.value }))} />
+            </FormField>
+          </div>
+          <FormField label="Distribution Amount (₹)">
+            <input type="number" style={inputStyle} value={rptForm.distribution_amount} onChange={e => setRptForm(r => ({ ...r, distribution_amount: e.target.value }))} />
+          </FormField>
           <FormField label="Notes">
-            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={rptForm.notes} onChange={e => setRptForm(f => ({ ...f, notes: e.target.value }))} />
+            <textarea style={{ ...textareaStyle, minHeight: 56 }} value={rptForm.notes} onChange={e => setRptForm(f => ({ ...f, notes: e.target.value }))} />
           </FormField>
           <button onClick={saveReport} disabled={rptSaving}
-            className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-2 disabled:opacity-60"
+            className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-1 disabled:opacity-60"
             style={{ background: '#F5A623', color: '#080808' }}>
             {rptSaving ? 'Saving…' : 'Save Report'}
           </button>

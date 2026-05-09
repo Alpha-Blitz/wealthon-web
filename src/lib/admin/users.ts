@@ -20,10 +20,12 @@ export interface AdminUser {
   id:           string
   email:        string
   full_name:    string | null
+  username:     string | null
   last_sign_in: string | null
   status:       'active' | 'suspended'
   partner_id:   string | null
   partner_name: string | null
+  account_type: 'partner' | 'admin'
 }
 
 export interface AdminMember {
@@ -40,6 +42,7 @@ type SupabaseAdmin = {
     admin: {
       listUsers: () => Promise<{ data: { users: Array<{ id: string; email?: string; user_metadata?: Record<string, unknown>; last_sign_in_at?: string }> }; error: unknown }>
       createUser: (opts: Record<string, unknown>) => Promise<{ data: { user?: { id: string } }; error?: { message: string } }>
+      deleteUser: (id: string) => Promise<{ error?: { message: string } }>
       generateLink: (opts: Record<string, unknown>) => Promise<{ data: { properties?: { action_link?: string } }; error?: { message: string } }>
       updateUserById: (id: string, opts: Record<string, unknown>) => Promise<{ error?: { message: string } }>
       getUserById: (id: string) => Promise<{ data: { user: { email?: string; user_metadata?: Record<string, unknown> } | null }; error?: unknown }>
@@ -63,30 +66,47 @@ export async function getAdminRole(
   return data ?? null
 }
 
-export async function getAdminUsers(supabase: SupabaseClient): Promise<Result<AdminUser[]>> {
-  const { data: partners, error: pErr } = await supabase
-    .from(TABLE.PARTNERS)
-    .select('id, user_id, full_name')
-    .eq('company_id', MOCK_COMPANY_ID)
-  if (pErr) return err(pErr.message)
+export async function getAdminUsers(_supabase: SupabaseClient): Promise<Result<AdminUser[]>> {
+  // Always use service role — auth.admin.* requires it
+  const svc = createAdminClient()
 
-  const partnerMap = new Map((partners ?? []).map(p => [p.user_id, p]))
+  const [{ data: partners }, { data: adminRoles }, { data: authData, error: authErr }] = await Promise.all([
+    svc.from(TABLE.PARTNERS)
+      .select('id, user_id, full_name, username')
+      .eq('company_id', MOCK_COMPANY_ID)
+      .not('user_id', 'is', null),
+    svc.from(TABLE.ADMIN_ROLES)
+      .select('user_id')
+      .eq('company_id', MOCK_COMPANY_ID),
+    adminClient(svc).auth.admin.listUsers(),
+  ])
 
-  const { data: { users }, error } = await adminClient(supabase).auth.admin.listUsers()
-  if (error) return err('Requires service role key')
+  if (authErr) {
+    console.error('[getAdminUsers] listUsers error:', authErr)
+    return err('Failed to list users')
+  }
 
-  const result: AdminUser[] = (users ?? []).map(u => {
-    const partner = partnerMap.get(u.id)
-    return {
-      id:           u.id,
-      email:        u.email ?? '',
-      full_name:    (u.user_metadata?.full_name as string | null) ?? null,
-      last_sign_in: u.last_sign_in_at ?? null,
-      status:       (u.user_metadata?.suspended as boolean) ? 'suspended' : 'active',
-      partner_id:   partner?.id ?? null,
-      partner_name: partner?.full_name ?? null,
-    }
-  })
+  const partnerMap   = new Map((partners   ?? []).map(p => [p.user_id,  p]))
+  const adminUserIds = new Set((adminRoles ?? []).map(r => r.user_id))
+
+  // Only include users that are either a linked partner or an admin — skip service/anon accounts
+  const result: AdminUser[] = (authData.users ?? [])
+    .filter(u => partnerMap.has(u.id) || adminUserIds.has(u.id))
+    .map(u => {
+      const partner     = partnerMap.get(u.id)
+      const isAdmin     = adminUserIds.has(u.id)
+      return {
+        id:           u.id,
+        email:        u.email ?? '',
+        full_name:    partner?.full_name ?? (u.user_metadata?.full_name as string | null) ?? null,
+        username:     partner?.username ?? null,
+        last_sign_in: u.last_sign_in_at ?? null,
+        status:       (u.user_metadata?.suspended as boolean) ? 'suspended' : 'active',
+        partner_id:   partner?.id ?? null,
+        partner_name: partner?.full_name ?? null,
+        account_type: isAdmin && !partner ? 'admin' : 'partner',
+      }
+    })
 
   return ok(result)
 }
@@ -150,7 +170,7 @@ export async function createPartnerAccountWithUsername(
   password: string,
   partnerId: string
 ): Promise<Result<{ userId: string; username: string }>> {
-  // Use synthetic auth email — user never sees it
+  // Use synthetic auth email — partner never sees or needs to know it
   const authEmail = `${username.toLowerCase()}@wealthon-partner.internal`
 
   const { data, error } = await adminClient(supabase).auth.admin.createUser({
@@ -158,17 +178,28 @@ export async function createPartnerAccountWithUsername(
     password,
     email_confirm: true,
   })
-  if (error || !data.user) return err(error?.message ?? 'Failed to create account')
+  if (error || !data.user) {
+    console.error('[createPartnerAccountWithUsername] createUser failed:', error)
+    return err(error?.message ?? 'Failed to create account')
+  }
+
+  const createdUserId = data.user.id
 
   const { error: updateErr } = await supabase
     .from(TABLE.PARTNERS)
-    .update({ user_id: data.user.id, username: username.toLowerCase() })
+    .update({ user_id: createdUserId, username: username.toLowerCase() })
     .eq('id', partnerId)
     .eq('company_id', MOCK_COMPANY_ID)
-  if (updateErr) return err(updateErr.message)
 
-  await logAction(supabase, 'user.create', 'user', data.user.id, { after: { username, partnerId } })
-  return ok({ userId: data.user.id, username: username.toLowerCase() })
+  if (updateErr) {
+    console.error('[createPartnerAccountWithUsername] partner update failed:', updateErr)
+    // Roll back the auth user so we don't leave an orphan
+    await adminClient(supabase).auth.admin.deleteUser(createdUserId)
+    return err(updateErr.message)
+  }
+
+  await logAction(supabase, 'user.create', 'user', createdUserId, { after: { username, partnerId } })
+  return ok({ userId: createdUserId, username: username.toLowerCase() })
 }
 
 export async function checkUsernameAvailable(

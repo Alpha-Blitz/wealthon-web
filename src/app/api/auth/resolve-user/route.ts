@@ -10,15 +10,21 @@ export async function POST(request: Request) {
     }
 
     const supabase = createAdminClient()
+    const clean = username.toLowerCase().trim()
     const { data } = await supabase
       .from('partners')
-      .select('email')
-      .eq('username', username.toLowerCase().trim())
+      .select('id')
+      .eq('username', clean)
       .eq('company_id', MOCK_COMPANY_ID)
       .maybeSingle()
 
-    // Return null if not found — client must show same generic error either way
-    return NextResponse.json({ email: data?.email ?? null })
+    if (!data) {
+      // Partner not found — return null so client shows generic error (no enumeration)
+      return NextResponse.json({ email: null })
+    }
+
+    // Construct the same synthetic email used when the account was created
+    return NextResponse.json({ email: `${clean}@wealthon-partner.internal` })
   } catch {
     return NextResponse.json({ email: null })
   }
