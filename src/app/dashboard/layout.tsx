@@ -10,6 +10,10 @@ import { CONTENT } from '@/config/content'
 import { ROUTES } from '@/config/routes'
 import { mockPartner } from '@/lib/mock/data'
 
+if (process.env.NODE_ENV === 'production' && process.env.DEV_BYPASS_AUTH === 'true') {
+  throw new Error('DEV_BYPASS_AUTH must not be set in production')
+}
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const devBypass = process.env.DEV_BYPASS_AUTH === 'true'
 

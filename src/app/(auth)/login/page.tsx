@@ -7,6 +7,7 @@ import { Eye, EyeOff, Shield, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
+import { MOCK_COMPANY_ID } from '@/config/constants'
 
 const INPUT_BASE: React.CSSProperties = {
   background: 'rgba(255,255,255,0.03)',
@@ -42,15 +43,32 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    if (authError) {
-      setError(CONTENT.errors.authFailed)
+    try {
+      const supabase = createClient()
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError) {
+        setError(CONTENT.errors.authFailed)
+        setLoading(false)
+        return
+      }
+      // Determine destination: admins go to /admin, partners go to /dashboard
+      const { data: { session } } = await supabase.auth.getSession()
+      let destination: string = ROUTES.DASHBOARD
+      if (session) {
+        const { data: adminRole } = await supabase
+          .from('admin_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .eq('company_id', MOCK_COMPANY_ID)
+          .maybeSingle()
+        if (adminRole) destination = ROUTES.ADMIN.ROOT
+      }
+      setRedirecting(true)
+      window.location.href = destination
+    } catch {
+      setError(CONTENT.errors.generic)
       setLoading(false)
-      return
     }
-    setRedirecting(true)
-    window.location.href = ROUTES.DASHBOARD
   }
 
   if (redirecting) {
