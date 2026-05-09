@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { KeyRound, Ban, Copy, Check } from 'lucide-react'
+import { KeyRound, Ban, Copy, Check, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { resetPassword, suspendAccount, type AdminUser } from '@/lib/admin/users'
 import { Modal } from '@/components/admin/Modal'
@@ -45,6 +45,8 @@ export function UsersClient({ initialUsers, partners }: Props) {
   const [resetLink, setResetLink] = useState<string | null>(null)
   const [createdUsername, setCreatedUsername] = useState<string | null>(null)
   const [copied, setCopied]       = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm]   = useState(false)
 
   // Username availability debounce
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle')
@@ -248,12 +250,21 @@ export function UsersClient({ initialUsers, partners }: Props) {
             </FormField>
 
             <FormField label="Password" required>
-              <input
-                type="password" style={inputStyle}
-                value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                placeholder="Min 8 characters"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'} style={inputStyle}
+                  value={form.password}
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                  placeholder="Min 8 characters"
+                />
+                <button type="button" onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-1 cursor-pointer bg-transparent border-none transition-colors"
+                  style={{ color: '#8A8070' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#F5A623')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#8A8070')}>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {form.password && (
                 <div className="flex items-center gap-2 mt-1.5">
                   <div className="flex gap-0.5 flex-1">
@@ -268,12 +279,21 @@ export function UsersClient({ initialUsers, partners }: Props) {
             </FormField>
 
             <FormField label="Confirm Password" required>
-              <input
-                type="password" style={inputStyle}
-                value={form.confirm}
-                onChange={e => setForm(f => ({ ...f, confirm: e.target.value }))}
-                placeholder="Repeat password"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirm ? 'text' : 'password'} style={inputStyle}
+                  value={form.confirm}
+                  onChange={e => setForm(f => ({ ...f, confirm: e.target.value }))}
+                  placeholder="Repeat password"
+                />
+                <button type="button" onClick={() => setShowConfirm(v => !v)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-1 cursor-pointer bg-transparent border-none transition-colors"
+                  style={{ color: '#8A8070' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#F5A623')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#8A8070')}>
+                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {form.confirm && form.password !== form.confirm && (
                 <p className="text-[11px] font-sans mt-1" style={{ color: '#EF4444' }}>Passwords do not match</p>
               )}

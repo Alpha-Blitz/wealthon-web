@@ -104,8 +104,8 @@ export function AddLeadModal({ isOpen, stage, form, saving, onChange, onSave, on
 
         <div className="flex gap-3 mt-1">
           <button onClick={onClose}
-            className="px-4 py-2.5 rounded-[4px] text-[14px] font-sans cursor-pointer border-none"
-            style={{ background: 'rgba(255,255,255,0.05)', color: '#9A9080' }}>
+            className="px-7 py-2.5 rounded-[4px] text-[13px] font-sans cursor-pointer transition-colors"
+            style={{ background: 'transparent', border: '1px solid rgba(245,166,35,0.3)', color: '#F5A623' }}>
             Cancel
           </button>
           <button onClick={onSave} disabled={saving || !form.name.trim()}

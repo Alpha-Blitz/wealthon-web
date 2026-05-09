@@ -1,6 +1,7 @@
 'use client'
 
 import { CONTENT } from '@/config/content'
+import { selectStyle } from '@/components/admin/FormField'
 
 const C = CONTENT.admin.distributions
 const CURRENT_YEAR = new Date().getFullYear()
@@ -24,18 +25,16 @@ export function SelectPeriodStep({ quarter, year, loading, error, onQuarterChang
       </h3>
       <div className="flex gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-sans uppercase tracking-[0.08em] text-[#9A9080]">Quarter</label>
+          <label className="text-[11px] font-sans font-normal uppercase tracking-[0.12em] text-[#F5A623] block mb-1.5">Quarter</label>
           <select value={quarter} onChange={e => onQuarterChange(Number(e.target.value))}
-            className="text-[14px] font-sans text-[#F0EDE6] px-3 py-2.5 rounded-[6px] outline-none cursor-pointer"
-            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)', minWidth: 100 }}>
+            style={{ ...selectStyle, minWidth: 100 }}>
             {[1,2,3,4].map(q => <option key={q} value={q}>Q{q}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-sans uppercase tracking-[0.08em] text-[#9A9080]">Year</label>
+          <label className="text-[11px] font-sans font-normal uppercase tracking-[0.12em] text-[#F5A623] block mb-1.5">Year</label>
           <select value={year} onChange={e => onYearChange(Number(e.target.value))}
-            className="text-[14px] font-sans text-[#F0EDE6] px-3 py-2.5 rounded-[6px] outline-none cursor-pointer"
-            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)', minWidth: 100 }}>
+            style={{ ...selectStyle, minWidth: 100 }}>
             {[CURRENT_YEAR, CURRENT_YEAR - 1, CURRENT_YEAR - 2].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>

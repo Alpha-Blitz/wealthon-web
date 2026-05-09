@@ -10,7 +10,6 @@ import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
 import { PARTNER_TIERS } from '@/config/constants'
 import { formatINR } from '@/lib/utils'
-import { FormModal } from '@/components/admin/FormModal'
 import { Modal } from '@/components/admin/Modal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { DataTable, type Column } from '@/components/admin/DataTable'
@@ -23,14 +22,10 @@ const TIERS = Object.keys(PARTNER_TIERS) as Array<keyof typeof PARTNER_TIERS>
 
 interface Props { initialPartners: Partner[] }
 
-function PartnerFormFields({ form, setForm, saving, error, onSave, saveLabel, savingLabel }: {
+function PartnerFormFields({ form, setForm, error }: {
   form: PartnerInput
   setForm: React.Dispatch<React.SetStateAction<PartnerInput>>
-  saving: boolean
   error: string | null
-  onSave: () => void
-  saveLabel: string
-  savingLabel: string
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -70,11 +65,6 @@ function PartnerFormFields({ form, setForm, saving, error, onSave, saveLabel, sa
           onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
       </FormField>
       {error && <p className="text-[12px] font-sans" style={{ color: '#EF4444' }}>{error}</p>}
-      <button onClick={onSave} disabled={saving}
-        className="w-full py-3 rounded-[4px] text-[14px] font-sans transition-colors cursor-pointer border-none mt-2 disabled:opacity-60"
-        style={{ background: '#F5A623', color: '#080808' }}>
-        {saving ? savingLabel : saveLabel}
-      </button>
     </div>
   )
 }
@@ -227,16 +217,28 @@ export function PartnersClient({ initialPartners }: Props) {
       />
 
       {/* Add Partner — centered modal */}
-      <FormModal
+      <Modal
         isOpen={addModalOpen}
         onClose={() => setAddModal(false)}
         title={C.form.title}
+        size="md"
+        footer={
+          <>
+            <button onClick={() => setAddModal(false)}
+              className="px-7 py-3 rounded-[4px] text-[13px] font-sans cursor-pointer border-none transition-colors"
+              style={{ background: 'transparent', border: '1px solid rgba(245,166,35,0.3)', color: '#F5A623' }}>
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={saving}
+              className="px-7 py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none disabled:opacity-60"
+              style={{ background: '#F5A623', color: '#080808' }}>
+              {saving ? C.form.saving : C.form.save}
+            </button>
+          </>
+        }
       >
-        <PartnerFormFields
-          form={form} setForm={setForm} saving={saving}
-          error={error} onSave={handleSave} saveLabel={C.form.save} savingLabel={C.form.saving}
-        />
-      </FormModal>
+        <PartnerFormFields form={form} setForm={setForm} error={error} />
+      </Modal>
 
       {/* Edit Partner — centered modal */}
       <Modal
@@ -244,11 +246,22 @@ export function PartnersClient({ initialPartners }: Props) {
         onClose={() => setSlideOpen(false)}
         title={C.form.editTitle}
         size="sm"
+        footer={
+          <>
+            <button onClick={() => setSlideOpen(false)}
+              className="px-7 py-3 rounded-[4px] text-[13px] font-sans cursor-pointer border-none transition-colors"
+              style={{ background: 'transparent', border: '1px solid rgba(245,166,35,0.3)', color: '#F5A623' }}>
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={saving}
+              className="px-7 py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none disabled:opacity-60"
+              style={{ background: '#F5A623', color: '#080808' }}>
+              {saving ? C.form.saving : C.form.save}
+            </button>
+          </>
+        }
       >
-        <PartnerFormFields
-          form={form} setForm={setForm} saving={saving}
-          error={error} onSave={handleSave} saveLabel={C.form.save} savingLabel={C.form.saving}
-        />
+        <PartnerFormFields form={form} setForm={setForm} error={error} />
       </Modal>
 
       {/* Delete confirm */}
