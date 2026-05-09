@@ -11,6 +11,7 @@ export interface Partner {
   entry_date: string
   status: 'active' | 'paused' | 'exited'
   avatar_url: string | null
+  username: string | null
   notes: string | null
   created_at: string
   updated_at: string

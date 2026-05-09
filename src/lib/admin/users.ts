@@ -144,6 +144,46 @@ export async function createPartnerAccount(
   return ok(data.user.id)
 }
 
+export async function createPartnerAccountWithUsername(
+  supabase: SupabaseClient,
+  username: string,
+  password: string,
+  partnerId: string
+): Promise<Result<{ userId: string; username: string }>> {
+  // Use synthetic auth email — user never sees it
+  const authEmail = `${username.toLowerCase()}@wealthon-partner.internal`
+
+  const { data, error } = await adminClient(supabase).auth.admin.createUser({
+    email:         authEmail,
+    password,
+    email_confirm: true,
+  })
+  if (error || !data.user) return err(error?.message ?? 'Failed to create account')
+
+  const { error: updateErr } = await supabase
+    .from(TABLE.PARTNERS)
+    .update({ user_id: data.user.id, username: username.toLowerCase() })
+    .eq('id', partnerId)
+    .eq('company_id', MOCK_COMPANY_ID)
+  if (updateErr) return err(updateErr.message)
+
+  await logAction(supabase, 'user.create', 'user', data.user.id, { after: { username, partnerId } })
+  return ok({ userId: data.user.id, username: username.toLowerCase() })
+}
+
+export async function checkUsernameAvailable(
+  supabase: SupabaseClient,
+  username: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from(TABLE.PARTNERS)
+    .select('id')
+    .eq('username', username.toLowerCase())
+    .eq('company_id', MOCK_COMPANY_ID)
+    .maybeSingle()
+  return !data
+}
+
 export async function resetPassword(
   supabase: SupabaseClient,
   email: string

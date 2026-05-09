@@ -7,7 +7,7 @@ import { addLead, updateLead, updateLeadStage, deleteLead, type LeadInput } from
 import { PIPELINE_STAGES, LEAD_STAGE_TO_DB, type PipelineStage } from '@/config/constants'
 import { CONTENT } from '@/config/content'
 import { KanbanBoard } from '@/components/admin/KanbanBoard'
-import { SlideOver } from '@/components/admin/SlideOver'
+import { Modal } from '@/components/admin/Modal'
 import { AddLeadModal } from '@/components/admin/AddLeadModal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { FunnelStrip } from '@/components/admin/FunnelStrip'
@@ -131,7 +131,7 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
         onClose={() => setAddOpen(false)}
       />
 
-      <SlideOver isOpen={slideOpen} onClose={() => setSlideOpen(false)} title={selectedLead?.name ?? ''}>
+      <Modal isOpen={slideOpen} onClose={() => setSlideOpen(false)} title={selectedLead?.name ?? ''} size="sm">
         {selectedLead && (
           <LeadForm
             lead={selectedLead}
@@ -142,7 +142,7 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
             onDelete={() => setDelLead(selectedLead)}
           />
         )}
-      </SlideOver>
+      </Modal>
 
       <ConfirmModal
         isOpen={!!delLead}

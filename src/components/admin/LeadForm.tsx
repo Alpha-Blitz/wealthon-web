@@ -1,7 +1,7 @@
 'use client'
 
 import { StatusPill } from '@/components/shared/StatusPill'
-import { FormField, inputStyle, selectStyle } from '@/components/admin/FormField'
+import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
 import type { Lead } from '@/types/database'
@@ -52,7 +52,7 @@ export function LeadForm({ lead, form, saving, onChange, onSave, onDelete }: Pro
         </select>
       </FormField>
       <FormField label="Notes">
-        <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
+        <textarea style={{ ...textareaStyle, minHeight: 80 }}
           value={form.notes ?? ''} onChange={e => onChange({ ...form, notes: e.target.value })} />
       </FormField>
 

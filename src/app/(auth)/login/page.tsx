@@ -29,13 +29,13 @@ const DOT_PATTERN: React.CSSProperties = {
 }
 
 export default function LoginPage() {
-  const [email, setEmail]       = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading]   = useState(false)
   const [redirecting, setRedirecting] = useState(false)
   const [error, setError]       = useState<string | null>(null)
-  const [focusedEmail, setFocusedEmail]         = useState(false)
+  const [focusedUser, setFocusedUser]           = useState(false)
   const [focusedPassword, setFocusedPassword]   = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -44,15 +44,34 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const supabase = createClient()
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      let authEmail = username.trim()
+
+      // If the login looks like a username (no @), resolve it to an email
+      if (!authEmail.includes('@')) {
+        const res = await fetch('/api/auth/resolve-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: authEmail }),
+        })
+        const { email: resolved } = await res.json()
+        if (!resolved) {
+          // Generic error — don't reveal whether username exists
+          setError('Invalid username or password.')
+          setLoading(false)
+          return
+        }
+        authEmail = resolved
+      }
+
+      const { error: authError } = await supabase.auth.signInWithPassword({ email: authEmail, password })
       if (authError) {
-        setError(CONTENT.errors.authFailed)
+        setError('Invalid username or password.')
         setLoading(false)
         return
       }
       // Ask the server (service role) whether this user is an admin — avoids RLS issues
-      const res = await fetch('/api/auth/is-admin')
-      const { isAdmin } = await res.json()
+      const adminRes = await fetch('/api/auth/is-admin')
+      const { isAdmin } = await adminRes.json()
       setRedirecting(true)
       window.location.href = isAdmin ? ROUTES.ADMIN.ROOT : ROUTES.DASHBOARD
     } catch {
@@ -127,18 +146,19 @@ export default function LoginPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {/* Email */}
-            <div className="relative rounded-[8px] overflow-hidden" style={focusedEmail ? INPUT_FOCUS : INPUT_BASE}>
+            {/* Username */}
+            <div className="relative rounded-[8px] overflow-hidden" style={focusedUser ? INPUT_FOCUS : INPUT_BASE}>
               <input
-                type="email"
-                placeholder={CONTENT.login.emailPlaceholder}
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                onFocus={() => setFocusedEmail(true)}
-                onBlur={() => setFocusedEmail(false)}
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                onFocus={() => setFocusedUser(true)}
+                onBlur={() => setFocusedUser(false)}
                 className={INPUT_CLASS}
                 required
-                autoComplete="email"
+                autoComplete="username"
+                autoCapitalize="none"
               />
             </div>
 

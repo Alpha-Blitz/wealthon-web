@@ -5,10 +5,10 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { createStrategy, updateStrategy, deleteStrategy, type StrategyInput } from '@/lib/admin/strategies'
 import { STRATEGY_MARKETS, RISK_LEVELS } from '@/config/constants'
-import { SlideOver } from '@/components/admin/SlideOver'
+import { Modal } from '@/components/admin/Modal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { DataTable, type Column } from '@/components/admin/DataTable'
-import { FormField, inputStyle, selectStyle } from '@/components/admin/FormField'
+import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
 import { StatusPill } from '@/components/shared/StatusPill'
 import { CONTENT } from '@/config/content'
 import type { Strategy } from '@/types/database'
@@ -117,8 +117,8 @@ export function StrategiesClient({ initialStrategies }: Props) {
 
       <DataTable columns={columns} data={strategies} />
 
-      <SlideOver isOpen={slideOpen} onClose={() => setSlideOpen(false)}
-        title={editItem ? C.form.editTitle : C.form.title}>
+      <Modal isOpen={slideOpen} onClose={() => setSlideOpen(false)}
+        title={editItem ? C.form.editTitle : C.form.title} size="sm">
         <div className="flex flex-col gap-4">
           <FormField label={C.form.name} required>
             <input style={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
@@ -147,7 +147,7 @@ export function StrategiesClient({ initialStrategies }: Props) {
             </select>
           </FormField>
           <FormField label={C.form.notes}>
-            <textarea style={{ ...inputStyle, minHeight: 72, resize: 'vertical' }} value={form.notes ?? ''}
+            <textarea style={{ ...textareaStyle, minHeight: 72 }} value={form.notes ?? ''}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value || null }))} />
           </FormField>
           {error && <p className="text-[12px] font-sans" style={{ color: '#EF4444' }}>{error}</p>}
@@ -157,7 +157,7 @@ export function StrategiesClient({ initialStrategies }: Props) {
             {saving ? 'Saving…' : C.form.save}
           </button>
         </div>
-      </SlideOver>
+      </Modal>
 
       <ConfirmModal isOpen={!!delItem} onClose={() => setDelItem(null)} onConfirm={handleDelete}
         title="Delete Strategy" description="This will permanently delete this strategy."

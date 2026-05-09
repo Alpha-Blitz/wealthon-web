@@ -5,6 +5,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getAllocations, saveAllocations } from '@/lib/admin/allocation'
 import { STRATEGY_MARKETS } from '@/config/constants'
+import { selectStyle, inputStyle } from '@/components/admin/FormField'
 import { formatINR } from '@/lib/utils'
 import { CONTENT } from '@/config/content'
 import type { Partner, Allocation } from '@/types/database'
@@ -82,13 +83,12 @@ export function AllocationClient({ partners }: Props) {
         style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}>
         <h3 className="font-serif text-[20px] text-[#F0EDE6]">{C.title}</h3>
 
-        <div>
-          <label className="text-[11px] font-sans uppercase tracking-[0.08em] text-[#9A9080] mb-1.5 block">Partner</label>
+        <div className="form-field flex flex-col gap-1.5">
+          <label className="text-[11px] font-sans font-normal uppercase tracking-[0.12em] text-[#F5A623]">Partner</label>
           <select
             value={partnerId}
             onChange={e => setPartnerId(e.target.value)}
-            className="w-full text-[14px] font-sans text-[#F0EDE6] px-3 py-2.5 rounded-[6px] outline-none cursor-pointer"
-            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)' }}>
+            style={selectStyle}>
             <option value="">{C.selectPartner}</option>
             {partners.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}
           </select>
@@ -114,16 +114,14 @@ export function AllocationClient({ partners }: Props) {
                     <select
                       value={row.asset_class}
                       onChange={e => updateRow(i, 'asset_class', e.target.value)}
-                      className="text-[13px] font-sans text-[#F0EDE6] px-3 py-2 rounded-[6px] outline-none cursor-pointer"
-                      style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      style={selectStyle}>
                       {STRATEGY_MARKETS.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                     <input
                       type="number" step="0.1" min="0" max="100"
                       value={row.percentage}
                       onChange={e => updateRow(i, 'percentage', Number(e.target.value))}
-                      className="text-[13px] font-sans text-[#F0EDE6] px-3 py-2 rounded-[6px] outline-none text-right"
-                      style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)' }}
+                      style={{ ...inputStyle, textAlign: 'right' }}
                     />
                     <span className="text-[12px] font-sans text-[#9A9080] tabular-nums">
                       {formatINR(row.amount)}

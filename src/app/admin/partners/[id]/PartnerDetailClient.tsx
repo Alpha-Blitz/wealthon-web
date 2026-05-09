@@ -9,10 +9,10 @@ import { addPnLReport } from '@/lib/admin/pnl'
 import { CONTENT } from '@/config/content'
 import { PARTNER_TIERS, TRANSACTION_TYPES, TRANSACTION_STATUSES, PAISE_PER_RUPEE, MONTH_NAMES } from '@/config/constants'
 import { formatINR } from '@/lib/utils'
-import { SlideOver } from '@/components/admin/SlideOver'
+import { Modal } from '@/components/admin/Modal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { DataTable, type Column } from '@/components/admin/DataTable'
-import { FormField, inputStyle, selectStyle } from '@/components/admin/FormField'
+import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
 import { StatusPill } from '@/components/shared/StatusPill'
 import { OverviewTab } from './tabs/OverviewTab'
@@ -164,7 +164,14 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
               {partner.initials}
             </div>
             <div>
-              <h2 className="font-serif text-[28px] text-[#F0EDE6]">{partner.full_name}</h2>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h2 className="font-serif text-[28px] text-[#F0EDE6]">{partner.full_name}</h2>
+                {partner.username && (
+                  <span className="text-[12px] font-sans font-light text-[#F5A623] self-end mb-1">
+                    @{partner.username}
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <StatusPill status={partner.tier} />
                 <StatusPill status={partner.status} />
@@ -227,8 +234,8 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
       {tab === C.tabs.documents    && <DocumentsTab partnerId={partner.id} />}
       {tab === C.tabs.notes        && <NotesTab noteText={noteText} setNoteText={setNoteText} partnerNotes={partner.notes} />}
 
-      {/* Edit Partner SlideOver */}
-      <SlideOver isOpen={editOpen} onClose={() => setEditOpen(false)} title={C.edit}>
+      {/* Edit Partner Modal */}
+      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title={C.edit} size="sm">
         <div className="flex flex-col gap-4">
           {[
             { label: 'Full Name',  key: 'full_name',  type: 'text' },
@@ -255,7 +262,7 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             </select>
           </FormField>
           <FormField label="Notes">
-            <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
+            <textarea style={{ ...textareaStyle, minHeight: 80 }}
               value={editForm.notes ?? ''}
               onChange={e => setEditForm(ef => ({ ...ef, notes: e.target.value }))} />
           </FormField>
@@ -265,10 +272,10 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             {editSaving ? 'Saving…' : 'Save Changes'}
           </button>
         </div>
-      </SlideOver>
+      </Modal>
 
-      {/* Transaction SlideOver */}
-      <SlideOver isOpen={txOpen} onClose={() => { setTxOpen(false); setTxEdit(null) }} title={txEdit ? 'Edit Transaction' : 'Add Transaction'}>
+      {/* Transaction Modal */}
+      <Modal isOpen={txOpen} onClose={() => { setTxOpen(false); setTxEdit(null) }} title={txEdit ? 'Edit Transaction' : 'Add Transaction'} size="sm">
         <div className="flex flex-col gap-4">
           <FormField label="Date">
             <input type="date" style={inputStyle} value={txForm.date} onChange={e => setTxForm(f => ({ ...f, date: e.target.value }))} />
@@ -287,7 +294,7 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             </select>
           </FormField>
           <FormField label="Notes">
-            <textarea style={{ ...inputStyle, minHeight: 60, resize: 'vertical' }} value={txForm.notes} onChange={e => setTxForm(f => ({ ...f, notes: e.target.value }))} />
+            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={txForm.notes} onChange={e => setTxForm(f => ({ ...f, notes: e.target.value }))} />
           </FormField>
           <button onClick={saveTx} disabled={txSaving}
             className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-2 disabled:opacity-60"
@@ -295,10 +302,10 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             {txSaving ? 'Saving…' : 'Save Transaction'}
           </button>
         </div>
-      </SlideOver>
+      </Modal>
 
-      {/* PnL Report SlideOver */}
-      <SlideOver isOpen={rptOpen} onClose={() => setRptOpen(false)} title="Add P&L Report">
+      {/* PnL Report Modal */}
+      <Modal isOpen={rptOpen} onClose={() => setRptOpen(false)} title="Add P&L Report" size="md">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Quarter">
@@ -324,7 +331,7 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             </FormField>
           ))}
           <FormField label="Notes">
-            <textarea style={{ ...inputStyle, minHeight: 60, resize: 'vertical' }} value={rptForm.notes} onChange={e => setRptForm(f => ({ ...f, notes: e.target.value }))} />
+            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={rptForm.notes} onChange={e => setRptForm(f => ({ ...f, notes: e.target.value }))} />
           </FormField>
           <button onClick={saveReport} disabled={rptSaving}
             className="w-full py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none mt-2 disabled:opacity-60"
@@ -332,7 +339,7 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             {rptSaving ? 'Saving…' : 'Save Report'}
           </button>
         </div>
-      </SlideOver>
+      </Modal>
 
       {/* Delete tx confirm */}
       <ConfirmModal

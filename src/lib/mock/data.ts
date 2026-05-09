@@ -17,6 +17,7 @@ export const mockPartner: Partner = {
   entry_date: '2025-01-01',
   status: 'active',
   avatar_url: null,
+  username: null,
   notes: null,
   created_at: '2025-01-01T00:00:00Z',
   updated_at: '2025-01-01T00:00:00Z',

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendNotification } from '@/lib/admin/notifications'
 import { DataTable, type Column } from '@/components/admin/DataTable'
-import { FormField, inputStyle, selectStyle } from '@/components/admin/FormField'
+import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
 import { CONTENT } from '@/config/content'
 import type { Partner, Notification } from '@/types/database'
 
@@ -102,7 +102,7 @@ export function NotificationsClient({ partners, initialSent }: Props) {
 
         <FormField label={C.message} required>
           <textarea
-            style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
+            style={{ ...textareaStyle, minHeight: 80 }}
             value={body}
             onChange={e => setBody(e.target.value)}
             placeholder="Notification message…"

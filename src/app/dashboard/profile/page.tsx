@@ -161,6 +161,7 @@ export default function ProfilePage() {
       >
         {[
           { label: C.name,      value: partner.full_name },
+          ...(partner.username ? [{ label: 'Username', value: `@${partner.username}` }] : []),
           { label: C.email,     value: partner.email },
           { label: C.phone,     value: partner.phone ?? '—' },
           { label: C.entryDate, value: fmtDate(partner.entry_date) },

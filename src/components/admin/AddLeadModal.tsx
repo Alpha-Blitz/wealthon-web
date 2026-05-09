@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
-import { FormField, inputStyle, selectStyle } from '@/components/admin/FormField'
+import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
 import type { LeadInput } from '@/lib/admin/leads'
 import type { Lead } from '@/types/database'
 import { PIPELINE_STAGE_LABELS, LEAD_STAGE_TO_DB, type PipelineStage } from '@/config/constants'
@@ -95,7 +95,7 @@ export function AddLeadModal({ isOpen, stage, form, saving, onChange, onSave, on
 
         <FormField label="Notes">
           <textarea
-            style={{ ...inputStyle, minHeight: 72, resize: 'vertical' }}
+            style={{ ...textareaStyle, minHeight: 72 }}
             value={form.notes ?? ''}
             onChange={e => onChange({ ...form, notes: e.target.value })}
             placeholder="Any context…"

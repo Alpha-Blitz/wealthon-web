@@ -27,7 +27,7 @@ const DOT_PATTERN: React.CSSProperties = {
 }
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail]       = useState('')
+  const [username, setUsername] = useState('')
   const [focused, setFocused]   = useState(false)
   const [loading, setLoading]   = useState(false)
   const [sent, setSent]         = useState(false)
@@ -35,10 +35,25 @@ export default function ForgotPasswordPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    const supabase = createClient()
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
-    })
+    try {
+      let authEmail = username.trim()
+      if (!authEmail.includes('@')) {
+        const res = await fetch('/api/auth/resolve-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: authEmail }),
+        })
+        const { email: resolved } = await res.json()
+        if (resolved) authEmail = resolved
+        // If username not found, still show success (prevents enumeration)
+      }
+      if (authEmail.includes('@')) {
+        const supabase = createClient()
+        await supabase.auth.resetPasswordForEmail(authEmail, {
+          redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+        })
+      }
+    } catch { /* silent */ }
     setLoading(false)
     setSent(true)
   }
@@ -78,33 +93,33 @@ export default function ForgotPasswordPage() {
             Reset your password.
           </h1>
           <p className="text-[#9A9080] text-[14px] font-sans font-light text-center mb-8">
-            Enter your email and we&apos;ll send you a reset link.
+            Enter your username and we&apos;ll send you a reset link.
           </p>
 
           {sent ? (
             <div className="flex flex-col items-center gap-4 py-4">
               <Shield size={32} className="text-gold" />
               <p className="text-[#F0EDE6] text-[15px] font-sans text-center leading-[1.6]">
-                Check your inbox. A reset link has been sent to{' '}
-                <span className="text-gold">{email}</span>.
+                If that username is registered, a reset link has been sent to the associated email.
               </p>
               <p className="text-[#9A9080] text-[12px] font-sans text-center">
-                If that address is registered, you&apos;ll receive an email within a few minutes.
+                Check your inbox. The link expires in 24 hours.
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="relative rounded-[8px] overflow-hidden" style={focused ? INPUT_FOCUS : INPUT_BASE}>
                 <input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
                   className={INPUT_CLASS}
                   required
-                  autoComplete="email"
+                  autoComplete="username"
+                  autoCapitalize="none"
                 />
               </div>
 

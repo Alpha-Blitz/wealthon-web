@@ -2,22 +2,19 @@
 
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
-import { CONTENT } from '@/config/content'
 
-interface ConfirmModalProps {
-  isOpen:       boolean
-  onClose:      () => void
-  onConfirm:    () => void
-  title:        string
-  description:  string
-  confirmLabel: string
-  loading?:     boolean
+const SIZES = { sm: '420px', md: '560px', lg: '720px' } as const
+
+interface ModalProps {
+  isOpen:   boolean
+  onClose:  () => void
+  title:    string
+  size?:    keyof typeof SIZES
+  children: React.ReactNode
+  footer?:  React.ReactNode
 }
 
-export function ConfirmModal({
-  isOpen, onClose, onConfirm,
-  title, description, confirmLabel, loading,
-}: ConfirmModalProps) {
+export function Modal({ isOpen, onClose, title, size = 'md', children, footer }: ModalProps) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (isOpen) {
@@ -42,7 +39,8 @@ export function ConfirmModal({
       <div
         className="relative w-full flex flex-col"
         style={{
-          maxWidth: '420px',
+          maxWidth: SIZES[size],
+          maxHeight: 'calc(100vh - 80px)',
           background: '#111111',
           border: '0.5px solid rgba(245,166,35,0.3)',
           borderRadius: '8px',
@@ -58,40 +56,26 @@ export function ConfirmModal({
           </h2>
           <button
             onClick={onClose}
-            disabled={loading}
             className="w-8 h-8 flex items-center justify-center rounded-[4px] text-[#9A9080] hover:text-[#F0EDE6] hover:bg-[rgba(255,255,255,0.06)] transition-colors cursor-pointer bg-transparent border-none"
           >
             <X size={16} />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-8 py-6">
-          <p className="text-[14px] font-sans font-light text-[#9A9080] leading-[1.6]">{description}</p>
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+          {children}
         </div>
 
         {/* Footer */}
-        <div
-          className="flex justify-end gap-3 px-8 py-5 flex-shrink-0"
-          style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)' }}
-        >
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="px-5 py-2.5 rounded-[4px] text-[13px] font-sans font-medium cursor-pointer bg-transparent transition-colors"
-            style={{ border: '1px solid rgba(245,166,35,0.3)', color: '#F5A623' }}
+        {footer && (
+          <div
+            className="flex justify-end gap-3 px-8 py-5 flex-shrink-0"
+            style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)' }}
           >
-            {CONTENT.admin.confirm.cancel}
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className="px-5 py-2.5 rounded-[4px] text-[13px] font-sans font-medium cursor-pointer border-none disabled:opacity-60 transition-colors"
-            style={{ background: '#EF4444', color: '#fff' }}
-          >
-            {loading ? 'Deleting…' : confirmLabel}
-          </button>
-        </div>
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -240,6 +240,19 @@ select option:checked {
   color: #F5A623;
 }
 
+/* ─── Admin form field focus & placeholder ─── */
+.form-field input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus {
+  border-bottom-color: #F5A623 !important;
+}
+.form-field textarea:focus {
+  border-color: rgba(245,166,35,0.6) !important;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #4A4438;
+  font-weight: 300;
+}
+
 /* ─── Scroll bounce animation ─── */
 @keyframes bounce-scroll {
   0%, 100% { transform: translateY(0); }

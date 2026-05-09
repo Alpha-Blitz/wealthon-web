@@ -11,10 +11,10 @@ import { CONTENT } from '@/config/content'
 import { PARTNER_TIERS } from '@/config/constants'
 import { formatINR } from '@/lib/utils'
 import { FormModal } from '@/components/admin/FormModal'
-import { SlideOver } from '@/components/admin/SlideOver'
+import { Modal } from '@/components/admin/Modal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { DataTable, type Column } from '@/components/admin/DataTable'
-import { FormField, inputStyle, selectStyle } from '@/components/admin/FormField'
+import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
 import { StatusPill } from '@/components/shared/StatusPill'
 import type { Partner } from '@/types/database'
 
@@ -65,7 +65,7 @@ function PartnerFormFields({ form, setForm, saving, error, onSave, saveLabel, sa
           onChange={e => setForm(f => ({ ...f, entry_date: e.target.value }))} />
       </FormField>
       <FormField label={C.form.notes}>
-        <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
+        <textarea style={{ ...textareaStyle, minHeight: 80 }}
           value={form.notes ?? ''}
           onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
       </FormField>
@@ -238,17 +238,18 @@ export function PartnersClient({ initialPartners }: Props) {
         />
       </FormModal>
 
-      {/* Edit Partner — slide-over */}
-      <SlideOver
+      {/* Edit Partner — centered modal */}
+      <Modal
         isOpen={slideOpen}
         onClose={() => setSlideOpen(false)}
         title={C.form.editTitle}
+        size="sm"
       >
         <PartnerFormFields
           form={form} setForm={setForm} saving={saving}
           error={error} onSave={handleSave} saveLabel={C.form.save} savingLabel={C.form.saving}
         />
-      </SlideOver>
+      </Modal>
 
       {/* Delete confirm */}
       <ConfirmModal
