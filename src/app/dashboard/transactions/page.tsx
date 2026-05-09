@@ -7,18 +7,16 @@ import { mockPartner, mockTransactions } from '@/lib/mock/data'
 export default async function TransactionsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const devBypass = process.env.DEV_BYPASS_AUTH === 'true'
 
-  let transactions = mockTransactions
-  let partner = mockPartner
-
-  if (user) {
-    const p = await getPartnerByUserId(supabase, user.id)
-    if (p.data) {
-      partner = p.data
-      const t = await getTransactions(supabase, p.data.id)
-      if (t.data) transactions = t.data
-    }
+  if (devBypass || !user) {
+    return <TransactionsClient transactions={mockTransactions} partner={mockPartner} />
   }
 
-  return <TransactionsClient transactions={transactions} partner={partner} />
+  const { data: partner } = await getPartnerByUserId(supabase, user.id)
+  if (!partner) return null
+
+  const { data: transactions } = await getTransactions(supabase, partner.id)
+
+  return <TransactionsClient transactions={transactions ?? []} partner={partner} />
 }

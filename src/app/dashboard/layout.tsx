@@ -10,7 +10,6 @@ import { Topbar } from '@/components/dashboard/Topbar'
 import { BottomNav } from '@/components/dashboard/BottomNav'
 import { CONTENT } from '@/config/content'
 import { ROUTES } from '@/config/routes'
-import { MOCK_COMPANY_ID } from '@/config/constants'
 import { mockPartner } from '@/lib/mock/data'
 
 if (process.env.NODE_ENV === 'production' && process.env.DEV_BYPASS_AUTH === 'true') {
@@ -46,7 +45,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (error || !partner) {
     // Admins have no partner record — send them to the admin panel
-    const adminRole = await getAdminRole(supabase, session.user.id, MOCK_COMPANY_ID)
+    const adminRole = await getAdminRole(supabase, session.user.id)
     if (adminRole) redirect(ROUTES.ADMIN.ROOT)
 
     return (

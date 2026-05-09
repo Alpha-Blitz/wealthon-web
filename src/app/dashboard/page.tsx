@@ -11,9 +11,8 @@ import { ChartStats } from '@/components/dashboard/ChartStats'
 import { formatINR } from '@/lib/utils'
 import { CONTENT } from '@/config/content'
 import { ROUTES } from '@/config/routes'
-import {
-  mockPartner, mockLatestPnLReport, mockMonthlyPnL, mockTransactions,
-} from '@/lib/mock/data'
+import { mockPartner, mockLatestPnLReport, mockMonthlyPnL, mockTransactions } from '@/lib/mock/data'
+import type { Partner, Transaction, PnLReport } from '@/types/database'
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -27,53 +26,79 @@ function formatDate(dateStr: string): string {
   return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`
 }
 
+function nextQuarterEnd(): string {
+  const now = new Date()
+  const endMonth = [3,6,9,12].find(m => m > now.getMonth() + 1) ?? 3
+  const endYear  = endMonth === 3 && now.getMonth() > 8 ? now.getFullYear() + 1 : now.getFullYear()
+  const lastDay  = endMonth === 3 ? 31 : endMonth === 6 ? 30 : endMonth === 9 ? 30 : 31
+  return new Date(endYear, endMonth - 1, lastDay).toISOString().split('T')[0]
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Use mock if no live data available
-  let partner     = mockPartner
-  let pnlReport   = mockLatestPnLReport
-  let monthlyData = mockMonthlyPnL
-  let transactions = mockTransactions
+  const devBypass = process.env.DEV_BYPASS_AUTH === 'true'
 
-  if (user) {
-    const [p, r, m, t] = await Promise.all([
-      getPartnerByUserId(supabase, user.id),
-      getLatestPnLReport(supabase, user.id).catch(() => ({ data: null, error: 'err' })),
-      getMonthlyPnL(supabase, user.id, new Date().getFullYear()).catch(() => ({ data: [], error: null })),
-      getTransactions(supabase, user.id, 8).catch(() => ({ data: [], error: null })),
-    ])
+  // In dev bypass mode, show mock data
+  if (devBypass || !user) {
+    const pnlReport   = mockLatestPnLReport
+    const partner     = mockPartner
+    const monthlyData = mockMonthlyPnL
+    const transactions = mockTransactions
+    const nextPayout  = nextQuarterEnd()
+    const barData     = monthlyData.map(m => ({ month: MONTH_NAMES[(m.month ?? 1) - 1], profit: m.profit }))
+    const C = CONTENT.dashboard
 
-    if (p.data) partner = p.data
-    // After partner loaded, fetch with correct partner ID
-    const [r2, m2, t2] = await Promise.all([
-      getLatestPnLReport(supabase, partner.id),
-      getMonthlyPnL(supabase, partner.id, new Date().getFullYear()),
-      getTransactions(supabase, partner.id, 8),
-    ])
-    if (r2.data) pnlReport = r2.data
-    if (m2.data?.length) monthlyData = m2.data
-    if (t2.data?.length) transactions = t2.data
+    return (
+      <DashboardContent
+        partner={partner} pnlReport={pnlReport} barData={barData}
+        transactions={transactions} nextPayout={nextPayout} C={C}
+      />
+    )
   }
 
-  const nextPayoutDate = pnlReport?.distribution_date
-    ? (() => {
-        const now = new Date()
-        const endMonth = [3,6,9,12].find(m => m > now.getMonth() + 1) ?? 3
-        const endYear  = endMonth === 3 && now.getMonth() > 8 ? now.getFullYear() + 1 : now.getFullYear()
-        const d = new Date(endYear, endMonth - 1, endMonth === 3 ? 31 : endMonth === 6 ? 30 : endMonth === 9 ? 30 : 31)
-        return d.toISOString().split('T')[0]
-      })()
-    : '2025-06-30'
+  // Real user — fetch all data, no mock fallbacks
+  const { data: partner } = await getPartnerByUserId(supabase, user.id)
 
-  const barData = monthlyData.map(m => ({
-    month: MONTH_NAMES[(m.month ?? 1) - 1],
-    profit: m.profit,
-  }))
+  if (!partner) {
+    // Middleware + layout should prevent this, but guard just in case
+    return null
+  }
 
+  const [pnlRes, monthlyRes, txRes] = await Promise.all([
+    getLatestPnLReport(supabase, partner.id),
+    getMonthlyPnL(supabase, partner.id, new Date().getFullYear()),
+    getTransactions(supabase, partner.id, 8),
+  ])
+
+  const pnlReport   = pnlRes.data ?? null
+  const monthlyData = monthlyRes.data ?? []
+  const transactions = txRes.data ?? []
+  const nextPayout  = nextQuarterEnd()
+  const barData     = monthlyData.map(m => ({ month: MONTH_NAMES[(m.month ?? 1) - 1], profit: m.profit }))
   const C = CONTENT.dashboard
 
+  return (
+    <DashboardContent
+      partner={partner} pnlReport={pnlReport} barData={barData}
+      transactions={transactions} nextPayout={nextPayout} C={C}
+    />
+  )
+}
+
+type BarPoint = { month: string; profit: number }
+
+function DashboardContent({
+  partner, pnlReport, barData, transactions, nextPayout, C,
+}: {
+  partner: Partner
+  pnlReport: PnLReport | null
+  barData: BarPoint[]
+  transactions: Transaction[]
+  nextPayout: string
+  C: typeof CONTENT.dashboard
+}) {
   return (
     <div className="p-6 flex flex-col gap-6 max-w-[1400px]">
 
@@ -88,14 +113,14 @@ export default async function DashboardPage() {
         <MetricCard
           icon={TrendingUp}
           label={C.metrics.currentPnl}
-          value={`+${formatINR(pnlReport?.gross_profit ?? 0)}`}
-          sub={`+${pnlReport?.win_rate ?? 0}% this quarter`}
-          valueColor="#22C55E"
+          value={pnlReport ? `+${formatINR(pnlReport.gross_profit)}` : '—'}
+          sub={pnlReport ? `+${pnlReport.win_rate ?? 0}% this quarter` : 'P&L data will appear after your first quarter report.'}
+          valueColor={pnlReport ? '#22C55E' : undefined}
         />
         <MetricCard
           icon={Gift}
           label={C.metrics.distribution}
-          value={formatINR(pnlReport?.distribution_amount ?? 0)}
+          value={pnlReport ? formatINR(pnlReport.distribution_amount) : '—'}
           sub={pnlReport?.distribution_date
             ? `Distributed on ${formatDate(pnlReport.distribution_date)}`
             : 'Pending'}
@@ -103,14 +128,13 @@ export default async function DashboardPage() {
         <MetricCard
           icon={Calendar}
           label={C.metrics.nextPayout}
-          value={<span className="font-dm-serif">{formatDate(nextPayoutDate)}</span>}
-          sub={`${C.metrics.daysPrefix} ${daysUntil(nextPayoutDate)} ${C.metrics.daysSuffix}`}
+          value={<span className="font-dm-serif">{formatDate(nextPayout)}</span>}
+          sub={`${C.metrics.daysPrefix} ${daysUntil(nextPayout)} ${C.metrics.daysSuffix}`}
         />
       </div>
 
-      {/* Chart + activity row — 55 / 45 split */}
+      {/* Chart + activity row */}
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Quarterly Performance — 55% */}
         <div
           className="w-full md:w-[55%] flex-shrink-0 rounded-[8px] p-6"
           style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
@@ -125,24 +149,32 @@ export default async function DashboardPage() {
             </span>
           </div>
 
-          <BarChart data={barData} />
-
-          {pnlReport && (
-            <ChartStats
-              bestMonth={pnlReport.best_month ?? '—'}
-              bestMonthAmount={pnlReport.best_month_amount ?? 0}
-              worstMonth={pnlReport.worst_month ?? '—'}
-              worstMonthAmount={pnlReport.worst_month_amount ?? 0}
-              avgMonthlyPnL={pnlReport.avg_monthly_pnl ?? 0}
-              positiveMonths={pnlReport.positive_months ?? 0}
-              totalMonths={pnlReport.total_months ?? 12}
-            />
+          {barData.length > 0 ? (
+            <>
+              <BarChart data={barData} />
+              {pnlReport && (
+                <ChartStats
+                  bestMonth={pnlReport.best_month ?? '—'}
+                  bestMonthAmount={pnlReport.best_month_amount ?? 0}
+                  worstMonth={pnlReport.worst_month ?? '—'}
+                  worstMonthAmount={pnlReport.worst_month_amount ?? 0}
+                  avgMonthlyPnL={pnlReport.avg_monthly_pnl ?? 0}
+                  positiveMonths={pnlReport.positive_months ?? 0}
+                  totalMonths={pnlReport.total_months ?? 12}
+                />
+              )}
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-[240px]">
+              <p className="text-[13px] font-sans text-[#4A4438] text-center">
+                P&L data will appear here after your first quarter report is added.
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Recent activity — 45% */}
         <div className="w-full md:flex-1">
-          <RecentActivity transactions={transactions} />
+          <RecentActivity transactions={transactions ?? []} />
         </div>
       </div>
 

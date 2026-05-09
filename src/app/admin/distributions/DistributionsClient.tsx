@@ -41,7 +41,7 @@ export function DistributionsClient() {
     const amount = Math.round(report.gross_profit * PARTNER_PROFIT_SHARE)
     setPayingIds(s => new Set(s).add(report.id))
     const supabase = createClient()
-    const res = await markPartnerPaid(supabase, report.id, report.partner_id, amount)
+    const res = await markPartnerPaid(supabase, report.id, report.partner_id, amount, quarter, year)
     setPayingIds(s => { const next = new Set(s); next.delete(report.id); return next })
     if (res.error) {
       setError(res.error)
@@ -56,7 +56,10 @@ export function DistributionsClient() {
   async function handleConfirmAll() {
     setLoading(true)
     const supabase = createClient()
-    const res = await confirmDistributionRun(supabase, quarter, year)
+    const paidPartnerIds = reports
+      .filter(r => r.distribution_status === 'paid')
+      .map(r => r.partner_id)
+    const res = await confirmDistributionRun(supabase, quarter, year, paidPartnerIds)
     setLoading(false)
     if (res.error) { setError(res.error); return }
     setStep(2)

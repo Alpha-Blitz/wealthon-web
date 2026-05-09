@@ -39,6 +39,11 @@ export function RecentActivity({ transactions }: { transactions: Transaction[] }
         </Link>
       </div>
 
+      {transactions.length === 0 && (
+        <p className="text-[13px] font-sans text-[#4A4438] text-center py-8">
+          No transactions yet. Your activity will appear here.
+        </p>
+      )}
       <div className="flex flex-col">
         {transactions.slice(0, 8).map((tx, i) => {
           const meta = TYPE_ICON[tx.type] ?? TYPE_ICON.fee

@@ -7,7 +7,6 @@ import { Eye, EyeOff, Shield, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
-import { MOCK_COMPANY_ID } from '@/config/constants'
 
 const INPUT_BASE: React.CSSProperties = {
   background: 'rgba(255,255,255,0.03)',
@@ -57,9 +56,8 @@ export default function LoginPage() {
       if (session) {
         const { data: adminRole } = await supabase
           .from('admin_roles')
-          .select('role')
+          .select('user_id')
           .eq('user_id', session.user.id)
-          .eq('company_id', MOCK_COMPANY_ID)
           .maybeSingle()
         if (adminRole) destination = ROUTES.ADMIN.ROOT
       }
@@ -183,12 +181,12 @@ export default function LoginPage() {
 
             {/* Forgot */}
             <div className="flex justify-end -mt-1">
-              <button
-                type="button"
-                className="text-[#7F7566] text-[12px] font-sans hover:text-[#9A9080] transition-colors cursor-pointer bg-transparent border-none"
+              <Link
+                href="/forgot-password"
+                className="text-[#7F7566] text-[12px] font-sans hover:text-[#9A9080] transition-colors"
               >
                 {CONTENT.login.forgotPassword}
-              </button>
+              </Link>
             </div>
 
             {/* Sign in */}

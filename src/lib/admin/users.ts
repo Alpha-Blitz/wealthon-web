@@ -42,14 +42,12 @@ function adminClient(supabase: SupabaseClient): SupabaseAdmin {
 export async function getAdminRole(
   supabase: SupabaseClient,
   userId: string,
-  companyId: string
 ): Promise<{ role: string; user_id: string } | null> {
   const { data } = await supabase
     .from(TABLE.ADMIN_ROLES)
     .select('role, user_id')
     .eq('user_id', userId)
-    .eq('company_id', companyId)
-    .single()
+    .maybeSingle()
   return data ?? null
 }
 

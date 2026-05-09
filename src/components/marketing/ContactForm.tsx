@@ -22,6 +22,14 @@ export function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Capture lead in background — fire and forget
+    fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    }).catch(err => console.error('Lead capture failed:', err))
+
     const text = encodeURIComponent(
       `Hi Wealthon Capital Ventures, I visited wealthonventures.com and I'd like to learn more about capital partnership opportunities.\n\nName: ${form.name}\nWhatsApp: ${form.phone}\nInvestment range: ${form.range}\nMessage: ${form.message}`
     )

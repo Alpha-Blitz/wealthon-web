@@ -24,7 +24,9 @@ export async function markPartnerPaid(
   supabase: SupabaseClient,
   reportId: string,
   partnerId: string,
-  amount: number
+  amount: number,
+  quarter: number,
+  year: number
 ): Promise<Result<void>> {
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -37,14 +39,18 @@ export async function markPartnerPaid(
       type:       'distribution',
       amount,
       status:     'completed',
-      notes:      'Quarterly distribution',
+      notes:      `Q${quarter} ${year} profit distribution`,
       created_by: user?.id ?? null,
     })
   if (txError) return err(txError.message)
 
   const { error: rptError } = await supabase
     .from(TABLE.PNL_REPORTS)
-    .update({ distribution_status: 'paid', distribution_amount: amount })
+    .update({
+      distribution_status: 'paid',
+      distribution_amount: amount,
+      distribution_date:   new Date().toISOString().split('T')[0],
+    })
     .eq('id', reportId)
     .eq('company_id', MOCK_COMPANY_ID)
   if (rptError) return err(rptError.message)
@@ -58,10 +64,28 @@ export async function markPartnerPaid(
 export async function confirmDistributionRun(
   supabase: SupabaseClient,
   quarter: number,
-  year: number
+  year: number,
+  partnerIds: string[]
 ): Promise<Result<void>> {
+  const { data: { user } } = await supabase.auth.getUser()
+  const now = new Date().toISOString()
+
+  if (partnerIds.length > 0) {
+    const notifications = partnerIds.map(pid => ({
+      company_id: MOCK_COMPANY_ID,
+      partner_id: pid,
+      title:      `Q${quarter} ${year} Distribution Processed`,
+      body:       `Your Q${quarter} ${year} profit distribution has been processed.`,
+      type:       'distribution' as const,
+      is_sent:    true,
+      sent_at:    now,
+      created_by: user?.id ?? null,
+    }))
+    await supabase.from(TABLE.NOTIFICATIONS).insert(notifications)
+  }
+
   await logAction(supabase, 'distribution.run_confirmed', 'distribution_run', null, {
-    after: { quarter, year, profit_share: PARTNER_PROFIT_SHARE },
+    after: { quarter, year, profit_share: PARTNER_PROFIT_SHARE, partner_count: partnerIds.length },
   })
   return ok(undefined)
 }

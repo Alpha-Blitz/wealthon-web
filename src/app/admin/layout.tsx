@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { MOCK_COMPANY_ID } from '@/config/constants'
 import { ROUTES } from '@/config/routes'
 import { getAdminRole } from '@/lib/admin/users'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
@@ -16,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!session) redirect(ROUTES.LOGIN)
 
-  const adminRole = await getAdminRole(supabase, session.user.id, MOCK_COMPANY_ID)
+  const adminRole = await getAdminRole(supabase, session.user.id)
 
   if (!adminRole) {
     return (

@@ -7,9 +7,9 @@ import { logAction } from './audit'
 
 export interface NotificationInput {
   partner_id: string | null
-  title:      string | null
+  title:      string
   body:       string
-  type:       string
+  type:       'update' | 'distribution' | 'alert' | 'announcement'
 }
 
 export async function getNotifications(
@@ -39,7 +39,6 @@ export async function sendNotification(
       partner_id: input.partner_id,
       title:      input.title,
       body:       input.body,
-      message:    input.body,
       type:       input.type,
       is_sent:    true,
       sent_at:    new Date().toISOString(),

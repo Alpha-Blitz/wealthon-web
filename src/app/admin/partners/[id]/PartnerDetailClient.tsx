@@ -224,7 +224,7 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
       {tab === C.tabs.overview     && <OverviewTab barData={barData} transactions={transactions} txColumns={txColumns} />}
       {tab === C.tabs.transactions && <TransactionsTab transactions={transactions} txColumns={txColumns} onAdd={openTxAdd} />}
       {tab === C.tabs.pnlReports   && <PnLReportsTab pnlReports={pnlReports as (PnLReport & { id: string })[]} rptColumns={rptColumns} onAdd={() => setRptOpen(true)} />}
-      {tab === C.tabs.documents    && <DocumentsTab />}
+      {tab === C.tabs.documents    && <DocumentsTab partnerId={partner.id} />}
       {tab === C.tabs.notes        && <NotesTab noteText={noteText} setNoteText={setNoteText} partnerNotes={partner.notes} />}
 
       {/* Edit Partner SlideOver */}

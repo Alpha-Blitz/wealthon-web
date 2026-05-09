@@ -9,7 +9,7 @@ import { CONTENT } from '@/config/content'
 import type { Partner, Notification } from '@/types/database'
 
 const C = CONTENT.admin.notifications
-const TYPES = ['info', 'alert', 'update', 'promotion'] as const
+const TYPES = ['announcement', 'update', 'alert', 'distribution'] as const
 
 interface Props {
   partners:    Partner[]
@@ -19,7 +19,7 @@ interface Props {
 export function NotificationsClient({ partners, initialSent }: Props) {
   const [sent, setSent]         = useState(initialSent)
   const [partnerId, setPartner] = useState('')
-  const [type, setType]         = useState<string>('info')
+  const [type, setType]         = useState<typeof TYPES[number]>('announcement')
   const [title, setTitle]       = useState('')
   const [body, setBody]         = useState('')
   const [sending, setSending]   = useState(false)
@@ -32,14 +32,14 @@ export function NotificationsClient({ partners, initialSent }: Props) {
     const supabase = createClient()
     const res = await sendNotification(supabase, {
       partner_id: partnerId || null,
-      title:      title || null,
+      title:      title.trim() || `${type.charAt(0).toUpperCase() + type.slice(1)} from Wealthon`,
       body,
       type,
     })
     setSending(false)
     if (res.error) { setError(res.error); return }
     setSent(s => [res.data!, ...s])
-    setTitle(''); setBody(''); setPartner(''); setType('info')
+    setTitle(''); setBody(''); setPartner(''); setType('announcement')
     setSuccess(true)
   }
 
@@ -90,7 +90,7 @@ export function NotificationsClient({ partners, initialSent }: Props) {
             </select>
           </FormField>
           <FormField label={C.type}>
-            <select style={selectStyle} value={type} onChange={e => setType(e.target.value)}>
+            <select style={selectStyle} value={type} onChange={e => setType(e.target.value as typeof TYPES[number])}>
               {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </FormField>
