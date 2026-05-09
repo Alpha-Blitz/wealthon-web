@@ -10,6 +10,7 @@ import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
 import { PARTNER_TIERS } from '@/config/constants'
 import { formatINR } from '@/lib/utils'
+import { FormModal } from '@/components/admin/FormModal'
 import { SlideOver } from '@/components/admin/SlideOver'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { DataTable, type Column } from '@/components/admin/DataTable'
@@ -22,6 +23,54 @@ const TIERS = Object.keys(PARTNER_TIERS) as Array<keyof typeof PARTNER_TIERS>
 
 interface Props { initialPartners: Partner[] }
 
+function PartnerFormFields({ form, setForm, saving, error, onSave, saveLabel, savingLabel }: {
+  form: PartnerInput
+  setForm: React.Dispatch<React.SetStateAction<PartnerInput>>
+  saving: boolean
+  error: string | null
+  onSave: () => void
+  saveLabel: string
+  savingLabel: string
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <FormField label={C.form.fullName} required>
+        <input style={inputStyle} value={form.full_name}
+          onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} />
+      </FormField>
+      <FormField label={C.form.email}>
+        <input type="text" style={inputStyle} value={form.email ?? ''}
+          onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+      </FormField>
+      <FormField label={C.form.phone}>
+        <input style={inputStyle} value={form.phone ?? ''}
+          onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+      </FormField>
+      <FormField label={C.form.tier}>
+        <select style={selectStyle} value={form.tier}
+          onChange={e => setForm(f => ({ ...f, tier: e.target.value as Partner['tier'] }))}>
+          {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </FormField>
+      <FormField label={C.form.entryDate}>
+        <input type="date" style={inputStyle} value={form.entry_date}
+          onChange={e => setForm(f => ({ ...f, entry_date: e.target.value }))} />
+      </FormField>
+      <FormField label={C.form.notes}>
+        <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
+          value={form.notes ?? ''}
+          onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
+      </FormField>
+      {error && <p className="text-[12px] font-sans" style={{ color: '#EF4444' }}>{error}</p>}
+      <button onClick={onSave} disabled={saving}
+        className="w-full py-3 rounded-[4px] text-[14px] font-sans transition-colors cursor-pointer border-none mt-2 disabled:opacity-60"
+        style={{ background: '#F5A623', color: '#080808' }}>
+        {saving ? savingLabel : saveLabel}
+      </button>
+    </div>
+  )
+}
+
 const EMPTY_FORM: PartnerInput = {
   full_name: '', email: '', phone: '', tier: 'L1', entry_date: new Date().toISOString().split('T')[0], notes: '',
 }
@@ -32,8 +81,9 @@ export function PartnersClient({ initialPartners }: Props) {
   const [search, setSearch]       = useState('')
   const [tierFilter, setTier]     = useState('')
   const [statusFilter, setStatus] = useState('')
-  const [slideOpen, setSlideOpen] = useState(false)
-  const [editPartner, setEdit]    = useState<Partner | null>(null)
+  const [addModalOpen, setAddModal] = useState(false)
+  const [slideOpen, setSlideOpen]   = useState(false)
+  const [editPartner, setEdit]      = useState<Partner | null>(null)
   const [delPartner, setDel]      = useState<Partner | null>(null)
   const [form, setForm]           = useState<PartnerInput>(EMPTY_FORM)
   const [saving, setSaving]       = useState(false)
@@ -42,7 +92,7 @@ export function PartnersClient({ initialPartners }: Props) {
 
   const filtered = useMemo(() => partners.filter(p => {
     const q = search.toLowerCase()
-    const matchSearch = !q || p.full_name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q)
+    const matchSearch = !q || p.full_name.toLowerCase().includes(q) || (p.email ?? '').toLowerCase().includes(q)
     const matchTier   = !tierFilter   || p.tier   === tierFilter
     const matchStatus = !statusFilter || p.status === statusFilter
     return matchSearch && matchTier && matchStatus
@@ -52,7 +102,7 @@ export function PartnersClient({ initialPartners }: Props) {
     setEdit(null)
     setForm(EMPTY_FORM)
     setError(null)
-    setSlideOpen(true)
+    setAddModal(true)
   }
 
   function openEdit(p: Partner) {
@@ -66,7 +116,7 @@ export function PartnersClient({ initialPartners }: Props) {
   }
 
   async function handleSave() {
-    if (!form.full_name || !form.email) { setError('Name and email are required.'); return }
+    if (!form.full_name) { setError('Name is required.'); return }
     setSaving(true); setError(null)
     const supabase = createClient()
     if (editPartner) {
@@ -78,7 +128,9 @@ export function PartnersClient({ initialPartners }: Props) {
       if (res.error) { setError(res.error); setSaving(false); return }
       setPartners(ps => [res.data!, ...ps])
     }
-    setSaving(false); setSlideOpen(false)
+    setSaving(false)
+    setAddModal(false)
+    setSlideOpen(false)
   }
 
   async function handleDelete() {
@@ -101,7 +153,7 @@ export function PartnersClient({ initialPartners }: Props) {
           </div>
           <div>
             <p className="text-[13px] font-sans text-[#F0EDE6]">{p.full_name}</p>
-            <p className="text-[11px] font-sans text-[#9A9080]">{p.email}</p>
+            {p.email && <p className="text-[11px] font-sans text-[#9A9080]">{p.email}</p>}
           </div>
         </div>
       ),
@@ -166,49 +218,28 @@ export function PartnersClient({ initialPartners }: Props) {
         onRowClick={p => router.push(ROUTES.ADMIN.PARTNER_DETAIL(p.id))}
       />
 
-      {/* Add / Edit SlideOver */}
+      {/* Add Partner — centered modal */}
+      <FormModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModal(false)}
+        title={C.form.title}
+      >
+        <PartnerFormFields
+          form={form} setForm={setForm} saving={saving}
+          error={error} onSave={handleSave} saveLabel={C.form.save} savingLabel={C.form.saving}
+        />
+      </FormModal>
+
+      {/* Edit Partner — slide-over */}
       <SlideOver
         isOpen={slideOpen}
         onClose={() => setSlideOpen(false)}
-        title={editPartner ? C.form.editTitle : C.form.title}
+        title={C.form.editTitle}
       >
-        <div className="flex flex-col gap-4">
-          <FormField label={C.form.fullName} required>
-            <input style={inputStyle} value={form.full_name}
-              onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} />
-          </FormField>
-          <FormField label={C.form.email} required>
-            <input type="email" style={inputStyle} value={form.email}
-              onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-          </FormField>
-          <FormField label={C.form.phone}>
-            <input style={inputStyle} value={form.phone ?? ''}
-              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
-          </FormField>
-          <FormField label={C.form.tier}>
-            <select style={selectStyle} value={form.tier}
-              onChange={e => setForm(f => ({ ...f, tier: e.target.value as Partner['tier'] }))}>
-              {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </FormField>
-          <FormField label={C.form.entryDate}>
-            <input type="date" style={inputStyle} value={form.entry_date}
-              onChange={e => setForm(f => ({ ...f, entry_date: e.target.value }))} />
-          </FormField>
-          <FormField label={C.form.notes}>
-            <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
-              value={form.notes ?? ''}
-              onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
-          </FormField>
-
-          {error && <p className="text-[12px] font-sans" style={{ color: '#EF4444' }}>{error}</p>}
-
-          <button onClick={handleSave} disabled={saving}
-            className="w-full py-3 rounded-[4px] text-[14px] font-sans transition-colors cursor-pointer border-none mt-2 disabled:opacity-60"
-            style={{ background: '#F5A623', color: '#080808' }}>
-            {saving ? C.form.saving : C.form.save}
-          </button>
-        </div>
+        <PartnerFormFields
+          form={form} setForm={setForm} saving={saving}
+          error={error} onSave={handleSave} saveLabel={C.form.save} savingLabel={C.form.saving}
+        />
       </SlideOver>
 
       {/* Delete confirm */}

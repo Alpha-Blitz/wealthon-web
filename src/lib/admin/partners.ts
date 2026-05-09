@@ -29,7 +29,7 @@ export async function getPartnerById(supabase: SupabaseClient, id: string): Prom
 export interface PartnerInput {
   full_name:       string
   initials?:       string
-  email:           string
+  email?:          string
   phone?:          string
   tier:            'L1' | 'L2' | 'L3' | 'L4'
   invested_amount?: number
