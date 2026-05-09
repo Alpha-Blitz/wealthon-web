@@ -24,7 +24,7 @@ export const DISTRIBUTION_MONTHS = [3, 6, 9, 12] // Q1-Q4 end months
 
 export const PAISE_PER_RUPEE = 100
 
-export const MOCK_COMPANY_ID = process.env.NEXT_PUBLIC_WEALTHON_COMPANY_ID ?? 'a9bb4010-8ef3-4809-bbc5-60de13db26ae'
+export const MOCK_COMPANY_ID = (process.env.NEXT_PUBLIC_WEALTHON_COMPANY_ID ?? 'a9bb4010-8ef3-4809-bbc5-60de13db26ae').trim()
 
 // ── Admin ──────────────────────────────────────────────────────────────────
 

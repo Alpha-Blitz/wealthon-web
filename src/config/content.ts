@@ -198,7 +198,7 @@ export const CONTENT = {
         title:     'Add Partner',
         editTitle: 'Edit Partner',
         fullName:  'Full Name',
-        email:     'Email / Username',
+        email:     'Username',
         phone:     'Phone',
         tier:      'Tier',
         entryDate: 'Entry Date',
