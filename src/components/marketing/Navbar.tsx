@@ -86,19 +86,20 @@ export function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            title="Partner Login"
-            className="w-9 h-9 flex items-center justify-center rounded-[4px] text-[#9A9080] hover:text-[#F5A623] hover:bg-[rgba(245,166,35,0.08)] transition-colors border border-transparent hover:border-[rgba(245,166,35,0.2)]"
-          >
-            <LogIn size={18} />
-          </Link>
           <button
             onClick={() => handleNavClick('#contact')}
             className="border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
           >
             Apply to Partner →
           </button>
+          <Link
+            href="/login"
+            title="Partner Login"
+            className="inline-flex items-center gap-2 border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors bg-transparent"
+          >
+            <LogIn size={16} />
+            Login
+          </Link>
         </div>
 
         {/* Hamburger */}
