@@ -23,7 +23,7 @@ const FOUNDERS = [
     initials: 'SH',
     photo: '/sumanth.jpeg',
     name: 'Sumanth Hegde',
-    title: 'Technical Head',
+    title: 'Strategist & Technical Head',
     sub: 'Technology · Systems · Digital Infrastructure',
     quote:
       'Technology should make trust transparent. Every system we build puts clarity and security first.',

@@ -30,17 +30,6 @@ export function HeroSection() {
         />
       </div>
 
-      {/* Compass overlay */}
-      <div className="absolute bottom-0 right-0 z-0 w-[42vw] pointer-events-none overflow-hidden">
-        <Image
-          src="/compass.png"
-          alt=""
-          width={900}
-          height={900}
-          className="w-full h-auto opacity-30 mix-blend-luminosity translate-x-[12%] translate-y-[8%]"
-        />
-      </div>
-
       {/* Main content */}
       <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[1200px] mx-auto w-full px-5 lg:px-10 pt-28 pb-20">
         <div className="max-w-[600px]">
