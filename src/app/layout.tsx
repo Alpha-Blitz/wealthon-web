@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Inter, DM_Serif_Display } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import { ScrollAnimationProvider } from '@/components/shared/ScrollAnimationProvider'
 import './globals.css'
 
@@ -63,6 +64,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ScrollAnimationProvider />
         {children}
+        <Analytics />
       </body>
     </html>
   )
