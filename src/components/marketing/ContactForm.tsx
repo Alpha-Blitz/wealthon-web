@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Mail, MessageCircle, Shield } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
+import { ANALYTICS_EVENTS } from '@/config/constants'
 
 const RANGES = ['₹1L – ₹10L', '₹10L – ₹50L', '₹50L+', 'Just exploring']
 
@@ -22,6 +24,10 @@ export function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    trackEvent(ANALYTICS_EVENTS.CONTACT_FORM_SUBMIT, 'home', {
+      investment_range: form.range,
+    })
 
     // Capture lead in background — fire and forget
     fetch('/api/leads', {

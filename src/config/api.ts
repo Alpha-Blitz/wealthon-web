@@ -11,4 +11,5 @@ export const TABLE = {
   ARTICLES:      'articles',
   NOTIFICATIONS: 'notifications',
   ADMIN_ROLES:   'admin_roles',
+  PAGE_EVENTS:   'page_events',
 } as const

@@ -381,6 +381,10 @@ export const CONTENT = {
     content: {
       title:      'Content',
       addButton:  '+ New Article',
+      tabs: {
+        articles:  'Articles',
+        analytics: 'Analytics',
+      },
       columns: {
         title:    'TITLE',
         author:   'AUTHOR',
@@ -404,6 +408,55 @@ export const CONTENT = {
         publishing: 'Publishing…',
         saving:     'Saving…',
       },
+      analytics: {
+        ranges: {
+          d7:    'Last 7 days',
+          d30:   'Last 30 days',
+          d90:   'Last 90 days',
+          year:  'This year',
+        },
+        metrics: {
+          totalViews:    'Total Page Views',
+          uniqueSessions:'Unique Sessions',
+          formSubmits:   'Contact Form Submissions',
+          whatsappClicks:'WhatsApp Clicks',
+        },
+        sections: {
+          dailyViews:     'Daily page views',
+          topArticles:    'Most read articles',
+          trafficSources: 'Traffic sources',
+          funnel:         'Visitor to lead funnel',
+          allEvents:      'All events',
+        },
+        articleColumns: {
+          title:    'ARTICLE',
+          views:    'VIEWS',
+          category: 'CATEGORY',
+        },
+        eventsColumns: {
+          eventType: 'EVENT TYPE',
+          count:     'COUNT',
+          share:     '% OF TOTAL',
+        },
+        funnel: {
+          pageViews:      'Page Views',
+          calculator:     'Calculator Used',
+          cta:            'CTA Clicked',
+          formSubmitted:  'Form Submitted',
+          leadsCreated:   'Lead Created',
+        },
+        empty: {
+          title:    'No analytics data yet.',
+          subtitle: 'Analytics tracking activates as soon as visitors land on wealthonventures.com.',
+          hint:     'Check back after some traffic.',
+        },
+        emptyArticles: 'No article data yet',
+        emptyReferrers:'No traffic data yet',
+        emptyEvents:   'No events yet',
+        direct:        'Direct',
+        other:         'Other',
+        vsPrevious:    'vs previous period',
+      },
     },
     notifications: {
       title:      'Notifications',
@@ -411,6 +464,7 @@ export const CONTENT = {
       recipient:  'Recipient',
       allPartners:'All Partners',
       type:       'Type',
+      subject:    'Subject',
       message:    'Message',
       schedule:   'Schedule send',
       send:       'Send Now',

@@ -7,6 +7,7 @@ import { Eye, EyeOff, Shield, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
+import { PageTracker } from '@/components/shared/PageTracker'
 
 const INPUT_BASE: React.CSSProperties = {
   background: 'rgba(255,255,255,0.03)',
@@ -92,6 +93,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex bg-[#080808]">
+      <PageTracker page="login" />
 
       {/* Left panel — image only, no logo */}
       <div className="hidden lg:block w-[45%] relative flex-shrink-0">

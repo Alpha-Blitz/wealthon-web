@@ -60,6 +60,22 @@ export const MAX_DOCUMENT_SIZE_BYTES  = 10 * 1024 * 1024   // 10 MB
 export const MAX_DOCUMENT_SIZE_LABEL  = '10 MB'
 export const ACCEPTED_DOCUMENT_TYPES  = ['application/pdf'] as const
 
+// ── Analytics ──────────────────────────────────────────────────────────────
+
+export const ANALYTICS_EVENTS = {
+  PAGE_VIEW:            'page_view',
+  ARTICLE_VIEW:         'article_view',
+  CONTACT_FORM_SUBMIT:  'contact_form_submit',
+  CALCULATOR_USE:       'calculator_use',
+  WHATSAPP_CLICK:       'whatsapp_click',
+  CTA_CLICK:            'cta_click',
+  APPLY_PARTNER_CLICK:  'apply_partner_click',
+} as const
+
+export type AnalyticsEvent = typeof ANALYTICS_EVENTS[keyof typeof ANALYTICS_EVENTS]
+
+export const ANALYTICS_DEDUP_WINDOW_MS = 5000
+
 // ── Pipeline — DB stage ↔ Kanban column mapping ────────────────────────────
 
 export const LEAD_STAGE_TO_DB: Record<PipelineStage, 'new' | 'contacted' | 'qualified' | 'proposal' | 'converted'> = {

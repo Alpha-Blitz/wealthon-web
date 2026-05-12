@@ -2,6 +2,8 @@
 
 import Image from 'next/image'
 import { Shield, ChevronDown } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
+import { ANALYTICS_EVENTS } from '@/config/constants'
 
 const STATS = [
   { value: '25–35%', label: 'HISTORICAL ANNUAL PERFORMANCE' },
@@ -65,7 +67,10 @@ export function HeroSection() {
           {/* CTAs */}
           <div className="flex items-center gap-3 flex-wrap mb-12">
             <button
-              onClick={() => scrollTo('#contact')}
+              onClick={() => {
+                trackEvent(ANALYTICS_EVENTS.CTA_CLICK, 'home', { cta: 'talk_to_us' })
+                scrollTo('#contact')
+              }}
               className="w-[200px] bg-gold text-[#080808] text-[15px] font-sans font-medium tracking-[0.04em] px-6 py-3 rounded-[4px] hover:opacity-90 transition-opacity cursor-pointer border-none"
             >
               Talk to us →

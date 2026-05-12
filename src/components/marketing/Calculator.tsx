@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Shield } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
+import { ANALYTICS_EVENTS } from '@/config/constants'
 
 const MIN = 100000    // ₹1L
 const MAX = 5000000   // ₹50L
@@ -30,6 +32,22 @@ export function Calculator() {
   const [principal, setPrincipal] = useState(DEFAULT)
   const r = calcRange(principal)
   const pct = ((principal - MIN) / (MAX - MIN)) * 100
+
+  const hasTracked = useRef(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (principal === DEFAULT || hasTracked.current) return
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      if (hasTracked.current) return
+      hasTracked.current = true
+      trackEvent(ANALYTICS_EVENTS.CALCULATOR_USE, 'home', { amount: principal })
+    }, 2000)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [principal])
 
   const metrics = [
     {

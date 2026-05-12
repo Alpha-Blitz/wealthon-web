@@ -10,10 +10,12 @@ import { Leadership } from '@/components/marketing/Leadership'
 import { ContactForm } from '@/components/marketing/ContactForm'
 import { Footer } from '@/components/marketing/Footer'
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp'
+import { PageTracker } from '@/components/shared/PageTracker'
 
 export default function Home() {
   return (
     <>
+      <PageTracker page="home" />
       <Navbar />
       <main>
         <HeroSection />

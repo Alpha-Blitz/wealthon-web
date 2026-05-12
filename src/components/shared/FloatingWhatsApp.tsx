@@ -1,16 +1,23 @@
 'use client'
 
 import Image from 'next/image'
+import { trackEvent, currentPagePath } from '@/lib/analytics'
+import { ANALYTICS_EVENTS } from '@/config/constants'
 
 const WA_URL =
   'https://wa.me/919035373664?text=Hi%20Wealthon%20Capital%20Ventures%2C%20I%20visited%20wealthonventures.com%20and%20I%27d%20like%20to%20learn%20more%20about%20capital%20partnership%20opportunities.'
 
 export function FloatingWhatsApp() {
+  const handleClick = () => {
+    trackEvent(ANALYTICS_EVENTS.WHATSAPP_CLICK, currentPagePath())
+  }
+
   return (
     <a
       href={WA_URL}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
       aria-label="Chat on WhatsApp"
       className="fixed bottom-6 right-6 z-50 group"
     >

@@ -2,21 +2,24 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, Eye } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { deleteArticle, type Article } from '@/lib/admin/content'
 import { DataTable, type Column } from '@/components/admin/DataTable'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
+import { ContentAnalytics } from '@/components/admin/ContentAnalytics'
 import { StatusPill } from '@/components/shared/StatusPill'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
 
 const C = CONTENT.admin.content
+type Tab = 'articles' | 'analytics'
 
 interface Props { initialArticles: Article[] }
 
 export function ContentClient({ initialArticles }: Props) {
   const router = useRouter()
+  const [tab, setTab] = useState<Tab>('articles')
   const [articles, setArticles] = useState(initialArticles)
   const [delItem, setDelItem]   = useState<Article | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -64,23 +67,50 @@ export function ContentClient({ initialArticles }: Props) {
 
   return (
     <>
-      <div className="flex justify-end mb-5">
-        <button onClick={() => router.push(ROUTES.ADMIN.CONTENT_NEW)}
-          className="text-[14px] font-sans px-4 py-2.5 rounded-[4px] cursor-pointer border-none"
-          style={{ background: '#F5A623', color: '#080808' }}>
-          {C.addButton}
-        </button>
+      {/* Tab bar */}
+      <div
+        className="flex items-center gap-6 mb-6"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        {(['articles', 'analytics'] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="pb-3 text-[13px] font-sans tracking-[0.04em] cursor-pointer bg-transparent border-none"
+            style={{
+              color: tab === t ? '#F5A623' : '#9A9080',
+              borderBottom: tab === t ? '2px solid #F5A623' : '2px solid transparent',
+              marginBottom: '-1px',
+            }}
+          >
+            {C.tabs[t]}
+          </button>
+        ))}
       </div>
 
-      <DataTable
-        columns={columns}
-        data={articles}
-        onRowClick={a => router.push(ROUTES.ADMIN.CONTENT_EDIT(a.id))}
-      />
+      {tab === 'articles' && (
+        <>
+          <div className="flex justify-end mb-5">
+            <button onClick={() => router.push(ROUTES.ADMIN.CONTENT_NEW)}
+              className="text-[14px] font-sans px-4 py-2.5 rounded-[4px] cursor-pointer border-none"
+              style={{ background: '#F5A623', color: '#080808' }}>
+              {C.addButton}
+            </button>
+          </div>
 
-      <ConfirmModal isOpen={!!delItem} onClose={() => setDelItem(null)} onConfirm={handleDelete}
-        title="Delete Article" description="This will permanently delete this article."
-        confirmLabel="Delete" loading={deleting} />
+          <DataTable
+            columns={columns}
+            data={articles}
+            onRowClick={a => router.push(ROUTES.ADMIN.CONTENT_EDIT(a.id))}
+          />
+
+          <ConfirmModal isOpen={!!delItem} onClose={() => setDelItem(null)} onConfirm={handleDelete}
+            title="Delete Article" description="This will permanently delete this article."
+            confirmLabel="Delete" loading={deleting} />
+        </>
+      )}
+
+      {tab === 'analytics' && <ContentAnalytics />}
     </>
   )
 }

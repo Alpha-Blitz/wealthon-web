@@ -5,6 +5,8 @@ import { ArrowLeft, Shield } from 'lucide-react'
 import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp'
+import { PageTracker } from '@/components/shared/PageTracker'
+import { ANALYTICS_EVENTS } from '@/config/constants'
 import { articles, getArticleBySlug } from '@/lib/articles'
 import { createClient } from '@/lib/supabase/server'
 import { getArticleBySlugFromDb, type Article as DbArticle } from '@/lib/admin/content'
@@ -328,6 +330,13 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <>
+      <PageTracker
+        page={`article:${slug}`}
+        event={{
+          type: ANALYTICS_EVENTS.ARTICLE_VIEW,
+          metadata: { slug, title: article.title, category: article.category },
+        }}
+      />
       <Navbar />
       <main className="bg-[#080808] min-h-screen">
         {/* Article header */}

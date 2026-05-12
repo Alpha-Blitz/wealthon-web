@@ -1,6 +1,7 @@
 import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp'
+import { PageTracker } from '@/components/shared/PageTracker'
 import { InsightsClient } from '@/components/marketing/InsightsClient'
 import { articles, type Article } from '@/lib/articles'
 import { createClient } from '@/lib/supabase/server'
@@ -66,6 +67,7 @@ export default async function InsightsPage() {
 
   return (
     <>
+      <PageTracker page="insights" />
       <Navbar />
       <main className="bg-[#080808] min-h-screen">
         {/* Hero */}

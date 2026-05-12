@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { trackEvent, currentPagePath } from '@/lib/analytics'
+import { ANALYTICS_EVENTS } from '@/config/constants'
 
 const NAV_LINKS = [
   { label: 'Home',     href: '/'         },
@@ -84,7 +86,10 @@ export function Navbar() {
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
           <button
-            onClick={() => handleNavClick('#contact')}
+            onClick={() => {
+              trackEvent(ANALYTICS_EVENTS.APPLY_PARTNER_CLICK, currentPagePath())
+              handleNavClick('#contact')
+            }}
             className="border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
           >
             Apply to Partner →
@@ -140,7 +145,10 @@ export function Navbar() {
             Partner Login
           </Link>
           <button
-            onClick={() => handleNavClick('#contact')}
+            onClick={() => {
+              trackEvent(ANALYTICS_EVENTS.APPLY_PARTNER_CLICK, currentPagePath())
+              handleNavClick('#contact')
+            }}
             className="mt-2 border border-gold text-gold text-sm px-6 py-3 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors w-full cursor-pointer bg-transparent"
           >
             Apply to Partner →
