@@ -229,7 +229,16 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
 
       {/* Tab content */}
       {tab === C.tabs.overview     && <OverviewTab barData={barData} transactions={transactions} txColumns={txColumns} />}
-      {tab === C.tabs.transactions && <TransactionsTab transactions={transactions} txColumns={txColumns} onAdd={openTxAdd} />}
+      {tab === C.tabs.transactions && (
+        <TransactionsTab
+          partner={partner}
+          transactions={transactions}
+          onAdd={openTxAdd}
+          onEdit={openTxEdit}
+          onDelete={t => setTxDel(t)}
+          onTxUpdated={t => setTx(ts => ts.map(x => x.id === t.id ? t : x))}
+        />
+      )}
       {tab === C.tabs.pnlReports   && <PnLReportsTab pnlReports={pnlReports as (PnLReport & { id: string })[]} rptColumns={rptColumns} onAdd={() => setRptOpen(true)} />}
       {tab === C.tabs.documents    && <DocumentsTab partnerId={partner.id} />}
       {tab === C.tabs.notes        && <NotesTab noteText={noteText} setNoteText={setNoteText} partnerNotes={partner.notes} />}

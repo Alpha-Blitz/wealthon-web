@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, Pencil, Trash2 } from 'lucide-react'
+import { Eye, Pencil, Trash2, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { createPartner, updatePartner, deletePartner } from '@/lib/admin/partners'
 import type { PartnerInput } from '@/lib/admin/partners'
@@ -83,6 +83,8 @@ export function PartnersClient({ initialPartners }: Props) {
   const [search, setSearch]       = useState('')
   const [tierFilter, setTier]     = useState('')
   const [statusFilter, setStatus] = useState('')
+  const [payoutFilter, setPayoutFilter] = useState('')
+  const [showExpiringOnly, setShowExpiringOnly] = useState(false)
   const [addModalOpen, setAddModal] = useState(false)
   const [slideOpen, setSlideOpen]   = useState(false)
   const [editPartner, setEdit]      = useState<Partner | null>(null)
@@ -92,13 +94,30 @@ export function PartnersClient({ initialPartners }: Props) {
   const [deleting, setDeleting]   = useState(false)
   const [error, setError]         = useState<string | null>(null)
 
+  const expiringCount = useMemo(() => {
+    const now = Date.now()
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000
+    return partners.filter(p =>
+      p.lock_in_expiry && new Date(p.lock_in_expiry).getTime() - now < thirtyDays && new Date(p.lock_in_expiry).getTime() > now,
+    ).length
+  }, [partners])
+
   const filtered = useMemo(() => partners.filter(p => {
     const q = search.toLowerCase()
     const matchSearch = !q || p.full_name.toLowerCase().includes(q) || (p.email ?? '').toLowerCase().includes(q)
     const matchTier   = !tierFilter   || p.tier   === tierFilter
     const matchStatus = !statusFilter || p.status === statusFilter
-    return matchSearch && matchTier && matchStatus
-  }), [partners, search, tierFilter, statusFilter])
+    const matchPayout = !payoutFilter || p.payout_preference === payoutFilter
+    let matchExpiring = true
+    if (showExpiringOnly) {
+      const now = Date.now()
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000
+      matchExpiring = !!p.lock_in_expiry
+        && new Date(p.lock_in_expiry).getTime() - now < thirtyDays
+        && new Date(p.lock_in_expiry).getTime() > now
+    }
+    return matchSearch && matchTier && matchStatus && matchPayout && matchExpiring
+  }), [partners, search, tierFilter, statusFilter, payoutFilter, showExpiringOnly])
 
   function openAdd() {
     setEdit(null)
@@ -162,6 +181,38 @@ export function PartnersClient({ initialPartners }: Props) {
     },
     { key: 'tier',            label: C.columns.tier,      sortable: true, render: p => <StatusPill status={p.tier} /> },
     { key: 'invested_amount', label: C.columns.invested,  sortable: true, render: p => <span className="tabular-nums">{formatINR(p.invested_amount)}</span> },
+    {
+      key: 'payout_preference', label: 'PAYOUT PREF', sortable: true,
+      render: p => (
+        <span
+          className="text-[10px] font-sans uppercase tracking-[0.08em] px-2 py-0.5 rounded-[3px]"
+          style={p.payout_preference === 'reinvest'
+            ? { background: 'rgba(245,166,35,0.12)', color: '#F5A623' }
+            : { background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }}
+        >
+          {p.payout_preference ?? 'payout'}
+        </span>
+      ),
+    },
+    {
+      key: 'lock_in_expiry', label: 'LOCK-IN EXPIRY', sortable: true,
+      render: p => {
+        if (!p.lock_in_expiry) return <span className="text-[12px] text-[#9A9080]">Flexible</span>
+        const t = new Date(p.lock_in_expiry).getTime()
+        const days = Math.ceil((t - Date.now()) / (1000 * 60 * 60 * 24))
+        const expired = days < 0
+        const soon = days >= 0 && days < 30
+        return (
+          <span
+            className="text-[12px] font-sans tabular-nums"
+            style={{ color: expired ? '#9A9080' : soon ? '#EF4444' : '#F0EDE6' }}
+          >
+            {new Date(p.lock_in_expiry).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+            {soon && !expired && ` · ${days}d`}
+          </span>
+        )
+      },
+    },
     { key: 'entry_date',      label: C.columns.entryDate, sortable: true, render: p => <span className="text-[#9A9080]">{p.entry_date}</span> },
     { key: 'status',          label: C.columns.status,    sortable: true, render: p => <StatusPill status={p.status} /> },
     {
@@ -187,6 +238,24 @@ export function PartnersClient({ initialPartners }: Props) {
 
   return (
     <>
+      {/* Lock-in alert */}
+      {expiringCount > 0 && (
+        <button
+          onClick={() => setShowExpiringOnly(s => !s)}
+          className="w-full text-left rounded-[8px] p-3 mb-4 flex items-center gap-3 cursor-pointer bg-transparent border-none"
+          style={{
+            background: showExpiringOnly ? 'rgba(239,68,68,0.16)' : 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.35)',
+          }}
+        >
+          <AlertTriangle size={16} className="text-[#EF4444] flex-shrink-0" />
+          <p className="text-[13px] font-sans text-[#F0EDE6]">
+            {expiringCount} partner{expiringCount === 1 ? '' : 's'} {expiringCount === 1 ? 'has' : 'have'} lock-in expiring within 30 days.
+            <span className="text-gold ml-1">{showExpiringOnly ? 'Show all →' : 'Filter list →'}</span>
+          </p>
+        </button>
+      )}
+
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <input
@@ -206,6 +275,13 @@ export function PartnersClient({ initialPartners }: Props) {
           style={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.08)', minWidth: 130 }}>
           <option value="">{C.filterStatus}</option>
           {['active','paused','exited'].map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select value={payoutFilter} onChange={e => setPayoutFilter(e.target.value)}
+          className="text-[14px] font-sans text-[#F0EDE6] px-3 py-2.5 rounded-[6px] outline-none cursor-pointer"
+          style={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.08)', minWidth: 130 }}>
+          <option value="">All Payout Prefs</option>
+          <option value="payout">Payout</option>
+          <option value="reinvest">Reinvest</option>
         </select>
         <button onClick={openAdd}
           className="text-[14px] font-sans px-4 py-2.5 rounded-[4px] transition-colors cursor-pointer border-none whitespace-nowrap"

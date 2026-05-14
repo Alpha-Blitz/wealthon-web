@@ -9,7 +9,7 @@ import { ChartSkeleton } from '@/components/admin/ChartSkeleton'
 import { formatINR, formatINRCompact } from '@/lib/utils'
 import { CONTENT } from '@/config/content'
 import { MONTH_NAMES } from '@/config/constants'
-import type { CompanyMetrics, MonthlyAggregate, DistributionSummary } from '@/lib/admin/financials'
+import type { CompanyMetrics, MonthlyAggregate, DistributionSummary, DistributionTxSummary } from '@/lib/admin/financials'
 
 const PnLLineChart = dynamic(
   () => import('@/components/admin/charts/PnLLineChart').then(m => ({ default: m.PnLLineChart })),
@@ -38,20 +38,37 @@ interface Props {
   metrics:     CompanyMetrics
   monthlyData: MonthlyAggregate[]
   distHistory: DistributionSummary[]
+  txSummary:   DistributionTxSummary[]
 }
 
-export function FinancialsClient({ metrics, monthlyData, distHistory }: Props) {
+const txSummaryColumns: Column<DistributionTxSummary>[] = [
+  { key: 'quarter', label: 'QUARTER', render: d => <span className="text-[#F0EDE6] font-sans text-[13px]">Q{d.quarter}</span> },
+  { key: 'year',    label: 'YEAR',    render: d => <span className="text-[#9A9080] font-sans text-[13px]">{d.year}</span> },
+  { key: 'rate',    label: 'RATE',
+    render: d => <span className="text-[13px] font-sans text-gold tabular-nums">{d.rate !== null ? `${(d.rate * 100).toFixed(2)}%` : '—'}</span> },
+  { key: 'totalDistributed', label: 'PAID OUT', sortable: true,
+    render: d => <span className="tabular-nums text-[13px] font-sans text-[#F0EDE6]">{formatINR(d.totalDistributed)}</span> },
+  { key: 'totalReinvested', label: 'REINVESTED',
+    render: d => <span className="tabular-nums text-[13px] font-sans text-[#9A9080]">{formatINR(d.totalReinvested)}</span> },
+  { key: 'partnersPaid', label: 'PARTNERS',
+    render: d => <span className="text-[13px] font-sans text-[#9A9080]">{d.partnersPaid}</span> },
+]
+
+export function FinancialsClient({ metrics, monthlyData, distHistory, txSummary }: Props) {
   const chartData = monthlyData.map(d => ({
     month: MONTH_NAMES[(d.month - 1) % 12],
     profit: d.profit,
   }))
 
+  const totalDistributedAllTime = txSummary.reduce((s, t) => s + t.totalDistributed, 0)
+
   return (
     <div className="flex flex-col gap-6">
       {/* Metric cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <AdminMetricCard icon={TrendingUp}      label={C.aum}         value={formatINRCompact(metrics.totalAUM)}          />
         <AdminMetricCard icon={TrendingUp}      label={C.profit}      value={formatINRCompact(metrics.totalProfit)}        />
+        <AdminMetricCard icon={ArrowDownCircle} label="DISTRIBUTED (ALL TIME)" value={formatINRCompact(totalDistributedAllTime)} />
         <AdminMetricCard icon={ArrowDownCircle} label={C.distributed} value={formatINRCompact(metrics.totalDistributed)}  />
         <AdminMetricCard icon={Building2}       label={C.retained}    value={formatINRCompact(metrics.firmRetained)}       />
       </div>
@@ -79,12 +96,25 @@ export function FinancialsClient({ metrics, monthlyData, distHistory }: Props) {
         </div>
       </div>
 
-      {/* Distribution history */}
+      {/* Distribution summary (from transactions) */}
       <div className="rounded-[8px] p-5"
         style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}>
-        <h3 className="font-serif text-[18px] text-[#F0EDE6] mb-4">{C.distHistory}<span className="text-gold">.</span></h3>
-        <DataTable columns={distColumns} data={distHistory} pageSize={10} />
+        <h3 className="font-serif text-[18px] text-[#F0EDE6] mb-4">Distribution summary<span className="text-gold">.</span></h3>
+        {txSummary.length === 0 ? (
+          <p className="text-[13px] font-sans text-[#9A9080] py-3">No distributions yet.</p>
+        ) : (
+          <DataTable columns={txSummaryColumns} data={txSummary} pageSize={10} />
+        )}
       </div>
+
+      {/* Legacy distribution history (PnL-report-based) */}
+      {distHistory.length > 0 && (
+        <div className="rounded-[8px] p-5"
+          style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}>
+          <h3 className="font-serif text-[18px] text-[#F0EDE6] mb-4">{C.distHistory}<span className="text-gold">.</span></h3>
+          <DataTable columns={distColumns} data={distHistory} pageSize={10} />
+        </div>
+      )}
     </div>
   )
 }

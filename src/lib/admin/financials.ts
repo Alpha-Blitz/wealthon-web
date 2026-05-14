@@ -27,6 +27,72 @@ export interface DistributionSummary {
   status:              string
 }
 
+export interface DistributionTxSummary {
+  id:                string         // alias of key for DataTable
+  key:               string         // YYYY-QX
+  quarter:           number
+  year:              number
+  totalDistributed:  number          // paise — all distribution transactions
+  totalReinvested:   number          // paise
+  partnersPaid:      number          // count distinct partners
+  rate:              number | null   // monthly rate fraction for that quarter
+}
+
+export async function getTransactionDistributionSummary(
+  supabase: SupabaseClient,
+): Promise<Result<DistributionTxSummary[]>> {
+  const [txRes, ratesRes] = await Promise.all([
+    supabase
+      .from(TABLE.TRANSACTIONS)
+      .select('partner_id, date, type, amount')
+      .eq('company_id', MOCK_COMPANY_ID)
+      .in('type', ['distribution', 'reinvest', 'pnl_update']),
+    supabase
+      .from(TABLE.QUARTERLY_RATES)
+      .select('quarter, year, monthly_rate'),
+  ])
+  if (txRes.error) return err(txRes.error.message)
+
+  type TxRow = { partner_id: string; date: string; type: string; amount: number }
+  type RateRow = { quarter: number; year: number; monthly_rate: number }
+
+  const rateMap = new Map<string, number>()
+  for (const r of (ratesRes.data ?? []) as RateRow[]) {
+    rateMap.set(`${r.year}-Q${r.quarter}`, r.monthly_rate)
+  }
+
+  const grouped = new Map<string, DistributionTxSummary & { _partners: Set<string> }>()
+  for (const row of (txRes.data ?? []) as TxRow[]) {
+    const d = new Date(row.date)
+    const q = Math.ceil((d.getMonth() + 1) / 3)
+    const y = d.getFullYear()
+    const key = `${y}-Q${q}`
+    let cur = grouped.get(key)
+    if (!cur) {
+      cur = {
+        id: key, key, quarter: q, year: y,
+        totalDistributed: 0, totalReinvested: 0,
+        partnersPaid: 0, _partners: new Set(),
+        rate: rateMap.get(key) ?? null,
+      }
+      grouped.set(key, cur)
+    }
+    if (row.type === 'distribution') cur.totalDistributed += row.amount
+    else cur.totalReinvested += row.amount
+    cur._partners.add(row.partner_id)
+  }
+
+  const result = Array.from(grouped.values())
+    .map(g => ({
+      id: g.id, key: g.key, quarter: g.quarter, year: g.year,
+      totalDistributed: g.totalDistributed, totalReinvested: g.totalReinvested,
+      partnersPaid: g._partners.size, rate: g.rate,
+    }))
+    .sort((a, b) => b.year - a.year || b.quarter - a.quarter)
+
+  return ok(result)
+}
+
 export async function getCompanyMetrics(supabase: SupabaseClient): Promise<Result<CompanyMetrics>> {
   const [partnersRes, pnlRes] = await Promise.all([
     supabase
