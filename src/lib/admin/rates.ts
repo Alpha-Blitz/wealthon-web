@@ -87,3 +87,36 @@ export async function setRate(
 export function isRateSetForCurrentQuarter(rate: QuarterlyRate): boolean {
   return rate.id !== 'default'
 }
+
+/**
+ * Single source of truth for the rate applied to a given month/year.
+ *
+ *   1. Try quarterly_rates for the quarter that contains this month.
+ *   2. Fall back to app_settings.default_monthly_rate (stored as %).
+ *
+ * Returns a decimal rate (e.g. 0.025 for 2.5%/month) plus the source
+ * so the UI can surface whether the partner is on the quarter-specific
+ * rate or the firm default.
+ */
+export async function getEffectiveRate(
+  supabase: SupabaseClient,
+  month: number,   // 1-12
+  year: number,
+): Promise<{ rate: number; source: 'quarterly' | 'default' }> {
+  const quarter = Math.ceil(month / 3)
+  const quarterRes = await getRateForQuarter(supabase, quarter, year)
+  if (quarterRes.data && isRateSetForCurrentQuarter(quarterRes.data)) {
+    return { rate: quarterRes.data.monthly_rate, source: 'quarterly' }
+  }
+
+  // Fallback: app_settings.default_monthly_rate is stored as percent.
+  const { data } = await supabase
+    .from(TABLE.APP_SETTINGS)
+    .select('value')
+    .eq('key', 'default_monthly_rate')
+    .maybeSingle()
+  const raw = (data as { value: string } | null)?.value
+  const pct = raw ? Number(raw) : QUARTERLY_RATE_DEFAULT * 100
+  const rate = isNaN(pct) ? QUARTERLY_RATE_DEFAULT : pct / 100
+  return { rate, source: 'default' }
+}

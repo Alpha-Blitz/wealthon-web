@@ -1,38 +1,59 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Partner, Transaction, DistributionPreview, QuarterlyRate } from '@/types/database'
-import { MOCK_COMPANY_ID, TRANSACTION_TYPES, INVOICE_TYPES } from '@/config/constants'
+import type { Partner, DistributionPreview } from '@/types/database'
+import { MOCK_COMPANY_ID, TRANSACTION_TYPES, INVOICE_TYPES, MONTH_NAMES } from '@/config/constants'
 import { TABLE } from '@/config/api'
 import { ok, err, type Result } from './index'
 import { logAction } from './audit'
 import { calculateDistribution, accountLast4 } from './calculations'
-import { getRateForQuarter } from './rates'
+import { getEffectiveRate, getRateForQuarter } from './rates'
 import { generateAndSaveInvoice } from './invoices'
 import { sendTransactionNotification } from './notifications'
 
 // ── Preview ───────────────────────────────────────────────────────────────
 
 export interface DistributionRun {
-  quarter:   number
-  year:      number
-  rate:      QuarterlyRate
-  rateIsSet: boolean
-  partners:  DistributionPreview[]
+  month:        number   // 1-12
+  year:         number
+  monthLabel:   string   // "May 2026"
+  rate:         number   // decimal e.g. 0.025
+  rateSource:   'quarterly' | 'default'
+  ratePct:      number   // for UI, e.g. 2.5
+  rateIsSet:    boolean  // true if a quarterly rate row exists (not just default fallback)
+  partners:     DistributionPreview[]   // eligible partners only
+  ineligible:   IneligiblePartner[]     // active partners still in lock-in / no expiry set
   totals: {
-    estTotal:    number
+    estTotal:       number
     payoutCount:    number
     reinvestCount:  number
   }
 }
 
+export interface IneligiblePartner {
+  id:             string
+  full_name:      string
+  initials:       string
+  tier:           string
+  lock_in_expiry: string | null
+  reason:         'in_lock_in' | 'no_lock_in_set'
+}
+
+function isEligibleForPayout(p: Partner, todayISO: string): boolean {
+  if (!p.lock_in_expiry) return false
+  return p.lock_in_expiry < todayISO
+}
+
 export async function getDistributionRun(
   supabase: SupabaseClient,
-  quarter: number,
+  month: number,
   year: number,
 ): Promise<Result<DistributionRun>> {
-  const rateResult = await getRateForQuarter(supabase, quarter, year)
-  if (rateResult.error || !rateResult.data) return err(rateResult.error ?? 'No rate')
-  const rate: QuarterlyRate = rateResult.data
-  const rateIsSet = rate.id !== 'default'
+  const { rate, source } = await getEffectiveRate(supabase, month, year)
+
+  // Also check if a real quarterly_rates row exists for the quarter that
+  // contains this month — drives the "no rate set" warning banner.
+  const quarter = Math.ceil(month / 3)
+  const quarterRes = await getRateForQuarter(supabase, quarter, year)
+  const rateIsSet = !!quarterRes.data && quarterRes.data.id !== 'default'
 
   const { data: partners, error } = await supabase
     .from(TABLE.PARTNERS)
@@ -42,32 +63,44 @@ export async function getDistributionRun(
     .order('full_name')
   if (error) return err(error.message)
 
-  const previews: DistributionPreview[] = (partners ?? []).map((p) => {
-    const partner = p as Partner
-    const calculatedAmount = calculateDistribution(
-      partner.invested_amount,
-      rate.monthly_rate,
-      partner.profit_share_ratio,
-    )
-    return {
-      partner,
-      calculatedAmount,
-      overrideAmount: null,
-      status: 'pending',
-      bankLast4: accountLast4(partner.bank_account_number),
-    }
-  })
+  const todayISO = new Date().toISOString().split('T')[0]
+  const allActive = (partners ?? []) as Partner[]
+  const eligible   = allActive.filter(p => isEligibleForPayout(p, todayISO))
+  const ineligiblePartners = allActive.filter(p => !isEligibleForPayout(p, todayISO))
 
-  const estTotal       = previews.reduce((s, p) => s + p.calculatedAmount, 0)
-  const payoutCount    = previews.filter(p => p.partner.payout_preference === 'payout').length
-  const reinvestCount  = previews.filter(p => p.partner.payout_preference === 'reinvest').length
+  const previews: DistributionPreview[] = eligible.map(partner => ({
+    partner,
+    calculatedAmount: calculateDistribution(partner.invested_amount, rate, partner.profit_share_ratio),
+    overrideAmount: null,
+    status: 'pending',
+    bankLast4: accountLast4(partner.bank_account_number),
+  }))
+
+  const ineligible: IneligiblePartner[] = ineligiblePartners.map(p => ({
+    id:             p.id,
+    full_name:      p.full_name,
+    initials:       p.initials,
+    tier:           p.tier,
+    lock_in_expiry: p.lock_in_expiry,
+    reason:         p.lock_in_expiry ? 'in_lock_in' : 'no_lock_in_set',
+  }))
+
+  const estTotal      = previews.reduce((s, p) => s + p.calculatedAmount, 0)
+  const payoutCount   = previews.filter(p => p.partner.payout_preference === 'payout').length
+  const reinvestCount = previews.filter(p => p.partner.payout_preference === 'reinvest').length
+
+  const monthLabel = `${MONTH_NAMES[month - 1]} ${year}`
 
   return ok({
-    quarter,
+    month,
     year,
+    monthLabel,
     rate,
+    rateSource: source,
+    ratePct:    Number((rate * 100).toFixed(4)),
     rateIsSet,
-    partners: previews,
+    partners:   previews,
+    ineligible,
     totals: { estTotal, payoutCount, reinvestCount },
   })
 }
@@ -92,7 +125,7 @@ export async function processPartnerDistribution(
   supabase: SupabaseClient,
   partnerId: string,
   amount: number,
-  quarter: number,
+  month: number,
   year: number,
 ): Promise<Result<ProcessedDistribution>> {
   if (amount <= 0) return err('Amount must be positive')
@@ -106,11 +139,17 @@ export async function processPartnerDistribution(
   if (pErr || !partnerRow) return err(pErr?.message ?? 'Partner not found')
 
   const partner = partnerRow as Partner
+  if (!partner.lock_in_expiry || partner.lock_in_expiry >= new Date().toISOString().split('T')[0]) {
+    return err('Partner is still in lock-in')
+  }
+
   const isReinvest = partner.payout_preference === 'reinvest'
   const txType = isReinvest ? TRANSACTION_TYPES.REINVEST : TRANSACTION_TYPES.DISTRIBUTION
 
   const { data: { user } } = await supabase.auth.getUser()
   const txDate = new Date().toISOString().split('T')[0]
+  const monthName = MONTH_NAMES[month - 1]
+  const quarter = Math.ceil(month / 3)
 
   // 1. Insert transaction
   const { data: txRow, error: txErr } = await supabase
@@ -123,15 +162,15 @@ export async function processPartnerDistribution(
       amount,
       status:     'completed',
       notes:      isReinvest
-        ? `Q${quarter} ${year} profit reinvested`
-        : `Q${quarter} ${year} profit distribution`,
+        ? `Monthly reinvestment — ${monthName} ${year}`
+        : `Monthly payout — ${monthName} ${year}`,
       created_by: user?.id ?? null,
     })
     .select()
     .single()
   if (txErr || !txRow) return err(txErr?.message ?? 'Failed to insert transaction')
 
-  const transaction = txRow as Transaction
+  const transaction = txRow as { id: string }
   const previousCapital = partner.invested_amount
   const newCapital = isReinvest ? previousCapital + amount : previousCapital
 
@@ -144,7 +183,7 @@ export async function processPartnerDistribution(
     if (updErr) return err(updErr.message)
   }
 
-  // 3. Generate invoice
+  // 3. Generate invoice — invoice numbering is keyed by quarter, so derive
   const rateResult = await getRateForQuarter(supabase, quarter, year)
   const rate = rateResult.error ? null : rateResult.data
   const invoiceType = isReinvest ? INVOICE_TYPES.REINVESTMENT : INVOICE_TYPES.DISTRIBUTION
@@ -170,7 +209,7 @@ export async function processPartnerDistribution(
   const emailError  = notif.error ?? notif.data?.emailError ?? null
 
   await logAction(supabase, 'distribution.partner.process', 'transaction', transaction.id, {
-    after: { partner_id: partnerId, amount, type: txType, quarter, year, isReinvest },
+    after: { partner_id: partnerId, amount, type: txType, month, year, isReinvest },
   })
 
   return ok({
@@ -202,7 +241,7 @@ export interface ConfirmDistributionResult {
 
 export async function confirmDistribution(
   supabase: SupabaseClient,
-  quarter: number,
+  month: number,
   year: number,
   overrides: DistributionOverride[],
 ): Promise<Result<ConfirmDistributionResult>> {
@@ -212,13 +251,13 @@ export async function confirmDistribution(
   const failed: { partnerId: string; error: string }[] = []
 
   for (const o of overrides) {
-    const result = await processPartnerDistribution(supabase, o.partnerId, o.amount, quarter, year)
+    const result = await processPartnerDistribution(supabase, o.partnerId, o.amount, month, year)
     if (result.data) processed.push(result.data)
     else failed.push({ partnerId: o.partnerId, error: result.error ?? 'Failed' })
   }
 
   await logAction(supabase, 'distribution.run_confirmed', 'distribution_run', null, {
-    after: { quarter, year, processed: processed.length, failed: failed.length },
+    after: { month, year, processed: processed.length, failed: failed.length },
   })
 
   return ok({ processed, failed })

@@ -6,6 +6,7 @@ import { MOCK_COMPANY_ID } from '@/config/constants'
 export interface CompanyCapital {
   totalAUM:                  number  // paise — sum of active partners' invested_amount
   activePartners:            number
+  eligibleForPayout:         number  // active AND lock_in_expiry < today
   pendingPartners:           number  // status='paused' OR pending CAPITAL_IN
   totalDistributed:          number  // paise — sum of all 'distribution' transactions
   totalReinvested:           number  // paise — sum of all 'reinvest' transactions
@@ -77,8 +78,9 @@ export async function getCompanyCapital(
 
   return {
     totalAUM,
-    activePartners:  active.length,
-    pendingPartners: pending.length,
+    activePartners:    active.length,
+    eligibleForPayout: eligible.length,
+    pendingPartners:   pending.length,
     totalDistributed,
     totalReinvested,
     currentMonthExpectedPayout,

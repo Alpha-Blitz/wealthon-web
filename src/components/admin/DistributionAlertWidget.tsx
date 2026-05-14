@@ -4,14 +4,14 @@ import { ROUTES } from '@/config/routes'
 import { formatINR } from '@/lib/utils'
 
 interface Props {
-  daysUntilQuarterEnd: number
-  partnerCount:        number
-  estTotal:            number
+  daysUntilMonthEnd: number
+  partnerCount:      number
+  estTotal:          number
 }
 
-export function DistributionAlertWidget({ daysUntilQuarterEnd, partnerCount, estTotal }: Props) {
-  if (daysUntilQuarterEnd > 30 || daysUntilQuarterEnd < 0) return null
-  const urgent = daysUntilQuarterEnd <= 7
+export function DistributionAlertWidget({ daysUntilMonthEnd, partnerCount, estTotal }: Props) {
+  if (daysUntilMonthEnd > 10 || daysUntilMonthEnd < 0) return null
+  const urgent = daysUntilMonthEnd <= 3
 
   return (
     <div
@@ -23,13 +23,13 @@ export function DistributionAlertWidget({ daysUntilQuarterEnd, partnerCount, est
     >
       <div className="flex-1 min-w-[240px]">
         <p className="text-[11px] font-sans uppercase tracking-[0.1em] text-gold mb-2">
-          Distribution Due
+          Payouts Due
         </p>
         <p className="font-serif text-[20px] text-[#F0EDE6] leading-tight">
-          Quarter ends in {daysUntilQuarterEnd} day{daysUntilQuarterEnd === 1 ? '' : 's'}
+          Month ends in {daysUntilMonthEnd} day{daysUntilMonthEnd === 1 ? '' : 's'}
         </p>
         <p className="text-[13px] font-sans text-[#9A9080] mt-1">
-          {partnerCount} partner{partnerCount === 1 ? '' : 's'} · Est. total {formatINR(estTotal)}
+          {formatINR(estTotal)} due to {partnerCount} eligible partner{partnerCount === 1 ? '' : 's'}
         </p>
       </div>
       <Link
@@ -38,7 +38,7 @@ export function DistributionAlertWidget({ daysUntilQuarterEnd, partnerCount, est
         style={{ background: '#F5A623', color: '#080808' }}
       >
         <Send size={14} />
-        Run Distribution →
+        Run Payouts →
       </Link>
     </div>
   )

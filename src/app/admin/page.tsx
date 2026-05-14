@@ -2,14 +2,14 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { Briefcase, Users, Send, Calendar, Eye } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { getAllPartners, getPartnerMetrics } from '@/lib/admin/partners'
+import { getAllPartners } from '@/lib/admin/partners'
+import { getCompanyCapital } from '@/lib/admin/capital'
 import { getAuditLog } from '@/lib/admin/audit'
 import { getLeads } from '@/lib/admin/leads'
 import { getCurrentRate } from '@/lib/admin/rates'
-import { calculateDistribution } from '@/lib/admin/calculations'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
-import { MONTH_NAMES, getCurrentQuarter } from '@/config/constants'
+import { MONTH_NAMES } from '@/config/constants'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
 import { AdminSkeleton } from '@/components/admin/AdminSkeleton'
 import { AuditFeed } from '@/components/admin/AuditFeed'
@@ -29,36 +29,27 @@ const C = CONTENT.admin.overview
 async function OverviewContent() {
   const supabase = await createClient()
 
-  const [metricsRes, partnersRes, auditRes, leadsRes, rateRes] = await Promise.all([
-    getPartnerMetrics(supabase),
+  const [capital, partnersRes, auditRes, leadsRes, rateRes] = await Promise.all([
+    getCompanyCapital(supabase),
     getAllPartners(supabase),
     getAuditLog(supabase, 8),
     getLeads(supabase),
     getCurrentRate(supabase),
   ])
 
-  const metrics    = metricsRes.data
   const allPartners = (partnersRes.data ?? []) as Partner[]
-  const partners   = allPartners.slice(0, 5)
-  const auditLog   = (auditRes.data ?? []) as AuditLog[]
-  const leads      = leadsRes.data ?? []
+  const partners    = allPartners.slice(0, 5)
+  const auditLog    = (auditRes.data ?? []) as AuditLog[]
+  const leads       = leadsRes.data ?? []
   const currentRate = rateRes.data
 
-  // Distribution alert: only render in the final 30 days of the quarter
+  // Month-end countdown — alert widget shows in the last 10 days of the month.
   const now = new Date()
-  const currentQuarter = getCurrentQuarter()
-  const quarterEndMonth = currentQuarter * 3
-  const quarterEnd = new Date(now.getFullYear(), quarterEndMonth, 0)
-  const daysUntilQuarterEnd = Math.ceil(
-    (quarterEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  const daysUntilMonthEnd = Math.ceil(
+    (lastDayOfMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
   )
-  const activePartners = allPartners.filter(p => p.status === 'active')
-  const estDistributionTotal = currentRate
-    ? activePartners.reduce(
-        (sum, p) => sum + calculateDistribution(p.invested_amount, currentRate.monthly_rate, p.profit_share_ratio ?? 75),
-        0,
-      )
-    : 0
+  const nextPayoutDate = lastDayOfMonth.toISOString().split('T')[0]
 
   const stageCounts = leads.reduce<Record<string, number>>((acc, l) => {
     acc[l.stage] = (acc[l.stage] ?? 0) + 1
@@ -78,19 +69,19 @@ async function OverviewContent() {
     <div className="flex flex-col gap-6">
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <AdminMetricCard icon={Briefcase}      label={C.aum}           value={metrics ? formatINR(metrics.totalAUM) : '—'} />
-        <AdminMetricCard icon={Users}          label={C.activePartners} value={metrics?.activeCount ?? '—'} sub="active partners" />
-        <AdminMetricCard icon={Send}           label={C.distributions}  value={metrics ? formatINR(metrics.quarterlyDistributions) : '—'} sub="this quarter" />
-        <AdminMetricCard icon={Calendar}       label={C.nextPayout}     value={metrics ? fmtDate(metrics.nextPayoutDate) : '—'} valueColor="#F0EDE6" />
+        <AdminMetricCard icon={Briefcase} label={C.aum}            value={formatINR(capital.totalAUM)} />
+        <AdminMetricCard icon={Users}     label={C.activePartners} value={capital.activePartners}      sub="active partners" />
+        <AdminMetricCard icon={Send}      label="MONTHLY PAYOUT DUE" value={formatINR(capital.currentMonthExpectedPayout)} sub={`${capital.eligibleForPayout} partner${capital.eligibleForPayout === 1 ? '' : 's'} eligible`} />
+        <AdminMetricCard icon={Calendar}  label={C.nextPayout}     value={fmtDate(nextPayoutDate)}     valueColor="#F0EDE6" sub={`In ${Math.max(0, daysUntilMonthEnd)} day${daysUntilMonthEnd === 1 ? '' : 's'}`} />
       </div>
 
       {/* Rate + distribution alert widgets */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {currentRate && <RateOverviewWidget rate={currentRate} />}
         <DistributionAlertWidget
-          daysUntilQuarterEnd={daysUntilQuarterEnd}
-          partnerCount={activePartners.length}
-          estTotal={estDistributionTotal}
+          daysUntilMonthEnd={daysUntilMonthEnd}
+          partnerCount={capital.eligibleForPayout}
+          estTotal={capital.currentMonthExpectedPayout}
         />
       </div>
 

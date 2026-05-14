@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Partner } from '@/types/database'
 import { getEligibleForPayout, calculateMonthlyPayout } from './capital'
-import { getFinancialConfig } from './settings'
+import { getEffectiveRate } from './rates'
 import { sendEmail } from '@/lib/email/resend'
 import { whatsappLink } from '@/lib/notifications/templates'
 import { formatINR } from '@/lib/utils'
@@ -23,14 +23,14 @@ export async function buildPayoutLines(
   totalPaise: number
   monthLabel: string
 }> {
-  const config = await getFinancialConfig(supabase)
+  const now = new Date()
+  const { rate } = await getEffectiveRate(supabase, now.getMonth() + 1, now.getFullYear())
   const eligible = await getEligibleForPayout(supabase)
   const lines = eligible.map(p => ({
     partner: p,
-    amountPaise: calculateMonthlyPayout(p.invested_amount ?? 0, config.defaultMonthlyRate, p.profit_share_ratio),
+    amountPaise: calculateMonthlyPayout(p.invested_amount ?? 0, rate, p.profit_share_ratio),
   })).filter(l => l.amountPaise > 0)
   const totalPaise = lines.reduce((s, l) => s + l.amountPaise, 0)
-  const now = new Date()
   const monthLabel = `${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`
   return { lines, totalPaise, monthLabel }
 }

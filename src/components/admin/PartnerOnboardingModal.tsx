@@ -60,7 +60,7 @@ const EMPTY: FormState = {
   full_name: '', date_of_birth: '', pan_number: '', phone: '+91', email: '',
   residential_address: '', city: '', state: 'Karnataka', pin_code: '',
   capital_rupees: '', contribution_date: new Date().toISOString().split('T')[0],
-  lock_in_period: '6_months', payout_preference: 'payout', profit_share_ratio: '75',
+  lock_in_period: '3_months', payout_preference: 'payout', profit_share_ratio: '75',
   account_holder_name: '', bank_account_number: '', bank_account_confirm: '',
   bank_ifsc: '', bank_name: '',
   agreementConfirmed: false, capitalConfirmed: false,

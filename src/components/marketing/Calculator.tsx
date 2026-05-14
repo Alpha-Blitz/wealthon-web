@@ -1,72 +1,14 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { Shield } from 'lucide-react'
-import { trackEvent } from '@/lib/analytics'
-import { ANALYTICS_EVENTS } from '@/config/constants'
 
-const MIN = 100000    // ₹1L
-const MAX = 5000000   // ₹50L
-const DEFAULT = 500000 // ₹5L
-
-function fmt(rupees: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(rupees)
-}
-
-function calcRange(principal: number) {
-  return {
-    annualMin: Math.round(principal * 0.25),
-    annualMax: Math.round(principal * 0.35),
-    quarterlyMin: Math.round(principal * 0.25 / 4),
-    quarterlyMax: Math.round(principal * 0.35 / 4),
-    threeYearMin: Math.round(principal * Math.pow(1.25, 3)),
-    threeYearMax: Math.round(principal * Math.pow(1.35, 3)),
-  }
-}
+const ReturnCalculator = dynamic(
+  () => import('@/components/shared/ReturnCalculator').then(m => m.ReturnCalculator),
+  { ssr: false, loading: () => <div className="h-[420px] rounded-[10px]" style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }} /> },
+)
 
 export function Calculator() {
-  const [principal, setPrincipal] = useState(DEFAULT)
-  const r = calcRange(principal)
-  const pct = ((principal - MIN) / (MAX - MIN)) * 100
-
-  const hasTracked = useRef(false)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (principal === DEFAULT || hasTracked.current) return
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      if (hasTracked.current) return
-      hasTracked.current = true
-      trackEvent(ANALYTICS_EVENTS.CALCULATOR_USE, 'home', { amount: principal })
-    }, 2000)
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-    }
-  }, [principal])
-
-  const metrics = [
-    {
-      label: 'Est. Annual Return',
-      range: `${fmt(r.annualMin)} – ${fmt(r.annualMax)}`,
-      sub: '25% – 35% range',
-    },
-    {
-      label: 'Quarterly Distribution',
-      range: `${fmt(r.quarterlyMin)} – ${fmt(r.quarterlyMax)}`,
-      sub: 'per quarter',
-    },
-    {
-      label: '3-Year Compounded',
-      range: `${fmt(r.threeYearMin)} – ${fmt(r.threeYearMax)}`,
-      sub: 'compounded annually',
-    },
-  ]
-
   return (
     <section className="py-[60px] lg:py-[120px] relative overflow-hidden" style={{ background: '#050505' }}>
       <div
@@ -82,11 +24,11 @@ export function Calculator() {
               Returns Illustration
             </p>
             <h2 className="font-serif text-[28px] md:text-[36px] lg:text-[40px] font-semibold text-[#F0EDE6] leading-[1.2] mb-6">
-              See what performance-linked profit sharing could look like.
+              See what your money could earn.
             </h2>
             <p className="text-[#9A9080] text-[13px] font-sans font-light leading-[1.7] mb-8 max-w-[420px]">
-              Illustrative only. Based on historical performance of 25–35% annually. Not a
-              guarantee of future returns.
+              Illustrative only. Live rate from our firm rate book. Profit-sharing is
+              market-linked — not a guarantee of future returns.
             </p>
 
             <div
@@ -98,67 +40,15 @@ export function Calculator() {
                 <p className="text-[#7F7566] text-[12px] font-sans font-light leading-[1.6]">
                   Wealthon Capital Ventures is a proprietary trading firm. Capital partnerships
                   are profit-sharing arrangements and not fixed deposit schemes or guaranteed
-                  return products. All figures shown are illustrative and based on historical
-                  performance. Past performance does not guarantee future results.
+                  return products. All figures shown are illustrative.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right — slider + outputs */}
+          {/* Right — interactive calculator */}
           <div className="fade-up" data-delay="120">
-            <p className="text-[#7F7566] text-[11px] font-sans uppercase tracking-[0.15em] mb-2">
-              Capital Amount
-            </p>
-            <p className="font-dm-serif text-[40px] lg:text-[48px] text-gold leading-tight mb-8">
-              {fmt(principal)}
-            </p>
-
-            {/* Slider */}
-            <div className="mb-10">
-              <input
-                type="range"
-                min={MIN}
-                max={MAX}
-                step={50000}
-                value={principal}
-                onChange={(e) => setPrincipal(Number(e.target.value))}
-                className="w-full"
-                style={{
-                  background: `linear-gradient(to right, #F5A623 ${pct}%, rgba(245,166,35,0.15) ${pct}%)`,
-                }}
-              />
-              <div className="flex justify-between mt-2">
-                <span className="text-[#7F7566] text-[11px] font-sans">₹1L</span>
-                <span className="text-[#7F7566] text-[11px] font-sans">₹50L</span>
-              </div>
-            </div>
-
-            {/* Output metric cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {metrics.map((m) => (
-                <div
-                  key={m.label}
-                  className="rounded-[8px] p-4"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(245,166,35,0.06) 0%, transparent 60%)',
-                    border: '1px solid rgba(245,166,35,0.15)',
-                  }}
-                >
-                  <p className="text-[#9A9080] text-[10px] font-sans uppercase tracking-[0.1em] mb-2">
-                    {m.label}
-                  </p>
-                  <p className="font-dm-serif text-[15px] lg:text-[17px] text-gold leading-snug mb-1">
-                    {m.range}
-                  </p>
-                  <p className="text-[#7F7566] text-[11px] font-sans font-light">{m.sub}</p>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-[#7F7566] text-[11px] font-sans font-light mt-4">
-              Market-linked. Not guaranteed. For illustration only.
-            </p>
+            <ReturnCalculator mode="public" />
           </div>
         </div>
       </div>
