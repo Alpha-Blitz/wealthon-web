@@ -53,7 +53,7 @@ export function NotificationsClient({ partners, initialSent }: Props) {
     },
     {
       key: 'body', label: C.columns.message,
-      render: n => <span className="text-[12px] font-sans text-[#9A9080] line-clamp-1">{n.body ?? n.message}</span>,
+      render: n => <span className="text-[12px] font-sans text-[#9A9080] line-clamp-1">{n.body}</span>,
     },
     {
       key: 'type', label: C.columns.type,
@@ -96,7 +96,7 @@ export function NotificationsClient({ partners, initialSent }: Props) {
           </FormField>
         </div>
 
-        <FormField label={C.recipient + ' (optional)'}>
+        <FormField label={C.subject + ' (optional)'}>
           <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Short subject line…" />
         </FormField>
 

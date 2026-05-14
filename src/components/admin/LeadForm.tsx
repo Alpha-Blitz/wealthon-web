@@ -15,12 +15,13 @@ interface Props {
   lead:      Lead
   form:      LeadInput
   saving:    boolean
+  error?:    string | null
   onChange:  (f: LeadInput) => void
   onSave:    () => void
   onDelete:  () => void
 }
 
-export function LeadForm({ lead, form, saving, onChange, onSave, onDelete }: Props) {
+export function LeadForm({ lead, form, saving, error, onChange, onSave, onDelete }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -55,6 +56,8 @@ export function LeadForm({ lead, form, saving, onChange, onSave, onDelete }: Pro
         <textarea style={{ ...textareaStyle, minHeight: 80 }}
           value={form.notes ?? ''} onChange={e => onChange({ ...form, notes: e.target.value })} />
       </FormField>
+
+      {error && <p className="text-[12px] font-sans" style={{ color: '#EF4444' }}>{error}</p>}
 
       <div className="flex gap-3 mt-2">
         <button onClick={onSave} disabled={saving}

@@ -14,12 +14,13 @@ interface Props {
   stage:    PipelineStage
   form:     LeadInput
   saving:   boolean
+  error?:   string | null
   onChange: (form: LeadInput) => void
   onSave:   () => void
   onClose:  () => void
 }
 
-export function AddLeadModal({ isOpen, stage, form, saving, onChange, onSave, onClose }: Props) {
+export function AddLeadModal({ isOpen, stage, form, saving, error, onChange, onSave, onClose }: Props) {
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (isOpen) document.addEventListener('keydown', h)
@@ -101,6 +102,8 @@ export function AddLeadModal({ isOpen, stage, form, saving, onChange, onSave, on
             placeholder="Any context…"
           />
         </FormField>
+
+        {error && <p className="text-[12px] font-sans" style={{ color: '#EF4444' }}>{error}</p>}
 
         <div className="flex gap-3 mt-1">
           <button onClick={onClose}
