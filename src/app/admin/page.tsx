@@ -5,15 +5,19 @@ import { createClient } from '@/lib/supabase/server'
 import { getAllPartners, getPartnerMetrics } from '@/lib/admin/partners'
 import { getAuditLog } from '@/lib/admin/audit'
 import { getLeads } from '@/lib/admin/leads'
+import { getCurrentRate } from '@/lib/admin/rates'
+import { calculateDistribution } from '@/lib/admin/calculations'
 import { ROUTES } from '@/config/routes'
 import { CONTENT } from '@/config/content'
-import { MONTH_NAMES } from '@/config/constants'
+import { MONTH_NAMES, getCurrentQuarter } from '@/config/constants'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
 import { AdminSkeleton } from '@/components/admin/AdminSkeleton'
 import { AuditFeed } from '@/components/admin/AuditFeed'
+import { RateOverviewWidget } from '@/components/admin/RateOverviewWidget'
+import { DistributionAlertWidget } from '@/components/admin/DistributionAlertWidget'
 import { StatusPill } from '@/components/shared/StatusPill'
 import { formatINR } from '@/lib/utils'
-import type { AuditLog } from '@/types/database'
+import type { AuditLog, Partner } from '@/types/database'
 
 function fmtDate(s: string) {
   const d = new Date(s)
@@ -25,17 +29,36 @@ const C = CONTENT.admin.overview
 async function OverviewContent() {
   const supabase = await createClient()
 
-  const [metricsRes, partnersRes, auditRes, leadsRes] = await Promise.all([
+  const [metricsRes, partnersRes, auditRes, leadsRes, rateRes] = await Promise.all([
     getPartnerMetrics(supabase),
     getAllPartners(supabase),
     getAuditLog(supabase, 8),
     getLeads(supabase),
+    getCurrentRate(supabase),
   ])
 
-  const metrics   = metricsRes.data
-  const partners  = (partnersRes.data ?? []).slice(0, 5)
-  const auditLog  = (auditRes.data ?? []) as AuditLog[]
-  const leads     = leadsRes.data ?? []
+  const metrics    = metricsRes.data
+  const allPartners = (partnersRes.data ?? []) as Partner[]
+  const partners   = allPartners.slice(0, 5)
+  const auditLog   = (auditRes.data ?? []) as AuditLog[]
+  const leads      = leadsRes.data ?? []
+  const currentRate = rateRes.data
+
+  // Distribution alert: only render in the final 30 days of the quarter
+  const now = new Date()
+  const currentQuarter = getCurrentQuarter()
+  const quarterEndMonth = currentQuarter * 3
+  const quarterEnd = new Date(now.getFullYear(), quarterEndMonth, 0)
+  const daysUntilQuarterEnd = Math.ceil(
+    (quarterEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  )
+  const activePartners = allPartners.filter(p => p.status === 'active')
+  const estDistributionTotal = currentRate
+    ? activePartners.reduce(
+        (sum, p) => sum + calculateDistribution(p.invested_amount, currentRate.monthly_rate, p.profit_share_ratio ?? 75),
+        0,
+      )
+    : 0
 
   const stageCounts = leads.reduce<Record<string, number>>((acc, l) => {
     acc[l.stage] = (acc[l.stage] ?? 0) + 1
@@ -59,6 +82,16 @@ async function OverviewContent() {
         <AdminMetricCard icon={Users}          label={C.activePartners} value={metrics?.activeCount ?? '—'} sub="active partners" />
         <AdminMetricCard icon={Send}           label={C.distributions}  value={metrics ? formatINR(metrics.quarterlyDistributions) : '—'} sub="this quarter" />
         <AdminMetricCard icon={Calendar}       label={C.nextPayout}     value={metrics ? fmtDate(metrics.nextPayoutDate) : '—'} valueColor="#F0EDE6" />
+      </div>
+
+      {/* Rate + distribution alert widgets */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {currentRate && <RateOverviewWidget rate={currentRate} />}
+        <DistributionAlertWidget
+          daysUntilQuarterEnd={daysUntilQuarterEnd}
+          partnerCount={activePartners.length}
+          estTotal={estDistributionTotal}
+        />
       </div>
 
       <div className="flex flex-col xl:flex-row gap-4">
