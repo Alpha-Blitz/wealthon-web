@@ -3,35 +3,16 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { PIPELINE_STAGES, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/config/constants'
-import type { Lead } from '@/types/database'
+import type { EnrichedLead } from '@/lib/admin/leads'
 import { KanbanCard } from './KanbanCard'
 
 interface KanbanBoardProps {
-  leads:         Lead[]
-  onCardClick:   (lead: Lead) => void
-  onAddLead:     (stage: PipelineStage) => void
-  onStageChange: (leadId: string, stage: PipelineStage) => void
-}
-
-// DB stage → UI stage. DB-level 'proposal' collapses both UI stages
-// 'agreement_signed' and 'application_submitted'. The UI distinguishes
-// them via a separate flag set when the apply token is generated /
-// the private onboarding form is submitted.
-const STAGE_MAP: Record<string, PipelineStage> = {
-  new:       'new',
-  contacted: 'contacted',
-  qualified: 'terms_discussed',
-  proposal:  'agreement_signed',
-  converted: 'active_partner',
-}
-
-const REVERSE_STAGE_MAP: Record<PipelineStage, Lead['stage']> = {
-  new:                   'new',
-  contacted:             'contacted',
-  terms_discussed:       'qualified',
-  agreement_signed:      'proposal',
-  application_submitted: 'proposal',
-  active_partner:        'converted',
+  leads:           EnrichedLead[]
+  onCardClick:     (lead: EnrichedLead) => void
+  onAddLead:       (stage: PipelineStage) => void
+  onStageChange:   (leadId: string, stage: PipelineStage) => void
+  onSendOnboarding:(lead: EnrichedLead) => void
+  onActivate:      (lead: EnrichedLead) => void
 }
 
 // Color accent per stage
@@ -44,7 +25,7 @@ const STAGE_ACCENT: Record<PipelineStage, string> = {
   active_partner:        'rgba(34,197,94,0.6)',
 }
 
-export function KanbanBoard({ leads, onCardClick, onAddLead, onStageChange }: KanbanBoardProps) {
+export function KanbanBoard({ leads, onCardClick, onAddLead, onStageChange, onSendOnboarding, onActivate }: KanbanBoardProps) {
   const [dragOverStage, setDragOverStage] = useState<PipelineStage | null>(null)
 
   function handleDragOver(e: React.DragEvent, stage: PipelineStage) {
@@ -63,7 +44,7 @@ export function KanbanBoard({ leads, onCardClick, onAddLead, onStageChange }: Ka
   return (
     <div className="flex gap-3 overflow-x-auto pb-4" style={{ minHeight: 520 }}>
       {PIPELINE_STAGES.map(stage => {
-        const columnLeads = leads.filter(l => STAGE_MAP[l.stage] === stage)
+        const columnLeads = leads.filter(l => l.uiStage === stage)
         const isDragOver  = dragOverStage === stage
         const accent      = STAGE_ACCENT[stage]
 
@@ -118,7 +99,12 @@ export function KanbanBoard({ leads, onCardClick, onAddLead, onStageChange }: Ka
                       e.dataTransfer.effectAllowed = 'move'
                     }}
                   >
-                    <KanbanCard lead={lead} onClick={onCardClick} />
+                    <KanbanCard
+                      lead={lead}
+                      onClick={onCardClick}
+                      onSendOnboarding={onSendOnboarding}
+                      onActivate={onActivate}
+                    />
                   </div>
                 ))
               )}

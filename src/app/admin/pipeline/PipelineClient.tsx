@@ -3,41 +3,50 @@
 import { useState, useMemo } from 'react'
 import { Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { addLead, updateLead, updateLeadStage, deleteLead, type LeadInput } from '@/lib/admin/leads'
-import { PIPELINE_STAGES, LEAD_STAGE_TO_DB, type PipelineStage } from '@/config/constants'
-import { CONTENT } from '@/config/content'
+import { addLead, updateLead, updateLeadStage, deleteLead, type LeadInput, type EnrichedLead } from '@/lib/admin/leads'
+import { LEAD_STAGE_TO_DB, type PipelineStage } from '@/config/constants'
 import { KanbanBoard } from '@/components/admin/KanbanBoard'
 import { Modal } from '@/components/admin/Modal'
 import { AddLeadModal } from '@/components/admin/AddLeadModal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { FunnelStrip } from '@/components/admin/FunnelStrip'
 import { LeadForm } from '@/components/admin/LeadForm'
+import { SendApplyTokenModal } from '@/components/admin/SendApplyTokenModal'
+import { ActivatePartnerModal } from '@/components/admin/ActivatePartnerModal'
 import type { Lead, Partner } from '@/types/database'
-
-const C = CONTENT.admin.pipeline
 
 const DB_STAGES: Lead['stage'][] = ['new', 'contacted', 'qualified', 'proposal', 'converted']
 
 const EMPTY_FORM: LeadInput = { name: '', email: '', phone: '', source: 'organic', stage: 'new', notes: '' }
 
-interface Props { initialLeads: Lead[]; partners: Partner[] }
+interface Props {
+  initialLeads:    EnrichedLead[]
+  partners:        Partner[]
+  applyExpiryDays: number
+  lockInMonths:    number
+}
 
-export function PipelineClient({ initialLeads, partners: _ }: Props) {
-  const [leads, setLeads]           = useState(initialLeads)
+export function PipelineClient({ initialLeads, partners: _, applyExpiryDays, lockInMonths }: Props) {
+  const [leads, setLeads]           = useState<EnrichedLead[]>(initialLeads)
   const [search, setSearch]         = useState('')
 
   const [addOpen, setAddOpen]       = useState(false)
   const [addStage, setAddStage]     = useState<PipelineStage>('new')
 
   const [slideOpen, setSlideOpen]   = useState(false)
-  const [selectedLead, setSelected] = useState<Lead | null>(null)
-  const [delLead, setDelLead]       = useState<Lead | null>(null)
+  const [selectedLead, setSelected] = useState<EnrichedLead | null>(null)
+  const [delLead, setDelLead]       = useState<EnrichedLead | null>(null)
+
+  const [tokenModalLead, setTokenLead] = useState<EnrichedLead | null>(null)
+  const [activateLead, setActivateLead] = useState<EnrichedLead | null>(null)
 
   const [form, setForm]             = useState<LeadInput>(EMPTY_FORM)
   const [saving, setSaving]         = useState(false)
   const [error, setError]           = useState<string | null>(null)
 
-  const stageCounts = DB_STAGES.map(s => leads.filter(l => l.stage === s).length)
+  void DB_STAGES
+  const funnelOrder: EnrichedLead['uiStage'][] = ['new', 'contacted', 'terms_discussed', 'agreement_signed', 'application_submitted', 'active_partner']
+  const stageCounts = funnelOrder.map(s => leads.filter(l => l.uiStage === s).length)
 
   const filteredLeads = useMemo(() => {
     const q = search.toLowerCase()
@@ -56,11 +65,22 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
     setAddOpen(true)
   }
 
-  function openCard(lead: Lead) {
+  function openCard(lead: EnrichedLead) {
     setSelected(lead)
     setForm({ name: lead.name, email: lead.email ?? '', phone: lead.phone ?? '', source: lead.source ?? 'organic', stage: lead.stage, notes: lead.notes ?? '' })
     setError(null)
     setSlideOpen(true)
+  }
+
+  function deriveUiStage(stage: Lead['stage'], hasToken: boolean): EnrichedLead['uiStage'] {
+    switch (stage) {
+      case 'new':       return 'new'
+      case 'contacted': return 'contacted'
+      case 'qualified': return 'terms_discussed'
+      case 'proposal':  return hasToken ? 'application_submitted' : 'agreement_signed'
+      case 'converted': return 'active_partner'
+      default:          return 'new'
+    }
   }
 
   async function handleAdd() {
@@ -69,8 +89,14 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
     const supabase = createClient()
     const res = await addLead(supabase, form)
     setSaving(false)
-    if (res.error) { setError(res.error); return }
-    setLeads(ls => [res.data!, ...ls])
+    if (res.error || !res.data) { setError(res.error ?? 'Failed'); return }
+    const added: EnrichedLead = {
+      ...res.data,
+      uiStage: deriveUiStage(res.data.stage, false),
+      tokenId: null, tokenUrl: null, tokenUsedAt: null,
+      pendingPartnerId: null, intendedCapital: null, monthlyPayout: null,
+    }
+    setLeads(ls => [added, ...ls])
     setAddOpen(false)
   }
 
@@ -81,16 +107,48 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
     const supabase = createClient()
     const res = await updateLead(supabase, selectedLead.id, form)
     setSaving(false)
-    if (res.error) { setError(res.error); return }
-    setLeads(ls => ls.map(l => l.id === selectedLead.id ? res.data! : l))
+    if (res.error || !res.data) { setError(res.error ?? 'Failed'); return }
+    const updated: EnrichedLead = {
+      ...res.data,
+      uiStage: deriveUiStage(res.data.stage, !!selectedLead.tokenId),
+      tokenId: selectedLead.tokenId,
+      tokenUrl: selectedLead.tokenUrl,
+      tokenUsedAt: selectedLead.tokenUsedAt,
+      pendingPartnerId: selectedLead.pendingPartnerId,
+      intendedCapital: selectedLead.intendedCapital,
+      monthlyPayout: selectedLead.monthlyPayout,
+    }
+    setLeads(ls => ls.map(l => l.id === selectedLead.id ? updated : l))
     setSlideOpen(false)
   }
 
   async function handleStageChange(leadId: string, stage: PipelineStage) {
+    // Dragging into 'application_submitted' or 'active_partner' is gated by the
+    // dedicated buttons. Reject those drops here.
+    if (stage === 'application_submitted' || stage === 'active_partner') return
     const dbStage = LEAD_STAGE_TO_DB[stage]
     const supabase = createClient()
     const res = await updateLeadStage(supabase, leadId, dbStage)
-    if (res.data) setLeads(ls => ls.map(l => l.id === leadId ? res.data! : l))
+    if (res.data) {
+      setLeads(ls => ls.map(l => l.id === leadId ? {
+        ...l,
+        ...res.data!,
+        uiStage: deriveUiStage(res.data!.stage, !!l.tokenId),
+      } : l))
+    }
+  }
+
+  function handleTokenGenerated(lead: EnrichedLead, token: { tokenId: string; url: string; expiresAt: string }) {
+    setLeads(ls => ls.map(l => l.id === lead.id
+      ? { ...l, tokenId: token.tokenId, tokenUrl: token.url, uiStage: l.uiStage }
+      : l))
+  }
+
+  function handlePartnerActivated(lead: EnrichedLead, result: { partner: { id: string }; invoiceNumber: string | null; invoiceUrl: string | null; lockInExpiry: string | null }) {
+    setLeads(ls => ls.map(l => l.id === lead.id
+      ? { ...l, stage: 'converted', uiStage: 'active_partner', tokenUsedAt: l.tokenUsedAt ?? new Date().toISOString() }
+      : l))
+    void result
   }
 
   async function handleDelete() {
@@ -126,6 +184,24 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
         onCardClick={openCard}
         onAddLead={openAdd}
         onStageChange={handleStageChange}
+        onSendOnboarding={lead => setTokenLead(lead)}
+        onActivate={lead => setActivateLead(lead)}
+      />
+
+      <SendApplyTokenModal
+        isOpen={!!tokenModalLead}
+        onClose={() => setTokenLead(null)}
+        lead={tokenModalLead}
+        defaultExpiryDays={applyExpiryDays}
+        onGenerated={handleTokenGenerated}
+      />
+
+      <ActivatePartnerModal
+        isOpen={!!activateLead}
+        onClose={() => setActivateLead(null)}
+        lead={activateLead}
+        lockInMonths={lockInMonths}
+        onActivated={handlePartnerActivated}
       />
 
       <AddLeadModal

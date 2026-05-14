@@ -1,11 +1,14 @@
 'use client'
 
-import { Mail, Phone } from 'lucide-react'
-import type { Lead } from '@/types/database'
+import { Mail, Phone, Send, CheckCircle2, ExternalLink } from 'lucide-react'
+import type { EnrichedLead } from '@/lib/admin/leads'
+import { formatINR } from '@/lib/utils'
 
 interface KanbanCardProps {
-  lead:    Lead
-  onClick: (lead: Lead) => void
+  lead:             EnrichedLead
+  onClick:          (lead: EnrichedLead) => void
+  onSendOnboarding?:(lead: EnrichedLead) => void
+  onActivate?:      (lead: EnrichedLead) => void
 }
 
 const SOURCE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -24,11 +27,15 @@ function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
-export function KanbanCard({ lead, onClick }: KanbanCardProps) {
+export function KanbanCard({ lead, onClick, onSendOnboarding, onActivate }: KanbanCardProps) {
   const days   = daysAgo(lead.updated_at ?? lead.created_at)
   const src    = lead.source ?? 'other'
   const srcClr = SOURCE_COLORS[src] ?? SOURCE_COLORS.other
   const ageClr = days > 14 ? '#EF4444' : days > 7 ? '#F59E0B' : '#68625A'
+
+  const showSendOnboarding = lead.uiStage === 'agreement_signed' && !lead.tokenId
+  const showActivate       = lead.uiStage === 'application_submitted'
+  const isPriority         = lead.uiStage === 'application_submitted'
 
   return (
     <div
@@ -36,20 +43,25 @@ export function KanbanCard({ lead, onClick }: KanbanCardProps) {
       className="rounded-[8px] p-3 cursor-pointer select-none"
       style={{
         background:   '#161616',
-        border:       '0.5px solid rgba(255,255,255,0.07)',
+        border:       isPriority ? '1px solid rgba(245,166,35,0.6)' : '0.5px solid rgba(255,255,255,0.07)',
         transition:   'border-color 0.15s, transform 0.15s, box-shadow 0.15s',
+        boxShadow:    isPriority ? '0 0 12px rgba(245,166,35,0.12)' : 'none',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement
-        el.style.borderColor = 'rgba(245,166,35,0.35)'
-        el.style.transform   = 'translateY(-1px)'
-        el.style.boxShadow   = '0 4px 16px rgba(0,0,0,0.3)'
+        if (!isPriority) {
+          el.style.borderColor = 'rgba(245,166,35,0.35)'
+          el.style.boxShadow   = '0 4px 16px rgba(0,0,0,0.3)'
+        }
+        el.style.transform = 'translateY(-1px)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLDivElement
-        el.style.borderColor = 'rgba(255,255,255,0.07)'
-        el.style.transform   = 'translateY(0)'
-        el.style.boxShadow   = 'none'
+        if (!isPriority) {
+          el.style.borderColor = 'rgba(255,255,255,0.07)'
+          el.style.boxShadow   = 'none'
+        }
+        el.style.transform = 'translateY(0)'
       }}
     >
       {/* Top row: avatar + name + source */}
@@ -84,6 +96,62 @@ export function KanbanCard({ lead, onClick }: KanbanCardProps) {
         <div className="flex items-center gap-1.5 mb-1">
           <Phone size={10} className="text-[#68625A] flex-shrink-0" />
           <span className="text-[11px] font-sans text-[#9A9080] truncate">{lead.phone}</span>
+        </div>
+      )}
+
+      {/* Application Submitted extras */}
+      {lead.uiStage === 'application_submitted' && (
+        <div className="mt-2 pt-2 flex flex-col gap-1.5" style={{ borderTop: '0.5px solid rgba(245,166,35,0.18)' }}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-sans px-1.5 py-0.5 rounded-[3px] self-start"
+            style={{ background: 'rgba(34,197,94,0.1)', color: '#22C55E' }}>
+            <CheckCircle2 size={9} /> Form completed
+          </span>
+          {lead.intendedCapital && (
+            <p className="text-[11px] font-sans text-[#9A9080]">
+              Intended: <span className="text-gold">{formatINR(lead.intendedCapital)}</span>
+              {lead.monthlyPayout && <> · ~{formatINR(lead.monthlyPayout)}/mo</>}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Token already sent indicator */}
+      {lead.uiStage === 'agreement_signed' && lead.tokenId && lead.tokenUrl && (
+        <a
+          href={lead.tokenUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()}
+          className="mt-2 pt-2 flex items-center gap-1.5 text-[11px] font-sans text-gold hover:text-gold-secondary"
+          style={{ borderTop: '0.5px solid rgba(255,255,255,0.05)' }}
+        >
+          <ExternalLink size={10} /> Onboarding link sent · open
+        </a>
+      )}
+
+      {/* Action buttons */}
+      {(showSendOnboarding || showActivate) && (
+        <div className="mt-2 pt-2 flex gap-1.5" style={{ borderTop: '0.5px solid rgba(255,255,255,0.05)' }} onClick={e => e.stopPropagation()}>
+          {showSendOnboarding && onSendOnboarding && (
+            <button
+              onClick={() => onSendOnboarding(lead)}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-sans py-1.5 rounded-[3px] cursor-pointer border-none"
+              style={{ background: 'rgba(245,166,35,0.12)', color: '#F5A623' }}
+            >
+              <Send size={10} />
+              Send Onboarding Form
+            </button>
+          )}
+          {showActivate && onActivate && (
+            <button
+              onClick={() => onActivate(lead)}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-sans py-1.5 rounded-[3px] cursor-pointer border-none"
+              style={{ background: '#F5A623', color: '#080808' }}
+            >
+              <CheckCircle2 size={10} />
+              Capital Received — Activate
+            </button>
+          )}
         </div>
       )}
 

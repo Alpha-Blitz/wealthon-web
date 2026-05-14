@@ -1,12 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
-import { getLeads } from '@/lib/admin/leads'
+import { getEnrichedLeads } from '@/lib/admin/leads'
 import { getAllPartners } from '@/lib/admin/partners'
+import { getFinancialConfig } from '@/lib/admin/settings'
 import { PipelineClient } from './PipelineClient'
 
 export default async function PipelinePage() {
   const supabase = await createClient()
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://www.wealthonventures.com'
+  const config = await getFinancialConfig(supabase)
   const [leadsRes, partnersRes] = await Promise.all([
-    getLeads(supabase),
+    getEnrichedLeads(supabase, baseUrl, config.defaultMonthlyRate),
     getAllPartners(supabase),
   ])
 
@@ -15,6 +18,8 @@ export default async function PipelinePage() {
       <PipelineClient
         initialLeads={leadsRes.data ?? []}
         partners={partnersRes.data ?? []}
+        applyExpiryDays={config.applyFormExpiryDays}
+        lockInMonths={config.lockInMonths}
       />
     </div>
   )
