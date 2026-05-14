@@ -1,3 +1,9 @@
+export type TransactionType =
+  | 'investment' | 'distribution' | 'fee' | 'pnl_update' | 'withdrawal' // legacy
+  | 'capital_in' | 'reinvest' | 'capital_out'
+
+export type LockInPeriodValue = '3_months' | '6_months' | '1_year' | 'flexible'
+
 export interface Partner {
   id: string
   company_id: string
@@ -13,6 +19,26 @@ export interface Partner {
   avatar_url: string | null
   username: string | null
   notes: string | null
+  // KYC
+  date_of_birth: string | null
+  pan_number: string | null
+  residential_address: string | null
+  city: string | null
+  state: string | null
+  pin_code: string | null
+  // Banking
+  bank_account_number: string | null
+  bank_ifsc: string | null
+  bank_name: string | null
+  account_holder_name: string | null
+  // Partnership terms
+  profit_share_ratio: number          // default 75
+  lock_in_period: LockInPeriodValue
+  lock_in_expiry: string | null
+  payout_preference: 'payout' | 'reinvest'
+  contribution_date: string | null
+  risk_disclosure_acknowledged_at: string | null
+  terms_acknowledged_at: string | null
   created_at: string
   updated_at: string
 }
@@ -22,12 +48,43 @@ export interface Transaction {
   company_id: string
   partner_id: string
   date: string
-  type: 'investment' | 'distribution' | 'fee' | 'pnl_update' | 'withdrawal'
+  type: TransactionType
   amount: number             // positive = credit, negative = debit, in paise
   status: 'completed' | 'pending' | 'processing' | 'cancelled'
   notes: string | null
   created_by: string | null
   created_at: string
+  // Invoice fields
+  invoice_url: string | null
+  invoice_number: string | null
+  invoice_generated_at: string | null
+  invoice_sent_at: string | null
+  invoice_sent_via: string[] | null
+  running_balance: number | null
+}
+
+export interface QuarterlyRate {
+  id: string
+  quarter: 1 | 2 | 3 | 4
+  year: number
+  monthly_rate: number          // decimal, e.g. 0.025 = 2.5%/month
+  notes: string | null
+  set_by: string | null
+  created_at: string
+}
+
+export interface DistributionPreview {
+  partner: Partner
+  calculatedAmount: number      // paise
+  overrideAmount: number | null // paise
+  status: 'pending' | 'paid'
+  bankLast4: string
+}
+
+export interface InvoiceData {
+  invoiceNumber: string
+  url: string
+  generatedAt: string
 }
 
 export interface PnLReport {

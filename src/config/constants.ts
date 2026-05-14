@@ -13,8 +13,82 @@ export const PARTNER_TIERS = {
   L4: { label: 'L4', minAmount: 500000000 },  // ₹50L in paise
 } as const
 
-export const TRANSACTION_TYPES = ['investment', 'distribution', 'fee', 'pnl_update', 'withdrawal'] as const
+// Legacy enum (kept for backward compatibility with existing rows)
+export const LEGACY_TRANSACTION_TYPES = ['investment', 'distribution', 'fee', 'pnl_update', 'withdrawal'] as const
 export const TRANSACTION_STATUSES = ['completed', 'pending', 'processing', 'cancelled'] as const
+
+// New transaction taxonomy
+export const TRANSACTION_TYPES = {
+  CAPITAL_IN:   'capital_in',
+  DISTRIBUTION: 'distribution',
+  REINVEST:     'reinvest',
+  CAPITAL_OUT:  'capital_out',
+} as const
+
+export type TransactionTypeKey = typeof TRANSACTION_TYPES[keyof typeof TRANSACTION_TYPES]
+
+export const TRANSACTION_TYPE_LABELS: Record<TransactionTypeKey, string> = {
+  capital_in:   'Capital In',
+  distribution: 'Distribution',
+  reinvest:     'Reinvested',
+  capital_out:  'Capital Out',
+}
+
+export const TRANSACTION_TYPE_COLORS: Record<TransactionTypeKey, 'green' | 'blue' | 'gold' | 'red'> = {
+  capital_in:   'green',
+  distribution: 'blue',
+  reinvest:     'gold',
+  capital_out:  'red',
+}
+
+export const TRANSACTION_TYPE_DESCRIPTIONS: Record<TransactionTypeKey, string> = {
+  capital_in:   'Initial capital contribution',
+  distribution: 'Quarterly profit distribution',
+  reinvest:     'Reinvested quarterly profit',
+  capital_out:  'Capital withdrawal',
+}
+
+export const QUARTERLY_RATE_DEFAULT = 0.025 // 2.5%/month
+
+export const LOCK_IN_OPTIONS = [
+  { value: '3_months', label: '3 Months' },
+  { value: '6_months', label: '6 Months' },
+  { value: '1_year',   label: '1 Year' },
+  { value: 'flexible', label: 'Flexible' },
+] as const
+
+export type LockInPeriod = typeof LOCK_IN_OPTIONS[number]['value']
+
+export const PAYOUT_OPTIONS = [
+  { value: 'payout',   label: 'Quarterly Payout' },
+  { value: 'reinvest', label: 'Reinvest (Compound)' },
+] as const
+
+export type PayoutPreference = typeof PAYOUT_OPTIONS[number]['value']
+
+export const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+  'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+  'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+  'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Delhi', 'Jammu & Kashmir', 'Ladakh',
+] as const
+
+export const INVOICE_TYPES = {
+  CAPITAL_RECEIPT: 'capital_receipt',
+  DISTRIBUTION:    'distribution_invoice',
+  REINVESTMENT:    'reinvestment_statement',
+  ANNUAL:          'annual_statement',
+} as const
+
+export type InvoiceTypeKey = typeof INVOICE_TYPES[keyof typeof INVOICE_TYPES]
+
+// Validation regexes
+export const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
+export const PIN_REGEX = /^[1-9][0-9]{5}$/
+export const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/
 
 export const ASSET_CLASSES = ['Forex', 'Equities', 'Commodities', 'Cash', 'Crypto', 'Other'] as const
 

@@ -12,4 +12,5 @@ export const TABLE = {
   NOTIFICATIONS: 'notifications',
   ADMIN_ROLES:   'admin_roles',
   PAGE_EVENTS:   'page_events',
+  QUARTERLY_RATES: 'quarterly_rates',
 } as const

@@ -13,12 +13,29 @@ export const mockPartner: Partner = {
   email: 'suhan@example.com',
   phone: '+91 98765 43210',
   tier: 'L1',
-  invested_amount: 50000000,   // ₹5,00,000
+  invested_amount: 50000000,
   entry_date: '2025-01-01',
   status: 'active',
   avatar_url: null,
   username: null,
   notes: null,
+  date_of_birth: null,
+  pan_number: null,
+  residential_address: null,
+  city: null,
+  state: null,
+  pin_code: null,
+  bank_account_number: null,
+  bank_ifsc: null,
+  bank_name: null,
+  account_holder_name: null,
+  profit_share_ratio: 75,
+  lock_in_period: '6_months',
+  lock_in_expiry: null,
+  payout_preference: 'payout',
+  contribution_date: '2025-01-01',
+  risk_disclosure_acknowledged_at: null,
+  terms_acknowledged_at: null,
   created_at: '2025-01-01T00:00:00Z',
   updated_at: '2025-01-01T00:00:00Z',
 }
@@ -65,14 +82,14 @@ export const mockMonthlyPnL: PnLMonthly[] = [
 ]
 
 export const mockTransactions: Transaction[] = [
-  { id: 't1', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-03-31', type: 'distribution', amount: 3750000,  status: 'completed',  notes: 'Q1 2025 profit distribution', created_by: null, created_at: '2025-03-31T10:00:00Z' },
-  { id: 't2', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-03-15', type: 'fee',          amount: -300000,  status: 'completed',  notes: 'Quarterly admin fee',         created_by: null, created_at: '2025-03-15T10:00:00Z' },
-  { id: 't3', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-03-01', type: 'investment',   amount: 50000000, status: 'completed',  notes: 'Initial capital contribution', created_by: null, created_at: '2025-03-01T10:00:00Z' },
-  { id: 't4', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-02-28', type: 'pnl_update',  amount: 3280000,  status: 'completed',  notes: '',                            created_by: null, created_at: '2025-02-28T10:00:00Z' },
-  { id: 't5', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-12-31', type: 'distribution', amount: 3520000,  status: 'completed',  notes: 'Q4 2024 distribution',        created_by: null, created_at: '2024-12-31T10:00:00Z' },
-  { id: 't6', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-12-15', type: 'fee',          amount: -300000,  status: 'completed',  notes: 'Quarterly admin fee',         created_by: null, created_at: '2024-12-15T10:00:00Z' },
-  { id: 't7', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-09-30', type: 'distribution', amount: 3200000,  status: 'completed',  notes: 'Q3 2024 distribution',        created_by: null, created_at: '2024-09-30T10:00:00Z' },
-  { id: 't8', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-06-30', type: 'distribution', amount: 2900000,  status: 'completed',  notes: 'Q2 2024 distribution',        created_by: null, created_at: '2024-06-30T10:00:00Z' },
+  { id: 't1', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-03-31', type: 'distribution', amount: 3750000,  status: 'completed',  notes: 'Q1 2025 profit distribution', created_by: null, created_at: '2025-03-31T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't2', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-03-15', type: 'fee',          amount: -300000,  status: 'completed',  notes: 'Quarterly admin fee',         created_by: null, created_at: '2025-03-15T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't3', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-03-01', type: 'investment',   amount: 50000000, status: 'completed',  notes: 'Initial capital contribution', created_by: null, created_at: '2025-03-01T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't4', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2025-02-28', type: 'pnl_update',  amount: 3280000,  status: 'completed',  notes: '',                            created_by: null, created_at: '2025-02-28T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't5', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-12-31', type: 'distribution', amount: 3520000,  status: 'completed',  notes: 'Q4 2024 distribution',        created_by: null, created_at: '2024-12-31T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't6', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-12-15', type: 'fee',          amount: -300000,  status: 'completed',  notes: 'Quarterly admin fee',         created_by: null, created_at: '2024-12-15T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't7', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-09-30', type: 'distribution', amount: 3200000,  status: 'completed',  notes: 'Q3 2024 distribution',        created_by: null, created_at: '2024-09-30T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
+  { id: 't8', company_id: MOCK_COMPANY_ID, partner_id: PARTNER_ID, date: '2024-06-30', type: 'distribution', amount: 2900000,  status: 'completed',  notes: 'Q2 2024 distribution',        created_by: null, created_at: '2024-06-30T10:00:00Z', invoice_url: null, invoice_number: null, invoice_generated_at: null, invoice_sent_at: null, invoice_sent_via: null, running_balance: null },
 ]
 
 export const mockSecurity: Security = {

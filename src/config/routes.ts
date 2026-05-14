@@ -17,6 +17,7 @@ export const ROUTES = {
     FINANCIALS:    '/admin/financials',
     DOCUMENTS:     '/admin/documents',
     DISTRIBUTIONS: '/admin/distributions',
+    RATES:         '/admin/rates',
     TEAM:          '/admin/team',
     PNL_ENTRY:     '/admin/pnl-entry',
     STRATEGIES:    '/admin/strategies',

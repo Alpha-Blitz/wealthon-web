@@ -7,7 +7,7 @@ import { updatePartner, type PartnerInput } from '@/lib/admin/partners'
 import { addTransaction, updateTransaction, deleteTransaction } from '@/lib/admin/transactions'
 import { addPnLReport } from '@/lib/admin/pnl'
 import { CONTENT } from '@/config/content'
-import { PARTNER_TIERS, TRANSACTION_TYPES, TRANSACTION_STATUSES, PAISE_PER_RUPEE, MONTH_NAMES } from '@/config/constants'
+import { PARTNER_TIERS, TRANSACTION_TYPES, TRANSACTION_TYPE_LABELS, TRANSACTION_STATUSES, PAISE_PER_RUPEE, MONTH_NAMES } from '@/config/constants'
 import { formatINR } from '@/lib/utils'
 import { Modal } from '@/components/admin/Modal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
@@ -291,7 +291,7 @@ export function PartnerDetailClient({ partner: initPartner, transactions: initTx
             </FormField>
             <FormField label="Type">
               <select style={selectStyle} value={txForm.type} onChange={e => setTxForm(f => ({ ...f, type: e.target.value as Transaction['type'] }))}>
-                {TRANSACTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                {Object.values(TRANSACTION_TYPES).map(t => <option key={t} value={t}>{TRANSACTION_TYPE_LABELS[t]}</option>)}
               </select>
             </FormField>
           </div>
