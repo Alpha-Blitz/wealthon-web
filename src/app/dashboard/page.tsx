@@ -9,6 +9,7 @@ import { MetricCard } from '@/components/dashboard/MetricCard'
 import { BarChart } from '@/components/charts/BarChart'
 import { RecentActivity } from '@/components/dashboard/RecentActivity'
 import { ChartStats } from '@/components/dashboard/ChartStats'
+import { ProjectionWidget } from '@/components/dashboard/ProjectionWidget'
 import { formatINR } from '@/lib/utils'
 import { CONTENT } from '@/config/content'
 import { mockPartner, mockLatestPnLReport, mockMonthlyPnL, mockTransactions } from '@/lib/mock/data'
@@ -150,6 +151,13 @@ function DashboardContent({
           sub={`${C.metrics.daysPrefix} ${daysUntil(nextPayout)} ${C.metrics.daysSuffix}`}
         />
       </div>
+
+      {/* Projection widget — collapsible */}
+      <ProjectionWidget
+        capitalPaise={partner.invested_amount}
+        monthlyRate={currentRate ? currentRate.monthly_rate : undefined}
+        profitShare={partner.profit_share_ratio}
+      />
 
       {/* Chart + activity row */}
       <div className="flex flex-col md:flex-row gap-4">
