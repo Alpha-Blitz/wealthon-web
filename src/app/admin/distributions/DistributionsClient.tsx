@@ -1,162 +1,485 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { AlertCircle, ArrowRight, Check, Loader2, MessageCircle, Send, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { getDistributionRunLegacy, markPartnerPaid, confirmDistributionRun } from '@/lib/admin/distributions'
-import { PARTNER_PROFIT_SHARE, getCurrentQuarter } from '@/config/constants'
+import {
+  getDistributionRun, confirmDistribution,
+  type DistributionRun, type ProcessedDistribution,
+} from '@/lib/admin/distributions'
+import { markWhatsappSent } from '@/lib/admin/notifications'
+import { getCurrentQuarter } from '@/config/constants'
+import { ROUTES } from '@/config/routes'
 import { StepIndicator } from '@/components/admin/StepIndicator'
-import { StatusPill } from '@/components/shared/StatusPill'
 import { formatINR } from '@/lib/utils'
-import { CONTENT } from '@/config/content'
-import { type Column } from '@/components/admin/DataTable'
-import { SelectPeriodStep } from './steps/SelectPeriodStep'
-import { ReviewStep, type ReportWithPartner } from './steps/ReviewStep'
-import { CompleteStep } from './steps/CompleteStep'
 
-const C = CONTENT.admin.distributions
-
-const CURRENT_YEAR    = new Date().getFullYear()
-const CURRENT_QUARTER = getCurrentQuarter()
+const STEPS = ['Select Period', 'Review', 'Process', 'Complete'] as const
 
 export function DistributionsClient() {
-  const [step, setStep]           = useState(0)
-  const [quarter, setQuarter]     = useState(CURRENT_QUARTER)
-  const [year, setYear]           = useState(CURRENT_YEAR)
-  const [reports, setReports]     = useState<ReportWithPartner[]>([])
-  const [payingIds, setPayingIds] = useState<Set<string>>(new Set())
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState<string | null>(null)
+  const [step, setStep]       = useState(0)
+  const [quarter, setQuarter] = useState(getCurrentQuarter())
+  const [year, setYear]       = useState(new Date().getFullYear())
+  const [run, setRun]         = useState<DistributionRun | null>(null)
+  const [overrides, setOverrides] = useState<Record<string, number>>({})
+  const [processing, setProcessing] = useState(false)
+  const [processed, setProcessed] = useState<ProcessedDistribution[]>([])
+  const [failed, setFailed]   = useState<{ partnerId: string; error: string }[]>([])
+  const [whatsappSent, setWhatsappSent] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState<string | null>(null)
 
-  async function loadRun() {
+  async function loadPreview() {
     setLoading(true); setError(null)
     const supabase = createClient()
-    const res = await getDistributionRunLegacy(supabase, quarter, year)
-    if (res.error) { setError(res.error); setLoading(false); return }
-    setReports((res.data ?? []) as ReportWithPartner[])
+    const res = await getDistributionRun(supabase, quarter, year)
     setLoading(false)
+    if (res.error || !res.data) { setError(res.error ?? 'No data'); return }
+    setRun(res.data)
+    setOverrides(Object.fromEntries(res.data.partners.map(p => [p.partner.id, p.calculatedAmount])))
     setStep(1)
   }
 
-  async function handleMarkPaid(report: ReportWithPartner) {
-    const amount = Math.round(report.gross_profit * PARTNER_PROFIT_SHARE)
-    setPayingIds(s => new Set(s).add(report.id))
-    const supabase = createClient()
-    const res = await markPartnerPaid(supabase, report.id, report.partner_id, amount, quarter, year)
-    setPayingIds(s => { const next = new Set(s); next.delete(report.id); return next })
-    if (res.error) {
-      setError(res.error)
-    } else {
-      setReports(rs => rs.map(r => r.id === report.id
-        ? { ...r, distribution_status: 'paid', distribution_amount: amount }
-        : r
-      ))
-    }
-  }
-
   async function handleConfirmAll() {
-    setLoading(true)
-    const supabase = createClient()
-    const paidPartnerIds = reports
-      .filter(r => r.distribution_status === 'paid')
-      .map(r => r.partner_id)
-    const res = await confirmDistributionRun(supabase, quarter, year, paidPartnerIds)
-    setLoading(false)
-    if (res.error) { setError(res.error); return }
+    if (!run) return
+    if (!confirm('Confirm distribution for all active partners?')) return
     setStep(2)
+    setProcessing(true)
+    const supabase = createClient()
+    const payload = run.partners.map(p => ({
+      partnerId: p.partner.id,
+      amount: overrides[p.partner.id] ?? p.calculatedAmount,
+    }))
+    const res = await confirmDistribution(supabase, quarter, year, payload)
+    setProcessing(false)
+    if (res.error || !res.data) {
+      setError(res.error ?? 'Distribution failed')
+      return
+    }
+    setProcessed(res.data.processed)
+    setFailed(res.data.failed)
+    setStep(3)
   }
 
-  const totalPayout  = reports.reduce((s, r) => s + Math.round((r.gross_profit ?? 0) * PARTNER_PROFIT_SHARE), 0)
-  const paidCount    = reports.filter(r => r.distribution_status === 'paid').length
-  const pendingCount = reports.filter(r => r.distribution_status !== 'paid').length
-
-  const columns: Column<ReportWithPartner>[] = [
-    {
-      key: 'partner_id', label: C.columns.partner,
-      render: r => (
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-sans font-medium flex-shrink-0"
-            style={{ background: 'rgba(245,166,35,0.12)', color: '#F5A623' }}>
-            {r.partners?.initials ?? '?'}
-          </div>
-          <div>
-            <p className="text-[13px] font-sans text-[#F0EDE6]">{r.partners?.full_name ?? '—'}</p>
-            <StatusPill status={r.partners?.tier ?? ''} />
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'opening_balance', label: C.columns.invested, sortable: true,
-      render: r => <span className="tabular-nums text-[13px] font-sans text-[#9A9080]">{formatINR(r.partners?.invested_amount ?? 0)}</span>,
-    },
-    {
-      key: 'gross_profit', label: C.columns.pnl, sortable: true,
-      render: r => (
-        <span className={`tabular-nums text-[13px] font-sans ${(r.gross_profit ?? 0) >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
-          {formatINR(r.gross_profit ?? 0)}
-        </span>
-      ),
-    },
-    {
-      key: 'distribution_amount', label: C.columns.amount, sortable: true,
-      render: r => (
-        <span className="tabular-nums text-[13px] font-sans text-[#F5A623] font-medium">
-          {formatINR(Math.round((r.gross_profit ?? 0) * PARTNER_PROFIT_SHARE))}
-        </span>
-      ),
-    },
-    {
-      key: 'distribution_status', label: C.columns.status,
-      render: r => <StatusPill status={r.distribution_status} />,
-    },
-    {
-      key: 'actions' as keyof ReportWithPartner, label: C.columns.action,
-      render: r => r.distribution_status === 'paid' ? (
-        <span className="text-[12px] font-sans text-[#22C55E]">Paid</span>
-      ) : (
-        <button
-          onClick={() => handleMarkPaid(r)}
-          disabled={payingIds.has(r.id)}
-          className="text-[12px] font-sans px-3 py-1.5 rounded-[4px] cursor-pointer border-none disabled:opacity-50"
-          style={{ background: 'rgba(245,166,35,0.1)', color: '#F5A623' }}
-        >
-          {payingIds.has(r.id) ? '…' : C.markPaid}
-        </button>
-      ),
-    },
-  ]
+  async function handleWhatsappClick(item: ProcessedDistribution) {
+    if (!item.whatsappUrl) return
+    window.open(item.whatsappUrl, '_blank')
+    const supabase = createClient()
+    await markWhatsappSent(supabase, item.transactionId)
+    setWhatsappSent(s => new Set(s).add(item.transactionId))
+  }
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1000px]">
-      <StepIndicator steps={C.steps} currentStep={step} />
+    <div className="flex flex-col gap-6 max-w-[1200px]">
+      <StepIndicator steps={STEPS} currentStep={step} />
 
+      {error && (
+        <div
+          className="rounded-[6px] p-3 flex items-center gap-2"
+          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}
+        >
+          <AlertCircle size={14} className="text-[#EF4444]" />
+          <p className="text-[12px] font-sans text-[#F0EDE6]">{error}</p>
+        </div>
+      )}
+
+      {/* STEP 0 */}
       {step === 0 && (
-        <SelectPeriodStep
+        <Step0
           quarter={quarter} year={year}
-          loading={loading} error={error}
-          onQuarterChange={setQuarter}
-          onYearChange={setYear}
-          onProceed={loadRun}
+          loading={loading}
+          onQuarter={setQuarter} onYear={setYear}
+          onProceed={loadPreview}
         />
       )}
 
-      {step === 1 && (
-        <ReviewStep
-          reports={reports} columns={columns}
-          totalPayout={totalPayout} paidCount={paidCount} pendingCount={pendingCount}
-          quarter={quarter} year={year}
-          loading={loading} error={error}
-          onBack={() => setStep(0)}
+      {/* STEP 1 */}
+      {step === 1 && run && (
+        <Step1
+          run={run}
+          overrides={overrides}
+          onOverride={(id, amount) => setOverrides(o => ({ ...o, [id]: amount }))}
+          onBack={() => { setStep(0); setRun(null) }}
           onConfirmAll={handleConfirmAll}
         />
       )}
 
+      {/* STEP 2 */}
       {step === 2 && (
-        <CompleteStep
-          quarter={quarter} year={year} totalPayout={totalPayout}
-          onReset={() => { setStep(0); setReports([]) }}
+        <Step2 processing={processing} processed={processed} />
+      )}
+
+      {/* STEP 3 */}
+      {step === 3 && (
+        <Step3
+          processed={processed}
+          failed={failed}
+          whatsappSent={whatsappSent}
+          onWhatsappClick={handleWhatsappClick}
+          onReset={() => {
+            setStep(0); setRun(null); setProcessed([]); setFailed([]); setWhatsappSent(new Set())
+          }}
         />
       )}
     </div>
+  )
+}
+
+// ─── Step 0: Select Period ───────────────────────────────────────────────
+
+function Step0({
+  quarter, year, loading, onQuarter, onYear, onProceed,
+}: {
+  quarter: number; year: number; loading: boolean
+  onQuarter: (q: number) => void; onYear: (y: number) => void; onProceed: () => void
+}) {
+  return (
+    <div
+      className="rounded-[10px] p-6"
+      style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
+    >
+      <h3 className="font-serif text-[18px] text-[#F0EDE6] mb-1">Select period<span className="text-gold">.</span></h3>
+      <p className="text-[13px] font-sans text-[#9A9080] mb-5">Pick the quarter and year to run a distribution for.</p>
+
+      <div className="flex items-end gap-5 flex-wrap">
+        <div>
+          <label className="block text-[11px] font-sans uppercase tracking-[0.1em] text-[#8A8070] mb-2">Quarter</label>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4].map(q => (
+              <button
+                key={q}
+                onClick={() => onQuarter(q)}
+                className="w-12 h-10 rounded-[4px] text-[13px] font-sans cursor-pointer border-none"
+                style={{
+                  background: q === quarter ? '#F5A623' : 'rgba(245,166,35,0.08)',
+                  color:      q === quarter ? '#080808' : '#F5A623',
+                }}
+              >
+                Q{q}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="block text-[11px] font-sans uppercase tracking-[0.1em] text-[#8A8070] mb-2">Year</label>
+          <input
+            type="number"
+            min={2024}
+            max={2100}
+            value={year}
+            onChange={e => onYear(Number(e.target.value))}
+            className="w-32 px-3 py-2 rounded-[4px] text-[13px] font-sans"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: '#F0EDE6' }}
+          />
+        </div>
+        <button
+          onClick={onProceed}
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[4px] text-[13px] font-sans cursor-pointer border-none disabled:opacity-50"
+          style={{ background: '#F5A623', color: '#080808' }}
+        >
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
+          Proceed to Review
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Step 1: Review ──────────────────────────────────────────────────────
+
+function Step1({
+  run, overrides, onOverride, onBack, onConfirmAll,
+}: {
+  run: DistributionRun
+  overrides: Record<string, number>
+  onOverride: (id: string, amount: number) => void
+  onBack: () => void
+  onConfirmAll: () => void
+}) {
+  const ratePct = (run.rate.monthly_rate * 100).toFixed(2)
+  const total = Object.values(overrides).reduce((s, v) => s + v, 0)
+
+  if (!run.rateIsSet) {
+    return (
+      <div
+        className="rounded-[10px] p-6"
+        style={{ background: '#111111', border: '1px solid rgba(239,68,68,0.4)' }}
+      >
+        <p className="font-serif text-[20px] text-[#F0EDE6] mb-2">
+          No rate set for Q{run.quarter} {run.year}.
+        </p>
+        <p className="text-[13px] font-sans text-[#9A9080] mb-5">
+          Set a rate before running this quarter's distribution.
+        </p>
+        <Link
+          href={ROUTES.ADMIN.RATES}
+          className="inline-block px-4 py-2 text-[13px] font-sans rounded-[4px]"
+          style={{ background: '#F5A623', color: '#080808' }}
+        >
+          Go to Rates →
+        </Link>
+        <button
+          onClick={onBack}
+          className="ml-3 text-[13px] font-sans text-[#9A9080] hover:text-[#F0EDE6] bg-transparent border-none cursor-pointer"
+        >
+          Back
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div
+        className="rounded-[10px] p-5 flex items-center justify-between flex-wrap gap-4"
+        style={{
+          background: 'linear-gradient(120deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))',
+          border: '0.5px solid rgba(245,166,35,0.3)',
+        }}
+      >
+        <div>
+          <p className="text-[11px] font-sans uppercase tracking-[0.1em] text-gold mb-1">Q{run.quarter} {run.year} Distribution Run</p>
+          <p className="text-[13px] font-sans text-[#F0EDE6]">
+            Rate: {ratePct}%/month · Partners: {run.partners.length} · Estimated total {formatINR(total)}
+          </p>
+        </div>
+      </div>
+
+      <div
+        className="rounded-[10px] overflow-hidden"
+        style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
+      >
+        <table className="w-full">
+          <thead>
+            <tr style={{ background: '#0F0F0F' }}>
+              {['PARTNER', 'TIER', 'CAPITAL', 'CALCULATED', 'OVERRIDE', 'PREF'].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-[10px] font-sans uppercase tracking-[0.08em] text-gold">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {run.partners.map(p => (
+              <tr key={p.partner.id} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-sans font-medium flex-shrink-0"
+                      style={{ background: 'rgba(245,166,35,0.12)', color: '#F5A623' }}
+                    >
+                      {p.partner.initials}
+                    </div>
+                    <span className="text-[13px] font-sans text-[#F0EDE6]">{p.partner.full_name}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-[12px] font-sans text-[#9A9080]">{p.partner.tier}</td>
+                <td className="px-4 py-3 tabular-nums text-[13px] font-sans text-[#F0EDE6]">{formatINR(p.partner.invested_amount)}</td>
+                <td className="px-4 py-3 tabular-nums font-dm-serif text-[14px] text-gold">{formatINR(p.calculatedAmount)}</td>
+                <td className="px-4 py-3">
+                  <input
+                    type="number"
+                    value={overrides[p.partner.id] ?? p.calculatedAmount}
+                    onChange={e => onOverride(p.partner.id, Math.max(0, Math.round(Number(e.target.value))))}
+                    className="w-32 px-2 py-1.5 rounded-[3px] text-[13px] font-sans tabular-nums"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: '#F0EDE6' }}
+                  />
+                </td>
+                <td className="px-4 py-3">
+                  <span
+                    className="text-[10px] font-sans uppercase tracking-[0.08em] px-2 py-0.5 rounded-[3px]"
+                    style={p.partner.payout_preference === 'reinvest'
+                      ? { background: 'rgba(245,166,35,0.12)', color: '#F5A623' }
+                      : { background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }
+                    }
+                  >
+                    {p.partner.payout_preference}
+                  </span>
+                </td>
+              </tr>
+            ))}
+            {run.partners.length === 0 && (
+              <tr><td colSpan={6} className="px-4 py-6 text-center text-[13px] text-[#9A9080]">No active partners.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <p className="text-[12px] font-sans text-[#9A9080]">
+          {run.totals.payoutCount} payout · {run.totals.reinvestCount} reinvest · Total to distribute {formatINR(total)}
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onBack}
+            className="px-4 py-2 text-[13px] font-sans rounded-[4px] bg-transparent cursor-pointer"
+            style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#9A9080' }}
+          >
+            ← Back
+          </button>
+          <button
+            onClick={onConfirmAll}
+            disabled={run.partners.length === 0}
+            className="inline-flex items-center gap-2 px-5 py-2 text-[13px] font-sans rounded-[4px] cursor-pointer border-none disabled:opacity-50"
+            style={{ background: '#F5A623', color: '#080808' }}
+          >
+            <Send size={14} />
+            Confirm All →
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Step 2: Processing ──────────────────────────────────────────────────
+
+function Step2({ processing }: { processing: boolean; processed: ProcessedDistribution[] }) {
+  return (
+    <div
+      className="rounded-[10px] p-8 flex flex-col items-center gap-4"
+      style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
+    >
+      <Loader2 size={32} className={processing ? 'animate-spin text-gold' : 'text-gold'} />
+      <p className="font-serif text-[20px] text-[#F0EDE6]">Processing distribution…</p>
+      <p className="text-[13px] font-sans text-[#9A9080] text-center max-w-[420px]">
+        Creating transactions, generating invoices, sending emails. Please wait — do not close this tab.
+      </p>
+    </div>
+  )
+}
+
+// ─── Step 3: Complete ────────────────────────────────────────────────────
+
+function Step3({
+  processed, failed, whatsappSent, onWhatsappClick, onReset,
+}: {
+  processed: ProcessedDistribution[]
+  failed: { partnerId: string; error: string }[]
+  whatsappSent: Set<string>
+  onWhatsappClick: (p: ProcessedDistribution) => void
+  onReset: () => void
+}) {
+  const total = processed.reduce((s, p) => s + p.amount, 0)
+  const invoicesGenerated = processed.filter(p => p.invoiceNumber).length
+  const emailsSent  = processed.filter(p => p.emailSent).length
+  const whatsappPending = processed.filter(p => p.whatsappUrl && !whatsappSent.has(p.transactionId)).length
+
+  return (
+    <>
+      <div
+        className="rounded-[10px] p-6"
+        style={{
+          background: 'linear-gradient(120deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02))',
+          border: '1px solid rgba(34,197,94,0.3)',
+        }}
+      >
+        <p className="text-[11px] font-sans uppercase tracking-[0.1em] text-[#22C55E] mb-2">Distribution complete</p>
+        <p className="font-serif text-[24px] text-[#F0EDE6] mb-1">
+          {processed.length} partners paid · {formatINR(total)} total
+        </p>
+        <p className="text-[13px] font-sans text-[#9A9080]">
+          {invoicesGenerated} invoice{invoicesGenerated === 1 ? '' : 's'} generated · {emailsSent} email{emailsSent === 1 ? '' : 's'} sent · {whatsappPending} WhatsApp pending
+        </p>
+      </div>
+
+      {failed.length > 0 && (
+        <div
+          className="rounded-[8px] p-4"
+          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}
+        >
+          <p className="text-[12px] font-sans uppercase tracking-[0.08em] text-[#EF4444] mb-2">
+            {failed.length} failed
+          </p>
+          {failed.map(f => (
+            <p key={f.partnerId} className="text-[12px] font-sans text-[#F0EDE6]">
+              {f.partnerId.slice(0, 8)}: {f.error}
+            </p>
+          ))}
+        </div>
+      )}
+
+      <div
+        className="rounded-[10px] overflow-hidden"
+        style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
+      >
+        <table className="w-full">
+          <thead>
+            <tr style={{ background: '#0F0F0F' }}>
+              {['PARTNER', 'AMOUNT', 'INVOICE', 'EMAIL', 'WHATSAPP'].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-[10px] font-sans uppercase tracking-[0.08em] text-gold">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {processed.map(p => {
+              const sent = whatsappSent.has(p.transactionId)
+              return (
+                <tr key={p.transactionId} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                  <td className="px-4 py-3 text-[13px] font-sans text-[#F0EDE6]">
+                    {p.partnerId.slice(0, 8)} · {p.type}
+                  </td>
+                  <td className="px-4 py-3 tabular-nums font-dm-serif text-[14px] text-gold">{formatINR(p.amount)}</td>
+                  <td className="px-4 py-3">
+                    {p.invoiceUrl ? (
+                      <a
+                        href={p.invoiceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[12px] font-sans text-gold hover:text-gold-secondary"
+                      >
+                        <FileText size={12} />
+                        {p.invoiceNumber}
+                      </a>
+                    ) : <span className="text-[12px] font-sans text-[#9A9080]">—</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.emailSent ? (
+                      <span className="inline-flex items-center gap-1 text-[12px] font-sans text-[#22C55E]">
+                        <Check size={12} />
+                        Sent
+                      </span>
+                    ) : (
+                      <span className="text-[12px] font-sans text-[#9A9080]">
+                        {p.emailError ? 'Failed' : 'Skipped'}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.whatsappUrl ? (
+                      <button
+                        onClick={() => onWhatsappClick(p)}
+                        className="inline-flex items-center gap-1 text-[12px] font-sans px-3 py-1.5 rounded-[4px] cursor-pointer border-none"
+                        style={sent
+                          ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
+                          : { background: '#F5A623', color: '#080808' }
+                        }
+                      >
+                        <MessageCircle size={12} />
+                        {sent ? 'Sent' : 'Open WhatsApp'}
+                      </button>
+                    ) : <span className="text-[12px] font-sans text-[#9A9080]">No phone</span>}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex justify-between">
+        <button
+          onClick={onReset}
+          className="text-[13px] font-sans text-[#9A9080] hover:text-[#F0EDE6] bg-transparent border-none cursor-pointer"
+        >
+          ← New distribution run
+        </button>
+        <Link
+          href={ROUTES.ADMIN.FINANCIALS}
+          className="text-[13px] font-sans text-gold hover:text-gold-secondary"
+        >
+          View in Financials →
+        </Link>
+      </div>
+    </>
   )
 }
