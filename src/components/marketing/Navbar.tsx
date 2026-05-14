@@ -85,15 +85,13 @@ export function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            onClick={() => {
-              trackEvent(ANALYTICS_EVENTS.APPLY_PARTNER_CLICK, currentPagePath())
-              handleNavClick('#contact')
-            }}
+          <Link
+            href="/apply"
+            onClick={() => trackEvent(ANALYTICS_EVENTS.APPLY_PARTNER_CLICK, currentPagePath())}
             className="border border-gold text-gold text-[14px] font-sans tracking-[0.04em] px-5 py-2 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors cursor-pointer bg-transparent"
           >
             Apply to Partner →
-          </button>
+          </Link>
           <Link
             href="/login"
             title="Partner Login"
@@ -144,15 +142,16 @@ export function Navbar() {
           >
             Partner Login
           </Link>
-          <button
+          <Link
+            href="/apply"
             onClick={() => {
+              setMenuOpen(false)
               trackEvent(ANALYTICS_EVENTS.APPLY_PARTNER_CLICK, currentPagePath())
-              handleNavClick('#contact')
             }}
-            className="mt-2 border border-gold text-gold text-sm px-6 py-3 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors w-full cursor-pointer bg-transparent"
+            className="mt-2 border border-gold text-gold text-sm px-6 py-3 rounded-[4px] hover:bg-[rgba(245,166,35,0.08)] transition-colors w-full text-center cursor-pointer bg-transparent"
           >
             Apply to Partner →
-          </button>
+          </Link>
         </div>
       )}
     </nav>

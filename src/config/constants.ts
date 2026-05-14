@@ -3,15 +3,34 @@ export const COMPANY_EMAIL = 'hello@wealthonventures.com'
 export const COMPANY_WEBSITE = 'wealthonventures.com'
 export const WHATSAPP_NUMBER = '919035373664'
 
-export const ANNUAL_RETURN_MIDPOINT = 30 // % — midpoint of 25-35% historical range
-export const QUARTERLY_RATE = 0.075      // 7.5% per quarter (illustrative)
+// ── Operations cadence (non-financial) ─────────────────────────────────────
 
+export const LOCK_IN_MONTHS = 3
+export const PAYOUT_SUMMARY_DAY = 15
+export const PAYOUT_DETAIL_DAY = 20
+export const PARTIAL_MONTH_CUTOFF_DAY = 15
+
+// Tier thresholds — amounts in paise. Match falls within [min, max].
+export const TIER_THRESHOLDS = [
+  { tier: 'L1', min: 10000000,  max: 100000000  }, // ₹1L – ₹10L
+  { tier: 'L2', min: 100000001, max: 500000000  }, // ₹10L – ₹50L
+  { tier: 'L3', min: 500000001, max: Infinity   }, // ₹50L+
+] as const
+
+// Legacy enum (kept for back-compat with existing data + queries)
 export const PARTNER_TIERS = {
   L1: { label: 'L1', minAmount: 0 },
-  L2: { label: 'L2', minAmount: 50000000 },   // ₹5L in paise
-  L3: { label: 'L3', minAmount: 100000000 },  // ₹10L in paise
-  L4: { label: 'L4', minAmount: 500000000 },  // ₹50L in paise
+  L2: { label: 'L2', minAmount: 50000000 },
+  L3: { label: 'L3', minAmount: 100000000 },
+  L4: { label: 'L4', minAmount: 500000000 },
 } as const
+
+export function getTierForAmount(paise: number): 'L1' | 'L2' | 'L3' {
+  for (const t of TIER_THRESHOLDS) {
+    if (paise >= t.min && paise <= t.max) return t.tier
+  }
+  return 'L1'
+}
 
 // Legacy enum (kept for backward compatibility with existing rows)
 export const LEGACY_TRANSACTION_TYPES = ['investment', 'distribution', 'fee', 'pnl_update', 'withdrawal'] as const
@@ -48,19 +67,21 @@ export const TRANSACTION_TYPE_DESCRIPTIONS: Record<TransactionTypeKey, string> =
   capital_out:  'Capital withdrawal',
 }
 
-export const QUARTERLY_RATE_DEFAULT = 0.025 // 2.5%/month
+// Fallback rate used only if app_settings can't be read.
+export const DEFAULT_MONTHLY_RATE = 0.025
+export const QUARTERLY_RATE_DEFAULT = 0.025 // legacy alias
 
 export const LOCK_IN_OPTIONS = [
-  { value: '3_months', label: '3 Months' },
-  { value: '6_months', label: '6 Months' },
-  { value: '1_year',   label: '1 Year' },
-  { value: 'flexible', label: 'Flexible' },
+  { value: '3_months', label: '3 Months',  months: 3  },
+  { value: '6_months', label: '6 Months',  months: 6  },
+  { value: '1_year',   label: '1 Year',    months: 12 },
+  { value: 'flexible', label: 'Flexible',  months: 3  },
 ] as const
 
 export type LockInPeriod = typeof LOCK_IN_OPTIONS[number]['value']
 
 export const PAYOUT_OPTIONS = [
-  { value: 'payout',   label: 'Quarterly Payout' },
+  { value: 'payout',   label: 'Monthly Payout' },
   { value: 'reinvest', label: 'Reinvest (Compound)' },
 ] as const
 
@@ -104,15 +125,23 @@ export const MOCK_COMPANY_ID = (process.env.NEXT_PUBLIC_WEALTHON_COMPANY_ID ?? '
 
 export const ADMIN_ROLES = ['admin', 'super_admin'] as const
 
-export const PIPELINE_STAGES = ['lead', 'conversation', 'terms_discussed', 'agreement_signed', 'active_partner'] as const
+export const PIPELINE_STAGES = [
+  'new',
+  'contacted',
+  'terms_discussed',
+  'agreement_signed',
+  'application_submitted',
+  'active_partner',
+] as const
 export type PipelineStage = typeof PIPELINE_STAGES[number]
 
 export const PIPELINE_STAGE_LABELS: Record<PipelineStage, string> = {
-  lead:             'Lead',
-  conversation:     'Conversation',
-  terms_discussed:  'Terms Discussed',
-  agreement_signed: 'Agreement Signed',
-  active_partner:   'Active Partner',
+  new:                   'New Lead',
+  contacted:             'Contacted',
+  terms_discussed:       'Terms Discussed',
+  agreement_signed:      'Agreement Signed',
+  application_submitted: 'Application Submitted',
+  active_partner:        'Active Partner',
 }
 
 export const ARTICLE_CATEGORIES = ['Market Insights', 'Trading Notes', 'Wealth Education'] as const
@@ -151,11 +180,15 @@ export type AnalyticsEvent = typeof ANALYTICS_EVENTS[keyof typeof ANALYTICS_EVEN
 export const ANALYTICS_DEDUP_WINDOW_MS = 5000
 
 // ── Pipeline — DB stage ↔ Kanban column mapping ────────────────────────────
+// The leads table uses a constrained set: new|contacted|qualified|proposal|converted|lost.
+// Our 6-column kanban maps logical stages to those values, with
+// 'application_submitted' collapsing to 'proposal' until the DB enum is widened.
 
 export const LEAD_STAGE_TO_DB: Record<PipelineStage, 'new' | 'contacted' | 'qualified' | 'proposal' | 'converted'> = {
-  lead:             'new',
-  conversation:     'contacted',
-  terms_discussed:  'qualified',
-  agreement_signed: 'proposal',
-  active_partner:   'converted',
+  new:                   'new',
+  contacted:             'contacted',
+  terms_discussed:       'qualified',
+  agreement_signed:      'proposal',
+  application_submitted: 'proposal',
+  active_partner:        'converted',
 }

@@ -27,7 +27,7 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
   const [search, setSearch]         = useState('')
 
   const [addOpen, setAddOpen]       = useState(false)
-  const [addStage, setAddStage]     = useState<PipelineStage>('lead')
+  const [addStage, setAddStage]     = useState<PipelineStage>('new')
 
   const [slideOpen, setSlideOpen]   = useState(false)
   const [selectedLead, setSelected] = useState<Lead | null>(null)
@@ -35,6 +35,7 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
 
   const [form, setForm]             = useState<LeadInput>(EMPTY_FORM)
   const [saving, setSaving]         = useState(false)
+  const [error, setError]           = useState<string | null>(null)
 
   const stageCounts = DB_STAGES.map(s => leads.filter(l => l.stage === s).length)
 
@@ -51,32 +52,37 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
   function openAdd(stage: PipelineStage) {
     setAddStage(stage)
     setForm({ ...EMPTY_FORM, stage: LEAD_STAGE_TO_DB[stage] })
+    setError(null)
     setAddOpen(true)
   }
 
   function openCard(lead: Lead) {
     setSelected(lead)
     setForm({ name: lead.name, email: lead.email ?? '', phone: lead.phone ?? '', source: lead.source ?? 'organic', stage: lead.stage, notes: lead.notes ?? '' })
+    setError(null)
     setSlideOpen(true)
   }
 
   async function handleAdd() {
-    if (!form.name.trim()) return
-    setSaving(true)
+    if (!form.name.trim()) { setError('Name is required.'); return }
+    setSaving(true); setError(null)
     const supabase = createClient()
     const res = await addLead(supabase, form)
-    if (res.data) setLeads(ls => [res.data!, ...ls])
     setSaving(false)
+    if (res.error) { setError(res.error); return }
+    setLeads(ls => [res.data!, ...ls])
     setAddOpen(false)
   }
 
   async function handleUpdate() {
     if (!selectedLead) return
-    setSaving(true)
+    if (!form.name.trim()) { setError('Name is required.'); return }
+    setSaving(true); setError(null)
     const supabase = createClient()
     const res = await updateLead(supabase, selectedLead.id, form)
-    if (res.data) setLeads(ls => ls.map(l => l.id === selectedLead.id ? res.data! : l))
     setSaving(false)
+    if (res.error) { setError(res.error); return }
+    setLeads(ls => ls.map(l => l.id === selectedLead.id ? res.data! : l))
     setSlideOpen(false)
   }
 
@@ -90,7 +96,8 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
   async function handleDelete() {
     if (!delLead) return
     const supabase = createClient()
-    await deleteLead(supabase, delLead.id)
+    const res = await deleteLead(supabase, delLead.id)
+    if (res.error) { setDelLead(null); return }
     setLeads(ls => ls.filter(l => l.id !== delLead.id))
     setDelLead(null); setSlideOpen(false); setSelected(null)
   }
@@ -126,6 +133,7 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
         stage={addStage}
         form={form}
         saving={saving}
+        error={error}
         onChange={setForm}
         onSave={handleAdd}
         onClose={() => setAddOpen(false)}
@@ -137,6 +145,7 @@ export function PipelineClient({ initialLeads, partners: _ }: Props) {
             lead={selectedLead}
             form={form}
             saving={saving}
+            error={error}
             onChange={setForm}
             onSave={handleUpdate}
             onDelete={() => setDelLead(selectedLead)}

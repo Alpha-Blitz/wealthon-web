@@ -8,6 +8,7 @@ export const ROUTES = {
   PROFILE: '/dashboard/profile',
   INSIGHTS: '/insights',
   CONTACT: '/#contact',
+  APPLY:   '/apply',
 
   ADMIN: {
     ROOT:          '/admin',
@@ -20,8 +21,6 @@ export const ROUTES = {
     RATES:         '/admin/rates',
     TEAM:          '/admin/team',
     PNL_ENTRY:     '/admin/pnl-entry',
-    STRATEGIES:    '/admin/strategies',
-    ALLOCATION:    '/admin/allocation',
     USERS:         '/admin/users',
     CONTENT:       '/admin/content',
     CONTENT_NEW:   '/admin/content/new',

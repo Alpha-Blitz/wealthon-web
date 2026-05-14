@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, GitBranch, DollarSign, FileText,
-  Send, BarChart2, Target, PieChart, UserCog, FolderOpen,
+  Send, BarChart2, UserCog, FolderOpen,
   Newspaper, Bell, Settings, LogOut, Shield, TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -32,8 +32,6 @@ const FINANCE: NavItem[] = [
   { label: C.nav.financials,  href: ROUTES.ADMIN.FINANCIALS,  icon: DollarSign },
   { label: C.nav.rates,       href: ROUTES.ADMIN.RATES,       icon: TrendingUp },
   { label: C.nav.pnlEntry,    href: ROUTES.ADMIN.PNL_ENTRY,   icon: BarChart2  },
-  { label: C.nav.strategies,  href: ROUTES.ADMIN.STRATEGIES,  icon: Target     },
-  { label: C.nav.allocation,  href: ROUTES.ADMIN.ALLOCATION,  icon: PieChart   },
 ]
 
 const CONTENT_ITEMS: NavItem[] = [

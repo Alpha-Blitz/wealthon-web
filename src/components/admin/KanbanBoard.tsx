@@ -13,29 +13,35 @@ interface KanbanBoardProps {
   onStageChange: (leadId: string, stage: PipelineStage) => void
 }
 
+// DB stage → UI stage. DB-level 'proposal' collapses both UI stages
+// 'agreement_signed' and 'application_submitted'. The UI distinguishes
+// them via a separate flag set when the apply token is generated /
+// the private onboarding form is submitted.
 const STAGE_MAP: Record<string, PipelineStage> = {
-  new:       'lead',
-  contacted: 'conversation',
+  new:       'new',
+  contacted: 'contacted',
   qualified: 'terms_discussed',
   proposal:  'agreement_signed',
   converted: 'active_partner',
 }
 
 const REVERSE_STAGE_MAP: Record<PipelineStage, Lead['stage']> = {
-  lead:             'new',
-  conversation:     'contacted',
-  terms_discussed:  'qualified',
-  agreement_signed: 'proposal',
-  active_partner:   'converted',
+  new:                   'new',
+  contacted:             'contacted',
+  terms_discussed:       'qualified',
+  agreement_signed:      'proposal',
+  application_submitted: 'proposal',
+  active_partner:        'converted',
 }
 
 // Color accent per stage
 const STAGE_ACCENT: Record<PipelineStage, string> = {
-  lead:             'rgba(245,166,35,0.6)',
-  conversation:     'rgba(99,102,241,0.6)',
-  terms_discussed:  'rgba(6,182,212,0.6)',
-  agreement_signed: 'rgba(245,158,11,0.6)',
-  active_partner:   'rgba(34,197,94,0.6)',
+  new:                   'rgba(245,166,35,0.6)',
+  contacted:             'rgba(99,102,241,0.6)',
+  terms_discussed:       'rgba(6,182,212,0.6)',
+  agreement_signed:      'rgba(245,158,11,0.6)',
+  application_submitted: 'rgba(245,166,35,1)', // gold border — needs Prathik's action
+  active_partner:        'rgba(34,197,94,0.6)',
 }
 
 export function KanbanBoard({ leads, onCardClick, onAddLead, onStageChange }: KanbanBoardProps) {
@@ -57,7 +63,7 @@ export function KanbanBoard({ leads, onCardClick, onAddLead, onStageChange }: Ka
   return (
     <div className="flex gap-3 overflow-x-auto pb-4" style={{ minHeight: 520 }}>
       {PIPELINE_STAGES.map(stage => {
-        const columnLeads = leads.filter(l => (STAGE_MAP[l.stage] ?? 'lead') === stage)
+        const columnLeads = leads.filter(l => STAGE_MAP[l.stage] === stage)
         const isDragOver  = dragOverStage === stage
         const accent      = STAGE_ACCENT[stage]
 
