@@ -36,6 +36,26 @@ export interface PartnerInput {
   entry_date:      string
   status?:         'active' | 'paused' | 'exited'
   notes?:          string
+  // KYC
+  date_of_birth?:        string | null
+  pan_number?:           string | null
+  residential_address?:  string | null
+  city?:                 string | null
+  state?:                string | null
+  pin_code?:             string | null
+  // Banking
+  bank_account_number?:  string | null
+  bank_ifsc?:            string | null
+  bank_name?:            string | null
+  account_holder_name?:  string | null
+  // Partnership terms
+  profit_share_ratio?:   number
+  lock_in_period?:       string
+  lock_in_expiry?:       string | null
+  payout_preference?:    'payout' | 'reinvest'
+  contribution_date?:    string | null
+  risk_disclosure_acknowledged_at?: string | null
+  terms_acknowledged_at?:           string | null
 }
 
 export async function createPartner(supabase: SupabaseClient, input: PartnerInput): Promise<Result<Partner>> {
@@ -66,6 +86,78 @@ export async function updatePartner(
   if (error || !data) return err(error?.message ?? 'Failed to update')
   await logAction(supabase, 'partner.update', 'partner', id, { before, after: data })
   return ok(data as Partner)
+}
+
+export interface OnboardPartnerInput extends PartnerInput {
+  capital_contribution_paise: number // initial CAPITAL_IN amount
+}
+
+export interface OnboardResult {
+  partner:       Partner
+  transactionId: string | null
+  invoiceNumber: string | null
+  invoiceUrl:    string | null
+}
+
+/**
+ * Full onboarding pipeline: create partner → CAPITAL_IN transaction
+ * → capital receipt invoice. Returns the IDs/URLs for the success screen.
+ * Failures in the transaction/invoice steps are surfaced but do not roll
+ * back partner creation (the partner record is the primary entity).
+ */
+export async function onboardPartner(
+  supabase: SupabaseClient,
+  input: OnboardPartnerInput,
+): Promise<Result<OnboardResult>> {
+  const { capital_contribution_paise, ...partnerFields } = input
+
+  // 1. Create partner
+  const created = await createPartner(supabase, partnerFields)
+  if (created.error || !created.data) return err(created.error ?? 'Create failed')
+  const partner = created.data
+
+  // 2. Insert CAPITAL_IN transaction (if amount provided)
+  let transactionId: string | null = null
+  let invoiceNumber: string | null = null
+  let invoiceUrl: string | null = null
+
+  if (capital_contribution_paise > 0) {
+    const { data: { user } } = await supabase.auth.getUser()
+    const txDate = input.contribution_date ?? new Date().toISOString().split('T')[0]
+    const { data: txRow } = await supabase
+      .from(TABLE.TRANSACTIONS)
+      .insert({
+        company_id: MOCK_COMPANY_ID,
+        partner_id: partner.id,
+        date:       txDate,
+        type:       'capital_in',
+        amount:     capital_contribution_paise,
+        status:     'completed',
+        notes:      'Initial capital contribution',
+        running_balance: capital_contribution_paise,
+        created_by: user?.id ?? null,
+      })
+      .select()
+      .single()
+    transactionId = (txRow as { id: string } | null)?.id ?? null
+
+    // 3. Generate capital receipt invoice
+    if (transactionId) {
+      const { generateAndSaveInvoice } = await import('./invoices')
+      const { INVOICE_TYPES } = await import('@/config/constants')
+      const invoice = await generateAndSaveInvoice(supabase, transactionId, INVOICE_TYPES.CAPITAL_RECEIPT)
+      if (invoice.data) {
+        invoiceNumber = invoice.data.invoiceNumber
+        invoiceUrl    = invoice.data.url
+      }
+    }
+  }
+
+  await logAction(supabase, 'partner.onboard', 'partner', partner.id, {
+    after: { capital_contribution_paise, transactionId, invoiceNumber },
+  })
+
+  return ok({ partner, transactionId, invoiceNumber, invoiceUrl })
 }
 
 export async function deletePartner(supabase: SupabaseClient, id: string): Promise<Result<void>> {

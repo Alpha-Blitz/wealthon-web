@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Download, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Download, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
 import { StatusPill } from '@/components/shared/StatusPill'
-import { formatINR } from '@/lib/utils'
+import { formatINR, formatINRCompact } from '@/lib/utils'
 import { CONTENT } from '@/config/content'
+import { calculateRunningBalance, sumByType } from '@/lib/admin/calculations'
+import { TRANSACTION_TYPE_LABELS, type TransactionTypeKey } from '@/config/constants'
 import type { Transaction, Partner } from '@/types/database'
 
 const PAGE_SIZE = 10
@@ -15,32 +17,40 @@ function fmtDate(s: string) {
   return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  investment: 'Investment', distribution: 'Distribution', fee: 'Fee',
-  pnl_update: 'P&L Update', withdrawal: 'Withdrawal',
-}
+const FILTER_TYPES = ['all', 'capital_in', 'distribution', 'reinvest', 'capital_out'] as const
+type FilterType = (typeof FILTER_TYPES)[number]
 
 interface Props { transactions: Transaction[]; partner: Partner }
 
 export function TransactionsClient({ transactions, partner }: Props) {
-  const [typeFilter, setTypeFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState<FilterType>('all')
   const [page, setPage] = useState(1)
   const C = CONTENT.transactions
 
-  const filtered = useMemo(() =>
-    typeFilter === 'all' ? transactions : transactions.filter(t => t.type === typeFilter),
-    [transactions, typeFilter]
+  const enriched = useMemo(
+    () => calculateRunningBalance(transactions, partner.payout_preference),
+    [transactions, partner.payout_preference],
   )
+
+  const filtered = useMemo(() => {
+    if (typeFilter === 'all') return enriched
+    // Map legacy types alongside new ones so filter "capital_in" also shows old "investment"
+    const aliases: Record<FilterType, string[]> = {
+      all:          [],
+      capital_in:   ['capital_in', 'investment'],
+      distribution: ['distribution'],
+      reinvest:     ['reinvest', 'pnl_update'],
+      capital_out:  ['capital_out', 'withdrawal'],
+    }
+    return enriched.filter(t => aliases[typeFilter].includes(t.type))
+  }, [enriched, typeFilter])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const pageRows   = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  // Summary metrics
-  const totalInvested    = transactions.filter(t => t.type === 'investment').reduce((s, t) => s + t.amount, 0)
-  const totalDistributed = transactions.filter(t => t.type === 'distribution').reduce((s, t) => s + t.amount, 0)
-  const netPnl           = partner.invested_amount > 0
-    ? transactions.reduce((s, t) => s + t.amount, 0)
-    : 0
+  const totalIn  = sumByType(transactions, ['capital_in', 'investment'])
+  const totalOut = sumByType(transactions, ['capital_out', 'withdrawal', 'distribution'])
+  const netBalance = partner.invested_amount
 
   return (
     <div className="p-6 flex flex-col gap-6 max-w-[1400px]">
@@ -48,9 +58,9 @@ export function TransactionsClient({ transactions, partner }: Props) {
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: C.totalInvested,    value: formatINR(totalInvested),    color: '#F5A623', sign: '' },
-          { label: C.totalDistributed, value: formatINR(totalDistributed), color: '#22C55E', sign: '+' },
-          { label: C.netPnl,           value: formatINR(Math.abs(netPnl)), color: netPnl >= 0 ? '#22C55E' : '#EF4444', sign: netPnl >= 0 ? '+' : '-' },
+          { label: 'TOTAL IN',     value: formatINR(totalIn),     color: '#F5A623', sign: '+' },
+          { label: 'TOTAL OUT',    value: formatINR(totalOut),    color: '#9A9080', sign: '-' },
+          { label: 'NET BALANCE',  value: formatINR(netBalance),  color: '#F5A623', sign: '' },
         ].map(({ label, value, color, sign }) => (
           <div
             key={label}
@@ -68,7 +78,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
       {/* Filter bar */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
-          {['all', 'investment', 'distribution', 'fee', 'pnl_update', 'withdrawal'].map(type => (
+          {FILTER_TYPES.map(type => (
             <button
               key={type}
               onClick={() => { setTypeFilter(type); setPage(1) }}
@@ -79,7 +89,7 @@ export function TransactionsClient({ transactions, partner }: Props) {
                 borderColor: typeFilter === type ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.08)',
               }}
             >
-              {type === 'all' ? 'All Types' : TYPE_LABELS[type]}
+              {type === 'all' ? 'All Types' : TRANSACTION_TYPE_LABELS[type as TransactionTypeKey]}
             </button>
           ))}
         </div>
@@ -97,40 +107,63 @@ export function TransactionsClient({ transactions, partner }: Props) {
         className="rounded-[8px] overflow-hidden"
         style={{ border: '0.5px solid rgba(245,166,35,0.15)' }}
       >
-        {/* Header */}
         <div
           className="grid text-[11px] font-sans uppercase tracking-[0.08em] px-4 py-2.5"
           style={{
             background: '#0F0F0F',
             color: '#F5A623',
-            gridTemplateColumns: '100px 130px 130px 120px 1fr',
+            gridTemplateColumns: '110px 140px 1fr 130px 110px 110px',
           }}
         >
-          {[C.columns.date, C.columns.type, C.columns.amount, C.columns.status, C.columns.notes].map(col => (
-            <span key={col}>{col}</span>
-          ))}
+          <span>{C.columns.date}</span>
+          <span>{C.columns.type}</span>
+          <span>DESCRIPTION</span>
+          <span>{C.columns.amount}</span>
+          <span>BALANCE</span>
+          <span>INVOICE</span>
         </div>
 
-        {/* Rows */}
-        {pageRows.map((tx, i) => (
-          <div
-            key={tx.id}
-            className="grid px-4 py-2 font-sans items-center"
-            style={{
-              gridTemplateColumns: '100px 130px 130px 120px 1fr',
-              background: i % 2 === 0 ? '#111111' : '#0D0D0D',
-              borderTop: '1px solid rgba(255,255,255,0.04)',
-            }}
-          >
-            <span className="text-[#9E9484] text-[11px]">{fmtDate(tx.date)}</span>
-            <span><StatusPill status={tx.type} /></span>
-            <span className="text-[13px] tabular-nums" style={{ color: tx.amount >= 0 ? '#22C55E' : '#EF4444', fontWeight: 500 }}>
-              {tx.amount >= 0 ? '+' : ''}{formatINR(tx.amount)}
-            </span>
-            <span><StatusPill status={tx.status} /></span>
-            <span className="text-[#9E9484] text-[11px] truncate pr-2">{tx.notes || '—'}</span>
-          </div>
-        ))}
+        {pageRows.map((tx, i) => {
+          const label = TRANSACTION_TYPE_LABELS[tx.type as TransactionTypeKey] ?? tx.type
+          return (
+            <div
+              key={tx.id}
+              className="grid px-4 py-2.5 font-sans items-center"
+              style={{
+                gridTemplateColumns: '110px 140px 1fr 130px 110px 110px',
+                background: i % 2 === 0 ? '#111111' : '#0D0D0D',
+                borderTop: '1px solid rgba(255,255,255,0.04)',
+              }}
+            >
+              <span className="text-[#9E9484] text-[11px]">{fmtDate(tx.date)}</span>
+              <span><StatusPill status={label} /></span>
+              <span className="text-[12px] text-[#F0EDE6] truncate pr-2">{tx.notes || '—'}</span>
+              <span className="text-[13px] tabular-nums" style={{
+                color: tx.amount >= 0 ? '#F0EDE6' : '#EF4444', fontWeight: 500,
+              }}>
+                {tx.amount >= 0 ? '+' : ''}{formatINR(tx.amount)}
+              </span>
+              <span className="text-[12px] tabular-nums text-gold">
+                {tx.running_balance !== null ? formatINRCompact(tx.running_balance) : '—'}
+              </span>
+              <span>
+                {tx.invoice_url ? (
+                  <a
+                    href={tx.invoice_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[12px] font-sans text-gold hover:text-gold-secondary"
+                  >
+                    <FileText size={12} />
+                    Download
+                  </a>
+                ) : (
+                  <span className="text-[12px] text-[#7F7566]">—</span>
+                )}
+              </span>
+            </div>
+          )
+        })}
 
         {pageRows.length === 0 && (
           <div className="px-4 py-8 text-center text-[14px] font-sans text-[#68625A]" style={{ background: '#111111' }}>

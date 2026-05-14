@@ -1,18 +1,18 @@
-import Link from 'next/link'
-import { Briefcase, TrendingUp, Gift, Calendar, Shield } from 'lucide-react'
+import { Briefcase, TrendingUp, Gift, Calendar, Percent } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getPartnerByUserId } from '@/lib/db/partners'
 import { getLatestPnLReport, getMonthlyPnL } from '@/lib/db/pnl'
 import { getTransactions } from '@/lib/db/transactions'
+import { getCurrentRate } from '@/lib/admin/rates'
+import { sumByType, effectiveReturnPct } from '@/lib/admin/calculations'
 import { MetricCard } from '@/components/dashboard/MetricCard'
 import { BarChart } from '@/components/charts/BarChart'
 import { RecentActivity } from '@/components/dashboard/RecentActivity'
 import { ChartStats } from '@/components/dashboard/ChartStats'
 import { formatINR } from '@/lib/utils'
 import { CONTENT } from '@/config/content'
-import { ROUTES } from '@/config/routes'
 import { mockPartner, mockLatestPnLReport, mockMonthlyPnL, mockTransactions } from '@/lib/mock/data'
-import type { Partner, Transaction, PnLReport } from '@/types/database'
+import type { Partner, Transaction, PnLReport, QuarterlyRate } from '@/types/database'
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -49,11 +49,14 @@ export default async function DashboardPage() {
     const nextPayout  = nextQuarterEnd()
     const barData     = monthlyData.map(m => ({ month: MONTH_NAMES[(m.month ?? 1) - 1], profit: m.profit }))
     const C = CONTENT.dashboard
+    const rateRes = await getCurrentRate(supabase)
+    const currentRate = rateRes.data
 
     return (
       <DashboardContent
         partner={partner} pnlReport={pnlReport} barData={barData}
         transactions={transactions} nextPayout={nextPayout} C={C}
+        currentRate={currentRate}
       />
     )
   }
@@ -66,15 +69,17 @@ export default async function DashboardPage() {
     return null
   }
 
-  const [pnlRes, monthlyRes, txRes] = await Promise.all([
+  const [pnlRes, monthlyRes, txRes, rateRes] = await Promise.all([
     getLatestPnLReport(supabase, partner.id),
     getMonthlyPnL(supabase, partner.id, new Date().getFullYear()),
     getTransactions(supabase, partner.id, 8),
+    getCurrentRate(supabase),
   ])
 
   const pnlReport   = pnlRes.data ?? null
   const monthlyData = monthlyRes.data ?? []
   const transactions = txRes.data ?? []
+  const currentRate  = rateRes.data
   const nextPayout  = nextQuarterEnd()
   const barData     = monthlyData.map(m => ({ month: MONTH_NAMES[(m.month ?? 1) - 1], profit: m.profit }))
   const C = CONTENT.dashboard
@@ -83,6 +88,7 @@ export default async function DashboardPage() {
     <DashboardContent
       partner={partner} pnlReport={pnlReport} barData={barData}
       transactions={transactions} nextPayout={nextPayout} C={C}
+      currentRate={currentRate}
     />
   )
 }
@@ -90,7 +96,7 @@ export default async function DashboardPage() {
 type BarPoint = { month: string; profit: number }
 
 function DashboardContent({
-  partner, pnlReport, barData, transactions, nextPayout, C,
+  partner, pnlReport, barData, transactions, nextPayout, C, currentRate,
 }: {
   partner: Partner
   pnlReport: PnLReport | null
@@ -98,17 +104,29 @@ function DashboardContent({
   transactions: Transaction[]
   nextPayout: string
   C: typeof CONTENT.dashboard
+  currentRate: QuarterlyRate | null
 }) {
+  const totalDistributed = sumByType(transactions, ['distribution'])
+  const totalReinvested  = sumByType(transactions, ['reinvest', 'pnl_update'])
+  const initialCapital   = Math.max(1, partner.invested_amount - totalReinvested)
+  const returnPct        = effectiveReturnPct(totalDistributed, totalReinvested, initialCapital)
+
   return (
     <div className="p-6 flex flex-col gap-6 max-w-[1400px]">
 
       {/* Metric cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <MetricCard
           icon={Briefcase}
           label={C.metrics.totalInvested}
           value={formatINR(partner.invested_amount)}
           sub={C.metrics.totalInvestedSub}
+        />
+        <MetricCard
+          icon={Percent}
+          label="CURRENT RATE"
+          value={currentRate ? `${(currentRate.monthly_rate * 100).toFixed(2)}% / mo` : '—'}
+          sub={currentRate ? `Q${currentRate.quarter} ${currentRate.year} rate` : 'No rate set yet'}
         />
         <MetricCard
           icon={TrendingUp}
@@ -178,22 +196,27 @@ function DashboardContent({
         </div>
       </div>
 
-      {/* Trust banner */}
+      {/* Transaction summary strip */}
       <div
-        className="rounded-[8px] p-5 flex items-start md:items-center gap-4 flex-col md:flex-row"
+        className="rounded-[8px] p-5 grid grid-cols-1 sm:grid-cols-3 gap-5"
         style={{ background: '#111111', border: '0.5px solid rgba(245,166,35,0.15)' }}
       >
-        <Shield size={20} className="text-gold flex-shrink-0" />
-        <div className="flex-1">
-          <p className="text-[13px] font-sans text-[#F0EDE6]">{C.trust.agreement}</p>
-          <p className="text-[12px] font-sans font-light text-[#9E9484] mt-1">{C.trust.disclaimer}</p>
+        <div>
+          <p className="text-[11px] font-sans uppercase tracking-[0.08em] text-[#8A8070] mb-1.5">Total Invested</p>
+          <p className="font-dm-serif text-[22px] text-[#F0EDE6] leading-none">{formatINR(partner.invested_amount)}</p>
         </div>
-        <Link
-          href={ROUTES.SECURITIES}
-          className="text-[13px] font-sans text-gold hover:text-gold-secondary transition-colors flex-shrink-0 whitespace-nowrap"
-        >
-          {C.trust.viewAgreement}
-        </Link>
+        <div style={{ borderLeft: '1px solid rgba(255,255,255,0.06)', paddingLeft: 20 }}>
+          <p className="text-[11px] font-sans uppercase tracking-[0.08em] text-[#8A8070] mb-1.5">Total Received</p>
+          <p className="font-dm-serif text-[22px] text-gold leading-none">{formatINR(totalDistributed)}</p>
+          {totalReinvested > 0 && (
+            <p className="text-[11px] font-sans text-[#7F7566] mt-1">+ {formatINR(totalReinvested)} reinvested</p>
+          )}
+        </div>
+        <div style={{ borderLeft: '1px solid rgba(255,255,255,0.06)', paddingLeft: 20 }}>
+          <p className="text-[11px] font-sans uppercase tracking-[0.08em] text-[#8A8070] mb-1.5">Effective Return</p>
+          <p className="font-dm-serif text-[22px] text-[#22C55E] leading-none">{returnPct.toFixed(1)}%</p>
+          <p className="text-[11px] font-sans text-[#7F7566] mt-1">on initial capital</p>
+        </div>
       </div>
     </div>
   )

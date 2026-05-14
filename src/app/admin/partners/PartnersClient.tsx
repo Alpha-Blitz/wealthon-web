@@ -14,6 +14,7 @@ import { Modal } from '@/components/admin/Modal'
 import { ConfirmModal } from '@/components/admin/ConfirmModal'
 import { DataTable, type Column } from '@/components/admin/DataTable'
 import { FormField, inputStyle, selectStyle, textareaStyle } from '@/components/admin/FormField'
+import { PartnerOnboardingModal } from '@/components/admin/PartnerOnboardingModal'
 import { StatusPill } from '@/components/shared/StatusPill'
 import type { Partner } from '@/types/database'
 
@@ -296,29 +297,12 @@ export function PartnersClient({ initialPartners }: Props) {
         onRowClick={p => router.push(ROUTES.ADMIN.PARTNER_DETAIL(p.id))}
       />
 
-      {/* Add Partner — centered modal */}
-      <Modal
+      {/* Add Partner — 4-step onboarding modal */}
+      <PartnerOnboardingModal
         isOpen={addModalOpen}
         onClose={() => setAddModal(false)}
-        title={C.form.title}
-        size="md"
-        footer={
-          <>
-            <button onClick={() => setAddModal(false)}
-              className="px-7 py-3 rounded-[4px] text-[13px] font-sans cursor-pointer border-none transition-colors"
-              style={{ background: 'transparent', border: '1px solid rgba(245,166,35,0.3)', color: '#F5A623' }}>
-              Cancel
-            </button>
-            <button onClick={handleSave} disabled={saving}
-              className="px-7 py-3 rounded-[4px] text-[14px] font-sans cursor-pointer border-none disabled:opacity-60"
-              style={{ background: '#F5A623', color: '#080808' }}>
-              {saving ? C.form.saving : C.form.save}
-            </button>
-          </>
-        }
-      >
-        <PartnerFormFields form={form} setForm={setForm} error={error} />
-      </Modal>
+        onCreated={(result) => setPartners(ps => [result.partner, ...ps])}
+      />
 
       {/* Edit Partner — centered modal */}
       <Modal
