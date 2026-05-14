@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { getDistributionRun, markPartnerPaid, confirmDistributionRun } from '@/lib/admin/distributions'
+import { getDistributionRunLegacy, markPartnerPaid, confirmDistributionRun } from '@/lib/admin/distributions'
 import { PARTNER_PROFIT_SHARE, getCurrentQuarter } from '@/config/constants'
 import { StepIndicator } from '@/components/admin/StepIndicator'
 import { StatusPill } from '@/components/shared/StatusPill'
@@ -30,7 +30,7 @@ export function DistributionsClient() {
   async function loadRun() {
     setLoading(true); setError(null)
     const supabase = createClient()
-    const res = await getDistributionRun(supabase, quarter, year)
+    const res = await getDistributionRunLegacy(supabase, quarter, year)
     if (res.error) { setError(res.error); setLoading(false); return }
     setReports((res.data ?? []) as ReportWithPartner[])
     setLoading(false)
